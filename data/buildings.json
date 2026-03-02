@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Engineering Block A",
+    "type": "building",
+    "department": "Engineering",
+    "lat": 6.8045,
+    "lng": -1.0265,
+    "description": "Main engineering building with lecture halls and labs",
+    "floors": 5,
+    "facilities": ["Cafeteria", "Library", "Computer Lab", "Workshop"]
+  },
+  {
+    "id": 2,
+    "name": "Science Complex",
+    "type": "building",
+    "department": "Science",
+    "lat": 6.8050,
+    "lng": -1.0270,
+    "description": "Science building with research labs and lecture theaters",
+    "floors": 4,
+    "facilities": ["Chemistry Lab", "Physics Lab", "Biology Lab", "Lecture Theater"]
+  },
+  {
+    "id": 3,
+    "name": "Business School",
+    "type": "building",
+    "department": "Business",
+    "lat": 6.8040,
+    "lng": -1.0260,
+    "description": "Business and management studies building",
+    "floors": 3,
+    "facilities": ["Seminar Rooms", "Case Study Lab", "Library"]
+  },
+  {
+    "id": 4,
+    "name": "Lecture Hall 101",
+    "type": "lecture_hall",
+    "building": "Engineering Block A",
+    "capacity": 150,
+    "lat": 6.8045,
+    "lng": -1.0265,
+    "description": "Large lecture hall with AV facilities",
+    "equipment": ["Projector", "Microphone", "Whiteboard"]
+  },
+  {
+    "id": 5,
+    "name": "Lecture Hall 102",
+    "type": "lecture_hall",
+    "building": "Engineering Block A",
+    "capacity": 100,
+    "lat": 6.8046,
+    "lng": -1.0264,
+    "description": "Medium lecture hall",
+    "equipment": ["Projector", "Whiteboard"]
+  },
+  {
+    "id": 6,
+    "name": "Science Lecture Theater",
+    "type": "lecture_hall",
+    "building": "Science Complex",
+    "capacity": 200,
+    "lat": 6.8050,
+    "lng": -1.0270,
+    "description": "Large lecture theater with advanced AV",
+    "equipment": ["Projector", "Microphone", "Whiteboard", "Document Camera"]
+  },
+  {
+    "id": 7,
+    "name": "North Hostel",
+    "type": "hostel",
+    "capacity": 200,
+    "lat": 6.8055,
+    "lng": -1.0275,
+    "description": "Student accommodation with modern facilities",
+    "facilities": ["Dining Hall", "Laundry", "Recreation Room", "WiFi"]
+  },
+  {
+    "id": 8,
+    "name": "South Hostel",
+    "type": "hostel",
+    "capacity": 180,
+    "lat": 6.8035,
+    "lng": -1.0255,
+    "description": "Student accommodation near campus center",
+    "facilities": ["Dining Hall", "Laundry", "Study Room", "WiFi"]
+  },
+  {
+    "id": 9,
+    "name": "Engineering Department",
+    "type": "department",
+    "building": "Engineering Block A",
+    "lat": 6.8045,
+    "lng": -1.0265,
+    "description": "Department of Engineering",
+    "contact": "eng@campus.edu",
+    "office_hours": "9 AM - 5 PM"
+  },
+  {
+    "id": 10,
+    "name": "Science Department",
+    "type": "department",
+    "building": "Science Complex",
+    "lat": 6.8050,
+    "lng": -1.0270,
+    "description": "Department of Science",
+    "contact": "science@campus.edu",
+    "office_hours": "9 AM - 5 PM"
+  }
+]

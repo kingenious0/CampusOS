@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Map - CampusOS</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-map-location-dot"></i>
+                <h1>CampusOS</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="map.html" class="nav-link active">Campus Map</a>
+                <a href="index.html#features" class="nav-link">Features</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="map-container">
+        <aside class="sidebar">
+            <div class="search-section">
+                <h3>Search Campus</h3>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search buildings, halls...">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+
+            <div class="filters-section">
+                <h3>Filter by Type</h3>
+                <div class="filter-group">
+                    <label><input type="checkbox" class="filter-checkbox" value="building" checked> Buildings</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="lecture_hall" checked> Lecture Halls</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="hostel" checked> Hostels</label>
+                    <label><input type="checkbox" class="filter-checkbox" value="department" checked> Departments</label>
+                </div>
+            </div>
+
+            <div class="info-panel" id="infoPanel">
+                <h3>Select a location</h3>
+                <p>Click on a marker to view details</p>
+            </div>
+        </aside>
+
+        <div id="map" class="map"></div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 CampusOS. Smart Campus Infrastructure Mapper.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="modules/map.js"></script>
+    <script src="modules/search.js"></script>
+    <script src="modules/route.js"></script>
+    <script src="modules/building.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
