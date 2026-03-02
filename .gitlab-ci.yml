@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp -r * public/
+    - rm -f public/.gitlab-ci.yml
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
