@@ -5,7 +5,7 @@ pages:
   stage: deploy
   script:
     - mkdir -p public
-    - cp -r * public/
+    - find . -maxdepth 1 -not -name public -not -name .git -not -name .gitignore -exec cp -r {} public/ \;
     - rm -f public/.gitlab-ci.yml
   artifacts:
     paths:
