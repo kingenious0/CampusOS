@@ -23,7 +23,7 @@ sync_to_github:
     - echo "$GITHUB_SSH_KEY" | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-    - git clone --mirror https://gitlab.com/kingenious-creative-dev/CampusOS.git
+    - git clone --mirror git@gitlab.com:kingenious-creative-dev/CampusOS.git
     - cd CampusOS.git
     - git push --mirror git@github.com:kingenious0/CampusOS.git
   only:
