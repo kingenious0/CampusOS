@@ -18,7 +18,7 @@ sync_to_github:
   stage: sync
   image: alpine:latest
   script:
-    - apk add --no-cache openssh-client
+    - apk add --no-cache openssh-client git
     - mkdir -p ~/.ssh
     - echo "$GITHUB_SSH_KEY" | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
