@@ -1,25 +1,47 @@
 /**
- * Map Module - Handles Leaflet map initialization and marker management
+ * Map Module - Leaflet + OpenStreetMap for AAMUSTED Kumasi Campus
  */
-
 const MapModule = (() => {
     let map;
     let markers = {};
     let buildingsData = [];
+    let userMarker = null;
+    let userLocation = null;
+
+    // AAMUSTED campus centre — Google Maps verified
+    const CAMPUS_CENTER = [6.697332044485389, -1.6815135625745574];
+    const DEFAULT_ZOOM = 17;
+
+    const typeConfig = {
+        faculty:        { color: '#4f46e5', icon: 'fa-university',    label: 'Faculty' },
+        lecture_hall:   { color: '#f59e0b', icon: 'fa-chalkboard',    label: 'Lecture Hall / Lab' },
+        hostel:         { color: '#10b981', icon: 'fa-bed',           label: 'Hostel' },
+        administration: { color: '#ef4444', icon: 'fa-building',      label: 'Administration' },
+        facility:       { color: '#8b5cf6', icon: 'fa-circle-info',   label: 'Facility' }
+    };
 
     const init = async () => {
-        // Initialize map centered on campus
-        map = L.map('map').setView([6.8045, -1.0265], 16);
+        map = L.map('map', { zoomControl: true }).setView(CAMPUS_CENTER, DEFAULT_ZOOM);
 
-        // Add tile layer
+        // OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | CampusOS – AAMUSTED Kumasi',
+            maxZoom: 20
         }).addTo(map);
 
-        // Load buildings data
         await loadBuildingsData();
         addMarkers();
+        requestUserLocation();
+
+        // Campus boundary ring — 800m covers all campus buildings
+        L.circle(CAMPUS_CENTER, {
+            radius: 800,
+            color: '#4f46e5',
+            fillColor: '#4f46e5',
+            fillOpacity: 0.04,
+            weight: 2,
+            dashArray: '6 4'
+        }).addTo(map).bindTooltip('AAMUSTED Kumasi Campus', { permanent: false });
     };
 
     const loadBuildingsData = async () => {
@@ -28,69 +50,103 @@ const MapModule = (() => {
             buildingsData = await response.json();
         } catch (error) {
             console.error('Error loading buildings data:', error);
+            showMapError('Could not load campus data. Please refresh.');
         }
     };
 
     const addMarkers = () => {
-        buildingsData.forEach(building => {
-            addMarker(building);
-        });
+        buildingsData.forEach(b => addMarker(b));
     };
 
     const addMarker = (building) => {
-        const icon = getMarkerIcon(building.type);
+        const cfg = typeConfig[building.type] || typeConfig.facility;
+        const icon = L.divIcon({
+            html: `
+                <div class="campus-marker" style="background:${cfg.color}">
+                    <i class="fas ${cfg.icon}"></i>
+                </div>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor: [0, -20],
+            className: ''
+        });
+
         const marker = L.marker([building.lat, building.lng], { icon })
             .addTo(map)
-            .bindPopup(`<strong>${building.name}</strong><br>${building.type}`);
+            .bindPopup(`
+                <div class="map-popup">
+                    <strong>${building.name}</strong>
+                    <span class="popup-type" style="color:${cfg.color}">${cfg.label}</span>
+                </div>
+            `, { maxWidth: 220 });
 
         marker.on('click', () => {
             BuildingModule.displayInfo(building);
+            // highlight active marker
+            document.querySelectorAll('.campus-marker').forEach(el => el.classList.remove('active'));
+            marker.getElement()?.querySelector('.campus-marker')?.classList.add('active');
         });
 
         markers[building.id] = marker;
     };
 
-    const getMarkerIcon = (type) => {
-        const colors = {
-            building: '#2563eb',
-            lecture_hall: '#f59e0b',
-            hostel: '#10b981',
-            department: '#8b5cf6'
-        };
+    const requestUserLocation = () => {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.watchPosition(
+            (pos) => {
+                const { latitude: lat, longitude: lng } = pos.coords;
+                userLocation = { lat, lng };
 
-        return L.divIcon({
-            html: `<div style="background-color: ${colors[type] || '#2563eb'}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"><i class="fas fa-map-pin" style="font-size: 14px;"></i></div>`,
-            iconSize: [30, 30],
-            className: 'custom-marker'
-        });
+                if (userMarker) {
+                    userMarker.setLatLng([lat, lng]);
+                } else {
+                    userMarker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            html: `<div class="user-marker"><i class="fas fa-person-walking"></i></div>`,
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18],
+                            className: ''
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map).bindTooltip('You are here', { permanent: false });
+                }
+            },
+            (err) => {
+                console.warn('Geolocation unavailable:', err.message);
+                // use campus center as fallback
+                userLocation = { lat: CAMPUS_CENTER[0], lng: CAMPUS_CENTER[1] };
+            },
+            { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+        );
     };
 
     const filterMarkers = (filters) => {
-        Object.values(markers).forEach(marker => {
-            map.removeLayer(marker);
-        });
-        markers = {};
-
         buildingsData.forEach(building => {
+            const marker = markers[building.id];
+            if (!marker) return;
             if (filters.includes(building.type)) {
-                addMarker(building);
+                if (!map.hasLayer(marker)) marker.addTo(map);
+            } else {
+                if (map.hasLayer(marker)) map.removeLayer(marker);
             }
         });
     };
 
     const centerOnBuilding = (building) => {
-        map.setView([building.lat, building.lng], 17);
-        if (markers[building.id]) {
-            markers[building.id].openPopup();
-        }
+        map.flyTo([building.lat, building.lng], 19, { duration: 1 });
+        setTimeout(() => {
+            if (markers[building.id]) markers[building.id].openPopup();
+        }, 1100);
     };
 
+    const showMapError = (msg) => {
+        const el = document.getElementById('mapError');
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    };
+
+    const getMap = () => map;
     const getBuildingsData = () => buildingsData;
+    const getUserLocation = () => userLocation || { lat: CAMPUS_CENTER[0], lng: CAMPUS_CENTER[1] };
 
-    return {
-        init,
-        filterMarkers,
-        centerOnBuilding,
-        getBuildingsData
-    };
+    return { init, filterMarkers, centerOnBuilding, getBuildingsData, getMap, getUserLocation };
 })();

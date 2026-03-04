@@ -1,62 +1,80 @@
 /**
- * Building Module - Handles building information display
+ * Building Module - Displays building info in the sidebar panel
  */
-
 const BuildingModule = (() => {
-    const infoPanel = document.getElementById('infoPanel');
+
+    const typeLabels = {
+        faculty:        { label: 'Faculty',               color: '#4f46e5', icon: 'fa-university' },
+        lecture_hall:   { label: 'Lecture Hall / Lab',    color: '#f59e0b', icon: 'fa-chalkboard' },
+        hostel:         { label: 'Student Hostel',        color: '#10b981', icon: 'fa-bed' },
+        administration: { label: 'Administration',        color: '#ef4444', icon: 'fa-building' },
+        facility:       { label: 'Campus Facility',       color: '#8b5cf6', icon: 'fa-circle-info' }
+    };
 
     const displayInfo = (building) => {
-        let html = `<h3>${building.name}</h3>`;
-        html += `<p style="color: var(--text-light); margin-bottom: 1rem;">${building.type.replace('_', ' ').toUpperCase()}</p>`;
+        const panel = document.getElementById('infoPanel');
+        const cfg = typeLabels[building.type] || { label: building.type, color: '#6b7280', icon: 'fa-map-pin' };
 
-        html += '<div class="building-info">';
+        let html = `
+            <div class="building-header">
+                <div class="bh-icon" style="background:${cfg.color}20; color:${cfg.color}">
+                    <i class="fas ${cfg.icon}"></i>
+                </div>
+                <div>
+                    <h3>${building.name}</h3>
+                    <span class="type-badge" style="background:${cfg.color}20; color:${cfg.color}">${cfg.label}</span>
+                </div>
+            </div>
+        `;
 
         if (building.description) {
-            html += `<div class="info-item"><strong>Description:</strong></div><p style="color: var(--text-light); margin-bottom: 1rem;">${building.description}</p>`;
+            html += `<p class="building-desc">${building.description}</p>`;
         }
 
-        if (building.department) {
-            html += `<div class="info-item"><strong>Department:</strong><span>${building.department}</span></div>`;
-        }
-
-        if (building.building) {
-            html += `<div class="info-item"><strong>Building:</strong><span>${building.building}</span></div>`;
-        }
+        html += `<div class="info-list">`;
 
         if (building.capacity) {
-            html += `<div class="info-item"><strong>Capacity:</strong><span>${building.capacity} people</span></div>`;
+            html += infoRow('fa-users', 'Capacity', `${building.capacity.toLocaleString()} people`);
         }
-
         if (building.floors) {
-            html += `<div class="info-item"><strong>Floors:</strong><span>${building.floors}</span></div>`;
+            html += infoRow('fa-layer-group', 'Floors', `${building.floors} floor${building.floors > 1 ? 's' : ''}`);
         }
-
-        if (building.equipment) {
-            html += `<div class="info-item"><strong>Equipment:</strong><span>${building.equipment.join(', ')}</span></div>`;
+        if (building.department) {
+            html += infoRow('fa-sitemap', 'Department', building.department);
         }
-
-        if (building.facilities) {
-            html += `<div class="info-item"><strong>Facilities:</strong><span>${building.facilities.join(', ')}</span></div>`;
+        if (building.facilities?.length) {
+            html += infoRow('fa-list-check', 'Facilities', building.facilities.join(' &bull; '));
         }
-
+        if (building.equipment?.length) {
+            html += infoRow('fa-plug', 'Equipment', building.equipment.join(' &bull; '));
+        }
         if (building.contact) {
-            html += `<div class="info-item"><strong>Contact:</strong><span>${building.contact}</span></div>`;
+            html += infoRow('fa-envelope', 'Contact', `<a href="mailto:${building.contact}">${building.contact}</a>`);
         }
-
         if (building.office_hours) {
-            html += `<div class="info-item"><strong>Hours:</strong><span>${building.office_hours}</span></div>`;
+            html += infoRow('fa-clock', 'Hours', building.office_hours);
         }
 
-        html += '</div>';
+        html += `</div>`;
 
-        if (building.lat && building.lng) {
-            html += `<button class="route-btn" onclick="RouteModule.calculateRoute(${building.lat}, ${building.lng}, '${building.name}')">Get Directions</button>`;
-        }
+        html += `
+            <button class="route-btn" onclick="RouteModule.calculateRoute(${building.lat}, ${building.lng}, '${building.name.replace(/'/g, "\\'")}')">
+                <i class="fas fa-diamond-turn-right"></i> Get Directions
+            </button>
+        `;
 
-        infoPanel.innerHTML = html;
+        panel.innerHTML = html;
     };
 
-    return {
-        displayInfo
-    };
+    const infoRow = (icon, label, value) => `
+        <div class="info-row">
+            <span class="info-icon"><i class="fas ${icon}"></i></span>
+            <div class="info-content">
+                <span class="info-label">${label}</span>
+                <span class="info-value">${value}</span>
+            </div>
+        </div>
+    `;
+
+    return { displayInfo };
 })();

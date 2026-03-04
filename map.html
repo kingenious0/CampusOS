@@ -2,63 +2,1747 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Map - CampusOS</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CampusOS – AAMUSTED Kumasi</title>
+    <meta name="description" content="Find buildings, get directions and navigate AAMUSTED Kumasi campus.">
+    <meta name="theme-color" content="#4338ca">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
+    <style>
+        /* ── RESET & BASE ─────────────────────── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary:   #4338ca;
+            --primary-l: #6366f1;
+            --surface:   #ffffff;
+            --bg:        #f1f5f9;
+            --text:      #0f172a;
+            --muted:     #64748b;
+            --border:    #e2e8f0;
+            --green:     #10b981;
+            --amber:     #f59e0b;
+            --red:       #ef4444;
+            --purple:    #8b5cf6;
+            --sky:       #0ea5e9;
+            --radius:    16px;
+            --radius-sm: 10px;
+            --shadow:    0 4px 24px rgba(0,0,0,.12);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        html, body {
+            height: 100%; width: 100%;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: #1e293b;
+        }
+
+        /* ── MAP ──────────────────────────────── */
+        #map {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* ── TOP BAR ──────────────────────────── */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 12px 12px 0;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .logo-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+        .logo-pill i { font-size: 14px; }
+
+        /* Search bar */
+        .search-bar {
+            flex: 1;
+            position: relative;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px 44px 12px 44px;
+            border: none;
+            border-radius: 50px;
+            background: var(--surface);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .search-bar input::placeholder { color: var(--muted); }
+        .search-icon {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .search-clear {
+            position: absolute;
+            right: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        /* Search results dropdown */
+        .search-results {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0; right: 0;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+            z-index: 999;
+        }
+        .search-results.open { display: block; }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+        }
+        .result-item:last-child { border-bottom: none; }
+        .result-item:hover, .result-item:active { background: #f8faff; }
+
+        .result-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .result-name {
+            flex: 1;
+            min-width: 0;
+        }
+        .result-name strong {
+            display: block;
+            font-size: 13.5px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .result-name span {
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .result-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            flex-shrink: 0;
+        }
+
+        .no-result {
+            padding: 20px 16px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* ── FLOATING ACTION BUTTONS ──────────── */
+        .fabs {
+            position: fixed;
+            bottom: 220px;
+            right: 12px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fab {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .fab:active { transform: scale(.92); }
+        .fab-locate { background: var(--surface); color: var(--primary); }
+        .fab-layers { background: var(--surface); color: var(--muted); }
+
+        /* ── BOTTOM SHEET ─────────────────────── */
+        .sheet {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 1001;
+            background: var(--surface);
+            border-radius: var(--radius) var(--radius) 0 0;
+            box-shadow: 0 -4px 32px rgba(0,0,0,.15);
+            transform: translateY(100%);
+            transition: transform .35s cubic-bezier(.4,0,.2,1);
+            /* Peek at 44vh so map stays visible above sheet */
+            max-height: 44vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .sheet.open { transform: translateY(0); }
+        /* Expanded state — user pulls up for full directions */
+        .sheet.expanded { max-height: 78vh; }
+        /* Handle tap to expand */
+        .sheet-handle { cursor: pointer; }
+
+        .sheet-handle {
+            width: 36px; height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 10px auto 6px;
+            flex-shrink: 0;
+        }
+
+        .sheet-content {
+            overflow-y: auto;
+            flex: 1;
+            padding: 0 16px 24px;
+        }
+
+        /* Building info inside sheet */
+        .place-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 0 12px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 1;
+        }
+        .place-icon {
+            width: 46px; height: 46px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .place-header h2 { font-size: 15px; font-weight: 700; line-height: 1.3; }
+        .place-header .type { font-size: 11px; font-weight: 600; margin-top: 3px; display: block; }
+
+        .close-sheet {
+            position: absolute;
+            top: 10px; right: 0;
+            background: var(--bg);
+            border: none;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .place-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .meta-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 4px 0;
+        }
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .meta-row:last-child { border-bottom: none; }
+        .meta-row i { color: var(--primary); width: 16px; text-align: center; font-size: 13px; }
+        .meta-row span { color: var(--text); }
+        .meta-row a { color: var(--primary); text-decoration: none; }
+
+        /* Action buttons in sheet */
+        .sheet-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 12px 0 4px;
+        }
+        .action-btn {
+            padding: 13px 10px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity .2s, transform .15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-btn:active { opacity: .8; transform: scale(.97); }
+        .btn-dir { background: var(--primary); color: #fff; }
+        .btn-share { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+
+        /* Route info inside sheet */
+        .route-info { padding: 12px 0; }
+        .route-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .route-title i { color: var(--primary); }
+        .route-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .route-card {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .route-card .val { font-size: 20px; font-weight: 800; color: var(--primary); display: block; }
+        .route-card .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; display: block; }
+
+        .steps-list {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text);
+        }
+        .step-item:last-child { border-bottom: none; }
+        .step-item i { color: var(--primary); margin-top: 2px; font-size: 12px; width: 14px; flex-shrink: 0; }
+
+        .clear-route-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+
+        /* Loading spinner */
+        .loading-state {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .spin {
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── LIVE NAVIGATION HUD ──────────────── */
+        .nav-hud {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 2500;
+            transform: translateY(-100%);
+            transition: transform .4s cubic-bezier(.4,0,.2,1);
+            pointer-events: none;
+        }
+        .nav-hud.active {
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .nav-hud-inner {
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px 14px;
+            box-shadow: 0 4px 24px rgba(67,56,202,.45);
+        }
+        .nav-turn-icon {
+            width: 52px; height: 52px;
+            background: rgba(255,255,255,.18);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .nav-turn-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .nav-turn-text .nav-instruction {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .nav-turn-text .nav-sub {
+            font-size: 11.5px;
+            opacity: .8;
+            margin-top: 2px;
+        }
+        .nav-dist-badge {
+            background: rgba(255,255,255,.2);
+            border-radius: 12px;
+            padding: 8px 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .nav-dist-badge .dval { font-size: 17px; font-weight: 800; display: block; line-height: 1; }
+        .nav-dist-badge .dlbl { font-size: 10px; opacity: .75; }
+        .nav-stop-btn {
+            background: rgba(255,255,255,.2);
+            border: none;
+            color: #fff;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-stop-btn:active { background: rgba(255,255,255,.35); }
+
+        /* ── PROGRESS BAR UNDER HUD ──────────── */
+        .nav-progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,.25);
+        }
+        .nav-progress-fill {
+            height: 100%;
+            background: #fff;
+            transition: width .6s ease;
+            width: 0%;
+        }
+
+        /* ── STEP PANEL IN SHEET ─────────────── */
+        .step-item.active-step {
+            background: #eef2ff;
+            border-left: 3px solid var(--primary);
+        }
+        .step-item.active-step i { color: var(--primary); }
+
+        /* ── START NAVIGATION BUTTON ─────────── */
+        .btn-nav {
+            background: var(--green);
+            color: #fff;
+            grid-column: 1 / -1;
+        }
+        .btn-nav-live {
+            background: linear-gradient(135deg, var(--primary), var(--primary-l));
+            color: #fff;
+            animation: pulse-nav 2s ease-in-out infinite;
+        }
+        @keyframes pulse-nav {
+            0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.4); }
+            50% { box-shadow: 0 0 0 8px rgba(99,102,241,0); }
+        }
+
+        /* User bearing arrow */
+        .user-pin-wrap {
+            position: relative;
+            width: 34px; height: 34px;
+        }
+        .user-dot {
+            position: absolute;
+            inset: 7px;
+            background: var(--sky);
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 6px rgba(14,165,233,.25);
+            animation: gps-pulse 2s ease-in-out infinite;
+        }
+        .user-arrow {
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid var(--sky);
+            display: none;
+        }
+        .user-pin-wrap.has-bearing .user-arrow { display: block; }
+
+        /* ── CUSTOM MARKERS ───────────────────── */
+        .pin {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            border: 3px solid #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,.22);
+            cursor: pointer;
+            transition: transform .2s;
+        }
+        .pin:hover { transform: scale(1.15); }
+        .pin.selected { transform: scale(1.2); box-shadow: 0 4px 18px rgba(0,0,0,.3); }
+
+        .user-pin {
+            width: 18px; height: 18px;
+            background: var(--sky);
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 6px rgba(14,165,233,.25);
+            animation: gps-pulse 2s ease-in-out infinite;
+        }
+        @keyframes gps-pulse {
+            0%,100% { box-shadow: 0 0 0 4px rgba(14,165,233,.25); }
+            50%      { box-shadow: 0 0 0 10px rgba(14,165,233,.06); }
+        }
+
+        /* Re-route banner */
+        .reroute-bar {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--amber);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 12.5px;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+            opacity: 0;
+            transition: opacity .3s, transform .3s;
+            z-index: 2000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .reroute-bar.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dest-pin {
+            width: 36px; height: 36px;
+            background: var(--primary);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            border: 3px solid #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,.25);
+        }
+
+        /* Leaflet popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px !important;
+            padding: 0 !important;
+            box-shadow: var(--shadow) !important;
+        }
+        .leaflet-popup-content { margin: 0 !important; }
+        .map-popup { padding: 10px 14px; }
+        .map-popup strong { display: block; font-size: 13px; font-weight: 700; color: var(--text); }
+        .map-popup span { font-size: 11px; color: var(--muted); }
+        .leaflet-control-zoom { border: none !important; }
+        .leaflet-control-zoom a {
+            border-radius: 8px !important;
+            border: none !important;
+            box-shadow: var(--shadow-sm) !important;
+            color: var(--primary) !important;
+            font-weight: 700 !important;
+            margin-bottom: 4px !important;
+        }
+
+        /* ── OFFLINE BANNER ───────────────────── */
+        .offline-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #f59e0b;
+            color: #fff;
+            text-align: center;
+            padding: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            display: none;
+        }
+        body.offline .offline-banner { display: block; }
+
+        /* ── TOAST ────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 200px;
+            left: 50%; transform: translateX(-50%);
+            background: rgba(15,23,42,.9);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 12.5px;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ── FILTER CHIPS ─────────────────────── */
+        .filter-chips {
+            position: fixed;
+            top: 80px;
+            left: 0; right: 0;
+            z-index: 999;
+            padding: 0 12px;
+            display: flex;
+            gap: 7px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .filter-chips::-webkit-scrollbar { display: none; }
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            transition: all .2s;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+        .chip.active { color: #fff; border-color: transparent; }
+        .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* ── TRAVEL MODE TOGGLE ────────────── */
+        .mode-toggle {
+            display: flex;
+            gap: 6px;
+            padding: 10px 0 4px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 9px 6px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--muted);
+            transition: all .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .mode-btn.active-car { background: #f59e0b; border-color: #f59e0b; color:#fff; }
+
+        /* ── STOP NAVIGATION BUTTON ──────────── */
+        .stop-nav-pill {
+            position: fixed;
+            /* Sits just below the nav HUD (86px tall) + small gap */
+            top: 96px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            z-index: 2600;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 11px 28px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(239,68,68,.45);
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s, transform .3s;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .stop-nav-pill.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+        .stop-nav-pill:active { filter: brightness(.88); }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <i class="fas fa-map-location-dot"></i>
-                <h1>CampusOS</h1>
+
+    <!-- Offline Banner -->
+    <div class="offline-banner"><i class="fas fa-wifi-slash"></i> You're offline — cached map available</div>
+
+    <!-- LIVE NAV HUD -->
+    <div class="nav-hud" id="navHud">
+        <div class="nav-hud-inner">
+            <div class="nav-turn-icon" id="navTurnIcon"><i class="fas fa-arrow-up" id="navTurnIco"></i></div>
+            <div class="nav-turn-text">
+                <div class="nav-instruction" id="navInstruction">Head towards destination</div>
+                <div class="nav-sub" id="navSub">Follow the blue route</div>
             </div>
-            <nav class="nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="map.html" class="nav-link active">Campus Map</a>
-                <a href="index.html#features" class="nav-link">Features</a>
-            </nav>
+            <div class="nav-dist-badge">
+                <span class="dval" id="navDistVal">–</span>
+                <span class="dlbl" id="navDistLbl">away</span>
+            </div>
+            <button class="nav-stop-btn" id="navStopBtn" title="Stop navigation">
+                <i class="fas fa-xmark"></i> Stop
+            </button>
         </div>
-    </header>
+        <div class="nav-progress-bar"><div class="nav-progress-fill" id="navProgressFill"></div></div>
+    </div>
 
-    <main class="map-container">
-        <aside class="sidebar">
-            <div class="search-section">
-                <h3>Search Campus</h3>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search buildings, halls...">
-                <div id="searchResults" class="search-results"></div>
+    <!-- Re-route indicator -->
+    <div class="reroute-bar" id="rerouteBar"><i class="fas fa-rotate"></i> Re-routing…</div>
+
+    <!-- STOP NAVIGATION PILL -->
+    <button class="stop-nav-pill" id="stopNavPill" onclick="stopNavigation()">
+        <i class="fas fa-stop-circle"></i> Stop Navigation
+    </button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="app-header">
+            <div class="logo-pill">
+                <i class="fas fa-map-location-dot"></i>
+                CampusOS
             </div>
-
-            <div class="filters-section">
-                <h3>Filter by Type</h3>
-                <div class="filter-group">
-                    <label><input type="checkbox" class="filter-checkbox" value="building" checked> Buildings</label>
-                    <label><input type="checkbox" class="filter-checkbox" value="lecture_hall" checked> Lecture Halls</label>
-                    <label><input type="checkbox" class="filter-checkbox" value="hostel" checked> Hostels</label>
-                    <label><input type="checkbox" class="filter-checkbox" value="department" checked> Departments</label>
-                </div>
+            <div class="search-bar">
+                <i class="fas fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search buildings, halls…" autocomplete="off" spellcheck="false">
+                <button class="search-clear" id="searchClear"><i class="fas fa-xmark"></i></button>
+                <div class="search-results" id="searchResults"></div>
             </div>
+        </div>
+    </div>
 
-            <div class="info-panel" id="infoPanel">
-                <h3>Select a location</h3>
-                <p>Click on a marker to view details</p>
-            </div>
-        </aside>
+    <!-- FILTER CHIPS -->
+    <div class="filter-chips" id="filterChips">
+        <div class="chip active" style="background:#4338ca; color:#fff" data-type="all">All</div>
+        <div class="chip" data-type="academic"><span class="chip-dot" style="background:#4338ca"></span>Academic</div>
+        <div class="chip" data-type="faculty"><span class="chip-dot" style="background:#f59e0b"></span>Faculty</div>
+        <div class="chip" data-type="hostel"><span class="chip-dot" style="background:#10b981"></span>Hostels</div>
+        <div class="chip" data-type="administration"><span class="chip-dot" style="background:#ef4444"></span>Admin</div>
+        <div class="chip" data-type="facility"><span class="chip-dot" style="background:#8b5cf6"></span>Facilities</div>
+    </div>
 
-        <div id="map" class="map"></div>
-    </main>
+    <!-- FLOATING BUTTONS -->
+    <div class="fabs">
+        <button class="fab fab-locate" id="btnLocate" title="Find my location">
+            <i class="fas fa-location-crosshairs"></i>
+        </button>
+        <button class="fab fab-layers" id="btnLayers" title="Change map style">
+            <i class="fas fa-layer-group"></i>
+        </button>
+    </div>
 
-    <footer class="footer">
-        <p>&copy; 2026 CampusOS. Smart Campus Infrastructure Mapper.</p>
-    </footer>
+    <!-- BOTTOM SHEET -->
+    <div class="sheet" id="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-content" id="sheetContent"></div>
+    </div>
 
+    <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="modules/map.js"></script>
-    <script src="modules/search.js"></script>
-    <script src="modules/route.js"></script>
-    <script src="modules/building.js"></script>
-    <script src="app.js"></script>
+
+    <script>
+    // ══════════════════════════════════════════
+    //  CONFIG
+    // ══════════════════════════════════════════
+    const CAMPUS = { lat: 6.697332044485389, lng: -1.6815135625745574, zoom: 17 };
+    const OSRM_BASE = 'https://router.project-osrm.org/route/v1';
+
+    const TYPE_CFG = {
+        academic:       { color: '#4338ca', icon: 'fa-book-open',       label: 'Academic Block' },
+        faculty:        { color: '#f59e0b', icon: 'fa-university',       label: 'Faculty' },
+        hostel:         { color: '#10b981', icon: 'fa-bed',              label: 'Hostel' },
+        administration: { color: '#ef4444', icon: 'fa-building-columns', label: 'Administration' },
+        facility:       { color: '#8b5cf6', icon: 'fa-circle-info',      label: 'Facility' }
+    };
+
+    // ══════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════
+    let map, markers = {}, buildingsData = [];
+    let userMarker = null, userLatLng = null;
+    let activeRoute = [], selectedId = null;
+    let currentFilter = 'all';
+    let tileLayers = {};
+    let travelMode = 'foot';   // 'foot' | 'driving'
+    // Stores the pending route so Start Navigation works after manual GPS set
+    const _route = { steps: [], destLat: 0, destLng: 0, destName: '' };
+
+    // ══════════════════════════════════════════
+    //  MAP INIT
+    // ══════════════════════════════════════════
+    function initMap() {
+        map = L.map('map', {
+            center:       [CAMPUS.lat, CAMPUS.lng],
+            zoom:         CAMPUS.zoom,
+            zoomControl:  false,
+            attributionControl: true
+        });
+
+        // Tile layers
+        // OSM — goes up to zoom 19 natively; set maxZoom:21 so Leaflet
+        // can over-zoom using the z=19 tiles (no blank tiles)
+        tileLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://osm.org">OpenStreetMap</a>',
+            maxZoom: 21,
+            maxNativeZoom: 19
+        });
+        // Esri satellite — native tiles only to zoom 19 for rural Ghana;
+        // maxNativeZoom:19 prevents the grey "Map data not yet available" tiles
+        tileLayers.satellite = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri World Imagery',
+            maxZoom: 21,
+            maxNativeZoom: 19
+        });
+        tileLayers.osm.addTo(map);
+
+        // Move zoom controls to bottom-left
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+        // Campus boundary ring — 800m radius covers all real campus buildings
+        L.circle([CAMPUS.lat, CAMPUS.lng], {
+            radius: 800,
+            color: '#4338ca',
+            fillColor: '#4338ca',
+            fillOpacity: 0.04,
+            weight: 2,
+            dashArray: '6 5',
+            interactive: false
+        }).addTo(map).bindTooltip('AAMUSTED Campus Boundary', { permanent: false, className: 'boundary-tip' });
+
+        map.on('click', e => {
+            if (settingManualLocation) {
+                setManualLocation(e.latlng.lat, e.latlng.lng);
+            } else {
+                closeSheet();
+            }
+        });
+    }
+
+    // ══════════════════════════════════════════
+    //  LOAD BUILDINGS
+    // ══════════════════════════════════════════
+    async function loadBuildings() {
+        try {
+            const r = await fetch('data/buildings.json');
+            buildingsData = await r.json();
+            buildingsData.forEach(addMarker);
+        } catch(e) {
+            showToast('Could not load campus data');
+        }
+    }
+
+    function addMarker(b) {
+        const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
+        const icon = L.divIcon({
+            html: `<div class="pin" style="background:${cfg.color}" data-id="${b.id}">
+                       <i class="fas ${cfg.icon}"></i>
+                   </div>`,
+            iconSize:   [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor:[0, -22],
+            className:  ''
+        });
+
+        const m = L.marker([b.lat, b.lng], { icon })
+            .addTo(map)
+            .bindPopup(`<div class="map-popup">
+                <strong>${b.name}</strong>
+                <span>${b.shortName || cfg.label}</span>
+            </div>`, { maxWidth: 200, autoPan: false });
+
+        m.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            showBuilding(b);
+        });
+
+        markers[b.id] = { marker: m, type: b.type };
+    }
+
+    // ══════════════════════════════════════════
+    //  FILTER
+    // ══════════════════════════════════════════
+    document.getElementById('filterChips').addEventListener('click', e => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const type = chip.dataset.type;
+        if (type === currentFilter) return;
+
+        // Update chip styles
+        document.querySelectorAll('.chip').forEach(c => {
+            c.classList.remove('active');
+            const dot = c.querySelector('.chip-dot');
+            c.style.background = '#fff';
+            c.style.color = '#0f172a';
+        });
+
+        currentFilter = type;
+        chip.classList.add('active');
+
+        if (type === 'all') {
+            chip.style.background = '#4338ca';
+            chip.style.color = '#fff';
+        } else {
+            const col = TYPE_CFG[type]?.color || '#4338ca';
+            chip.style.background = col;
+            chip.style.color = '#fff';
+        }
+
+        // Show/hide markers
+        Object.entries(markers).forEach(([id, { marker, type: mType }]) => {
+            if (currentFilter === 'all' || mType === currentFilter) {
+                if (!map.hasLayer(marker)) marker.addTo(map);
+            } else {
+                if (map.hasLayer(marker)) map.removeLayer(marker);
+            }
+        });
+    });
+
+    // ══════════════════════════════════════════
+    //  SEARCH
+    // ══════════════════════════════════════════
+    const searchInput   = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchClear   = document.getElementById('searchClear');
+    let debounce;
+
+    searchInput.addEventListener('input', e => {
+        const q = e.target.value.trim();
+        searchClear.style.display = q ? 'block' : 'none';
+        clearTimeout(debounce);
+        debounce = setTimeout(() => doSearch(q), 180);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim()) doSearch(searchInput.value.trim());
+    });
+
+    searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchClear.style.display = 'none';
+        searchResults.classList.remove('open');
+        searchResults.innerHTML = '';
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.search-bar')) {
+            searchResults.classList.remove('open');
+        }
+    });
+
+    function doSearch(q) {
+        if (q.length < 1) { searchResults.classList.remove('open'); return; }
+
+        const lq = q.toLowerCase();
+        const hits = buildingsData.filter(b =>
+            b.name.toLowerCase().includes(lq) ||
+            (b.shortName && b.shortName.toLowerCase().includes(lq)) ||
+            b.type.toLowerCase().includes(lq) ||
+            (b.description && b.description.toLowerCase().includes(lq))
+        );
+
+        renderResults(hits, q);
+    }
+
+    function renderResults(hits, q) {
+        searchResults.innerHTML = '';
+
+        if (!hits.length) {
+            searchResults.innerHTML = `<div class="no-result"><i class="fas fa-search" style="margin-right:6px"></i>No results for "<strong>${q}</strong>"</div>`;
+        } else {
+            hits.forEach(b => {
+                const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
+                const el = document.createElement('div');
+                el.className = 'result-item';
+                el.innerHTML = `
+                    <div class="result-dot" style="background:${cfg.color}"></div>
+                    <div class="result-name">
+                        <strong>${highlight(b.name, q)}</strong>
+                        <span>${b.shortName ? b.shortName + ' · ' : ''}${cfg.label}</span>
+                    </div>
+                    <span class="result-badge" style="background:${cfg.color}20;color:${cfg.color}">${b.shortName || cfg.label}</span>
+                `;
+                el.addEventListener('click', () => {
+                    searchResults.classList.remove('open');
+                    searchInput.value = b.name;
+                    map.flyTo([b.lat, b.lng], 19, { duration: .8 });
+                    setTimeout(() => showBuilding(b), 900);
+                });
+                searchResults.appendChild(el);
+            });
+        }
+
+        searchResults.classList.add('open');
+    }
+
+    function highlight(text, q) {
+        const i = text.toLowerCase().indexOf(q.toLowerCase());
+        if (i < 0) return text;
+        return text.slice(0,i) + `<mark style="background:#fef08a;border-radius:2px">${text.slice(i,i+q.length)}</mark>` + text.slice(i+q.length);
+    }
+
+    // ══════════════════════════════════════════
+    //  BOTTOM SHEET
+    // ══════════════════════════════════════════
+    const sheet        = document.getElementById('sheet');
+    const sheetContent = document.getElementById('sheetContent');
+
+    function openSheet(html) {
+        sheetContent.innerHTML = html;
+        sheet.classList.add('open');
+    }
+
+    function closeSheet() {
+        sheet.classList.remove('open');
+        // Deselect marker
+        document.querySelectorAll('.pin.selected').forEach(el => el.classList.remove('selected'));
+        selectedId = null;
+    }
+
+    // Tap handle to expand/collapse; swipe down to close
+    let touchStartY = 0;
+    document.querySelector('.sheet-handle').addEventListener('click', () => {
+        sheet.classList.toggle('expanded');
+    });
+    sheet.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    sheet.addEventListener('touchend', e => {
+        const delta = e.changedTouches[0].clientY - touchStartY;
+        if (delta > 60) {
+            if (sheet.classList.contains('expanded')) {
+                sheet.classList.remove('expanded'); // collapse first
+            } else {
+                closeSheet();
+            }
+        } else if (delta < -40) {
+            sheet.classList.add('expanded'); // swipe up = expand
+        }
+    }, { passive: true });
+
+    // ══════════════════════════════════════════
+    //  SHOW BUILDING INFO
+    // ══════════════════════════════════════════
+    function showBuilding(b) {
+        selectedId = b.id;
+        const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
+        // Store destination for later use
+        _route.destLat = b.lat; _route.destLng = b.lng; _route.destName = b.name;
+
+        // Highlight marker
+        document.querySelectorAll('.pin.selected').forEach(el => el.classList.remove('selected'));
+        markers[b.id]?.marker.getElement()?.querySelector('.pin')?.classList.add('selected');
+
+        let meta = '';
+        if (b.hours)   meta += metaRow('fa-clock', b.hours);
+        if (b.contact) meta += metaRow('fa-envelope', `<a href="mailto:${b.contact}">${b.contact}</a>`);
+
+        openSheet(`
+            <div class="place-header" style="position:relative">
+                <div class="place-icon" style="background:${cfg.color}18;color:${cfg.color}">
+                    <i class="fas ${cfg.icon}"></i>
+                </div>
+                <div style="flex:1">
+                    <h2>${b.name}</h2>
+                    <span class="type" style="color:${cfg.color}">${cfg.label}${b.shortName ? ' · ' + b.shortName : ''}</span>
+                </div>
+                <button class="close-sheet" onclick="closeSheet()"><i class="fas fa-xmark"></i></button>
+            </div>
+            ${b.description ? `<p class="place-desc">${b.description}</p>` : ''}
+            ${meta ? `<div class="meta-list">${meta}</div>` : ''}
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="modeWalk" onclick="setMode('foot',this)">
+                    <i class="fas fa-person-walking"></i> Walking
+                </button>
+                <button class="mode-btn" id="modeCar" onclick="setMode('driving',this)">
+                    <i class="fas fa-car"></i> Driving
+                </button>
+            </div>
+            <div class="sheet-actions">
+                <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${b.name.replace(/'/g,"\\'")}')">
+                    <i class="fas fa-diamond-turn-right"></i> Get Directions
+                </button>
+                <button class="action-btn btn-share" onclick="shareLocation('${b.name.replace(/'/g,"\\'")}', ${b.lat}, ${b.lng})">
+                    <i class="fas fa-share-nodes"></i> Share
+                </button>
+            </div>
+        `);
+    }
+
+    function setMode(mode, btn) {
+        travelMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active','active-car'));
+        btn.classList.add(mode === 'driving' ? 'active-car' : 'active');
+    }
+
+    function metaRow(icon, val) {
+        return `<div class="meta-row"><i class="fas ${icon}"></i><span>${val}</span></div>`;
+    }
+
+    // ══════════════════════════════════════════
+    //  GPS LOCATION & TRACKING
+    // ══════════════════════════════════════════
+    let prevLatLng = null;
+    let userBearing = null;
+    let watchId = null;
+    let settingManualLocation = false;  // referenced by map click handler
+
+    // Detect if we are on HTTP (not HTTPS) — geolocation is blocked on HTTP
+    // in Chrome/Edge/Safari on Android/iOS since 2016.
+    const isHttp = location.protocol === 'http:';
+
+    function tryGeolocation() {
+        if (!navigator.geolocation) {
+            showLocationUnavailable();
+            return;
+        }
+
+        // Some browsers still allow geolocation on localhost over HTTP.
+        // We attempt it; if the error code is PERMISSION_DENIED we show help.
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const { latitude: lat, longitude: lng } = pos.coords;
+                userLatLng = { lat, lng };
+                placeUserMarker(lat, lng, pos.coords.heading);
+                map.flyTo([lat, lng], 18, { duration: .8 });
+                startWatching();
+            },
+            err => {
+                if (err.code === 1 /* PERMISSION_DENIED */ && isHttp) {
+                    // Browser blocks GPS on HTTP — offer manual picker
+                    showLocationBlockedSheet();
+                } else if (err.code === 2 /* POSITION_UNAVAILABLE */) {
+                    showToast('GPS signal lost — try again outside');
+                } else if (err.code === 3 /* TIMEOUT */) {
+                    showToast('Location timed out — try again');
+                } else {
+                    showLocationUnavailable();
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+
+    function startWatching() {
+        if (watchId !== null) return;
+        watchId = navigator.geolocation.watchPosition(pos => {
+            const { latitude: lat, longitude: lng, heading } = pos.coords;
+            if (prevLatLng) {
+                const dLng = (lng - prevLatLng.lng) * Math.PI / 180;
+                const lat1r = prevLatLng.lat * Math.PI / 180;
+                const lat2r = lat * Math.PI / 180;
+                const y = Math.sin(dLng) * Math.cos(lat2r);
+                const x = Math.cos(lat1r) * Math.sin(lat2r) - Math.sin(lat1r) * Math.cos(lat2r) * Math.cos(dLng);
+                userBearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+            }
+            prevLatLng = { lat, lng };
+            userLatLng = { lat, lng };
+            placeUserMarker(lat, lng, heading ?? userBearing);
+            if (navState.active) liveNavUpdate(lat, lng);
+        }, null, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 });
+    }
+
+    function showLocationUnavailable() {
+        showToast('Location unavailable — tap 📍 to set manually');
+    }
+
+    function showLocationBlockedSheet() {
+        openSheet(`
+            <div style="padding:16px 0">
+                <div style="text-align:center;margin-bottom:12px">
+                    <div style="font-size:36px;margin-bottom:8px">📍</div>
+                    <h3 style="font-size:15px;margin-bottom:6px">GPS Blocked</h3>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6">
+                        Your browser requires <strong>HTTPS</strong> to share GPS location.
+                        You can <strong>tap anywhere on the map</strong> to set your current
+                        position manually instead.
+                    </p>
+                </div>
+                <button class="action-btn btn-dir" style="width:100%;margin-bottom:8px"
+                    onclick="enableManualLocationPicker()">
+                    <i class="fas fa-map-pin"></i> Tap map to set my location
+                </button>
+                <button class="action-btn btn-share" style="width:100%" onclick="closeSheet()">
+                    <i class="fas fa-xmark"></i> Cancel
+                </button>
+            </div>
+        `);
+    }
+
+    function enableManualLocationPicker() {
+        closeSheet();
+        settingManualLocation = true;
+        document.getElementById('map').style.cursor = 'crosshair';
+        showToast('📍 Tap the map where you are standing');
+    }
+
+    function setManualLocation(lat, lng) {
+        settingManualLocation = false;
+        document.getElementById('map').style.cursor = '';
+        userLatLng = { lat, lng };
+        placeUserMarker(lat, lng, null);
+        map.flyTo([lat, lng], 18, { duration: .8 });
+        showToast('Your location is set ✔');
+        // If there is a pending navigation, resume it automatically
+        if (_route.steps.length && _route.destName) {
+            setTimeout(() => beginLiveNav(), 900);
+        }
+    }
+
+    document.getElementById('btnLocate').addEventListener('click', () => {
+        tryGeolocation();
+    });
+
+    // Auto-try GPS on load (works on localhost)
+    tryGeolocation();
+
+    function placeUserMarker(lat, lng, bearing) {
+        const hasBearing = bearing !== null && bearing !== undefined;
+        const rot = hasBearing ? `rotate(${Math.round(bearing)}deg)` : 'none';
+        const html = `<div class="user-pin-wrap${hasBearing ? ' has-bearing' : ''}">
+            <div class="user-arrow" style="transform:translateX(-50%) ${rot}"></div>
+            <div class="user-dot"></div>
+        </div>`;
+        const icon = L.divIcon({ html, iconSize: [34,34], iconAnchor: [17,17], className: '' });
+        if (userMarker) {
+            userMarker.setLatLng([lat, lng]);
+            userMarker.setIcon(icon);
+        } else {
+            userMarker = L.marker([lat, lng], { icon, zIndexOffset: 2000 })
+                .addTo(map)
+                .bindTooltip('You are here', { permanent: false });
+        }
+    }
+
+    // ══════════════════════════════════════════
+    //  ROUTING — OSRM  (with Live Navigation)
+    // ══════════════════════════════════════════
+    let routeLayers = [];
+
+    // Live navigation state
+    const navState = {
+        active: false,
+        steps: [],
+        currentStep: 0,
+        destLat: 0, destLng: 0, destName: '',
+        totalDist: 0
+    };
+
+    async function startRoute(destLat, destLng, destName) {
+        clearRouteLines();
+        stopLiveNav();
+        _route.destLat = destLat; _route.destLng = destLng; _route.destName = destName;
+        _route.steps = [];
+        const hasGPS = !!userLatLng;
+        const origin = userLatLng || { lat: CAMPUS.lat, lng: CAMPUS.lng };
+        const modeLabel = travelMode === 'driving' ? 'driving' : 'walking';
+        const originLabel = hasGPS ? '' : `<p style="font-size:11.5px;color:var(--amber);text-align:center;margin-bottom:10px;background:#fef3c7;border-radius:8px;padding:6px 10px"><i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>GPS unavailable — route from campus centre. <strong>Tap 📍 on the map to set your spot.</strong></p>`;
+
+        openSheet(`<div class="loading-state"><div class="spin"></div><p>Finding shortest ${modeLabel} route to <strong>${destName}</strong>…</p></div>`);
+
+        try {
+            const profile = travelMode === 'driving' ? 'driving' : 'foot';
+            const url = `${OSRM_BASE}/${profile}/` +
+                `${origin.lng},${origin.lat};${destLng},${destLat}` +
+                `?overview=full&geometries=geojson&steps=true&alternatives=false`;
+            const res  = await fetch(url);
+            const data = await res.json();
+
+            if (data.code !== 'Ok') throw new Error('No route');
+
+            const route    = data.routes[0];
+            const distance = route.distance;
+            const duration = route.duration;
+            const coords   = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            const rawSteps = route.legs[0].steps;
+
+            // Store steps GLOBALLY so beginLiveNav() can safely access them
+            _route.steps = rawSteps;
+
+            // Route line styling: blue for walk, amber for car
+            const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
+            const line = L.polyline(coords, {
+                color: routeColor, weight: 5, opacity: .9,
+                lineJoin: 'round', lineCap: 'round'
+            }).addTo(map);
+            const dash = L.polyline(coords, {
+                color: '#fff', weight: 2, opacity: .5, dashArray: '8 14'
+            }).addTo(map);
+            routeLayers.push(line, dash);
+
+            // Destination pin
+            const destPin = L.marker([destLat, destLng], {
+                icon: L.divIcon({ html: '<div class="dest-pin"></div>', iconSize:[18,18], iconAnchor:[9,18], className:'' }),
+                zIndexOffset: 1500
+            }).addTo(map);
+            routeLayers.push(destPin);
+            map.fitBounds(line.getBounds(), { padding: [80, 80] });
+
+            // ALL steps shown (not just 10)
+            const stepsHtml = rawSteps.map((s, i) => {
+                const manIcon = getManeuverIcon(s.maneuver.type, s.maneuver.modifier);
+                const dist    = s.distance > 0 ? `<span style="color:var(--muted);margin-left:auto;font-size:11px">${formatDist(s.distance)}</span>` : '';
+                const name    = s.name || stepLabel(s.maneuver.type, s.maneuver.modifier);
+                return `<div class="step-item" id="step-${i}"><i class="fas ${manIcon}"></i><span>${name}</span>${dist}</div>`;
+            }).join('');
+
+            const modeIcon = travelMode === 'driving' ? 'fa-car' : 'fa-person-walking';
+            const timeLabel = travelMode === 'driving' ? 'Drive time' : 'Walk time';
+
+            // NOTE: beginLiveNav() is called with NO args — it reads from the global _route object
+            openSheet(`
+                <div class="route-info">
+                    <p class="route-title"><i class="fas ${modeIcon}"></i> Route to ${destName}</p>
+                    ${originLabel}
+                    <div class="route-cards">
+                        <div class="route-card">
+                            <span class="val">${formatDist(distance)}</span>
+                            <span class="lbl">Distance</span>
+                        </div>
+                        <div class="route-card">
+                            <span class="val">${Math.ceil(duration/60)} min</span>
+                            <span class="lbl">${timeLabel}</span>
+                        </div>
+                    </div>
+                    ${rawSteps.length ? `<div class="steps-list" id="stepsList">${stepsHtml}</div>` : ''}
+                    <div class="sheet-actions" style="margin-top:8px">
+                        <button class="action-btn btn-nav-live" id="btnStartNav" onclick="beginLiveNav()">
+                            <i class="fas fa-location-arrow"></i> Start Navigation
+                        </button>
+                    </div>
+                    <button class="clear-route-btn" style="margin-top:8px" onclick="clearRoute()">
+                        <i class="fas fa-xmark"></i> Clear Route
+                    </button>
+                </div>
+            `);
+
+        } catch(e) {
+            // Fallback: straight line
+            const dist = haversine(origin.lat, origin.lng, destLat, destLng);
+            const time = Math.ceil(dist / 84);
+
+            const line = L.polyline([[origin.lat, origin.lng],[destLat, destLng]], {
+                color: '#4338ca', weight: 4, opacity: .7, dashArray: '10 8'
+            }).addTo(map);
+            routeLayers.push(line);
+            map.fitBounds(line.getBounds(), { padding: [80, 80] });
+
+            openSheet(`
+                <div class="route-info">
+                    <p class="route-title"><i class="fas fa-route"></i> Route to ${destName}</p>
+                    <div class="route-cards">
+                        <div class="route-card">
+                            <span class="val">${formatDist(dist)}</span>
+                            <span class="lbl">~Distance</span>
+                        </div>
+                        <div class="route-card">
+                            <span class="val">${time} min</span>
+                            <span class="lbl">~Walking time</span>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px">
+                        ⚠️ Straight-line estimate — no internet connection
+                    </p>
+                    <button class="clear-route-btn" onclick="clearRoute()">
+                        <i class="fas fa-xmark"></i> Clear Route
+                    </button>
+                </div>
+            `);
+        }
+    }
+
+    // ── LIVE NAVIGATION ENGINE ─────────────────
+    // Called with NO arguments — reads state from global _route object
+    function beginLiveNav() {
+        const { steps, destLat, destLng, destName } = _route;
+        if (!steps || steps.length === 0) {
+            showToast('Get directions first'); return;
+        }
+        if (!userLatLng) {
+            // GPS not yet set — prompt for manual location; will auto-resume after
+            openSheet(`
+                <div style="padding:16px 0;text-align:center">
+                    <div style="font-size:36px;margin-bottom:8px">📍</div>
+                    <h3 style="font-size:15px;margin-bottom:6px">Set Your Location First</h3>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:14px">
+                        GPS unavailable on HTTP. Tap <strong>Set My Location</strong>, then
+                        tap exactly where you are standing on the map.
+                        Navigation will start automatically.
+                    </p>
+                    <button class="action-btn btn-dir" style="width:100%;margin-bottom:8px"
+                        onclick="enableManualLocationPicker()">
+                        <i class="fas fa-map-pin"></i> Set My Location
+                    </button>
+                    <button class="action-btn btn-share" style="width:100%" onclick="closeSheet()">
+                        <i class="fas fa-xmark"></i> Cancel
+                    </button>
+                </div>
+            `);
+            return;
+        }
+        navState.active     = true;
+        navState.steps      = steps;
+        navState.currentStep = 0;
+        navState.destLat    = destLat;
+        navState.destLng    = destLng;
+        navState.destName   = destName;
+        navState.totalDist  = steps.reduce((sum, s) => sum + s.distance, 0);
+
+        closeSheet();
+        showNavHUD();
+        updateNavStep(0);
+        // Pan to user with navigation zoom
+        map.flyTo([userLatLng.lat, userLatLng.lng], 18, { duration: 1 });
+        showToast('Navigation started!');
+    }
+
+    function liveNavUpdate(lat, lng) {
+        if (!navState.active || !navState.steps.length) return;
+
+        const step = navState.steps[navState.currentStep];
+        if (!step) { arriveAtDestination(); return; }
+
+        // Distance to step endpoint
+        const inter = step.intersections?.at(-1);
+        if (!inter) return;
+        const [sLng, sLat] = inter.location;
+        const dToStep = haversine(lat, lng, sLat, sLng);
+
+        // Distance to destination
+        const dToDest = haversine(lat, lng, navState.destLat, navState.destLng);
+
+        // Update HUD distance badge
+        document.getElementById('navDistVal').textContent = formatDist(dToStep);
+
+        // Progress bar
+        const walked = navState.totalDist - navState.steps.slice(navState.currentStep).reduce((s,x)=>s+x.distance,0);
+        const pct = Math.min(100, (walked / navState.totalDist) * 100);
+        document.getElementById('navProgressFill').style.width = pct + '%';
+
+        // Detect off-route (> 35 m from step end)
+        const distToRoute = pointToRouteDistance(lat, lng, step);
+        if (distToRoute > 35) {
+            showRerouteBar();
+            setTimeout(() => startRoute(navState.destLat, navState.destLng, navState.destName), 2000);
+            stopLiveNav();
+            return;
+        }
+
+        // Advance step when within 12 m of step endpoint
+        if (dToStep < 12) {
+            const next = navState.currentStep + 1;
+            if (next >= navState.steps.length || dToDest < 10) {
+                arriveAtDestination();
+            } else {
+                navState.currentStep = next;
+                updateNavStep(next);
+            }
+        }
+
+        // Highlight current step in sheet
+        document.querySelectorAll('.step-item').forEach((el, i) => {
+            el.classList.toggle('active-step', i === navState.currentStep);
+        });
+        // Scroll step into view
+        document.getElementById(`step-${navState.currentStep}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function updateNavStep(idx) {
+        const step = navState.steps[idx];
+        if (!step) return;
+        const type     = step.maneuver.type;
+        const modifier = step.maneuver.modifier;
+        const ico      = getManeuverIcon(type, modifier);
+        const label    = step.name || stepLabel(type, modifier);
+        const nextStep = navState.steps[idx + 1];
+        const nextText = nextStep ? `Then: ${nextStep.name || stepLabel(nextStep.maneuver.type, nextStep.maneuver.modifier)}` : 'Arriving at destination';
+
+        document.getElementById('navTurnIco').className = `fas ${ico}`;
+        document.getElementById('navInstruction').textContent = label;
+        document.getElementById('navSub').textContent = nextText;
+        document.getElementById('navDistVal').textContent = formatDist(step.distance);
+    }
+
+    function arriveAtDestination() {
+        showToast('🎉 You have arrived at ' + navState.destName);
+        document.getElementById('navInstruction').textContent = 'You have arrived!';
+        document.getElementById('navSub').textContent = navState.destName;
+        document.getElementById('navTurnIco').className = 'fas fa-flag-checkered';
+        document.getElementById('navDistVal').textContent = '0 m';
+        document.getElementById('navProgressFill').style.width = '100%';
+        setTimeout(() => stopNavigation(), 3000);
+    }
+
+    function showNavHUD() {
+        document.getElementById('navHud').classList.add('active');
+        document.getElementById('stopNavPill').classList.add('visible');
+        // Push top-bar and chips down so HUD doesn't overlap them
+        document.querySelector('.top-bar').style.top = '86px';
+        document.querySelector('.filter-chips').style.top = '166px';
+    }
+
+    function stopLiveNav() {
+        navState.active = false;
+        document.getElementById('navHud').classList.remove('active');
+        document.getElementById('stopNavPill').classList.remove('visible');
+        document.querySelector('.top-bar').style.top = '';
+        document.querySelector('.filter-chips').style.top = '';
+        document.getElementById('navProgressFill').style.width = '0%';
+    }
+
+    // Single entry-point for stopping navigation from ANY control
+    function stopNavigation() {
+        stopLiveNav();
+        clearRoute();
+        showToast('Navigation ended');
+    }
+
+    function showRerouteBar() {
+        const bar = document.getElementById('rerouteBar');
+        bar.classList.add('show');
+        setTimeout(() => bar.classList.remove('show'), 3500);
+    }
+
+    // Rough point-to-step proximity using step intersections
+    function pointToRouteDistance(lat, lng, step) {
+        if (!step.intersections?.length) return 0;
+        let minDist = Infinity;
+        step.intersections.forEach(inter => {
+            const [iLng, iLat] = inter.location;
+            minDist = Math.min(minDist, haversine(lat, lng, iLat, iLng));
+        });
+        return minDist;
+    }
+
+    // Both the HUD X button and the pill call stopNavigation()
+    document.getElementById('navStopBtn').addEventListener('click', stopNavigation);
+
+    function clearRoute() {
+        clearRouteLines();
+        closeSheet();
+    }
+
+    function clearRouteLines() {
+        routeLayers.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+        routeLayers = [];
+    }
+
+    function formatDist(m) {
+        return m >= 1000 ? (m/1000).toFixed(2)+' km' : Math.round(m)+' m';
+    }
+
+    function haversine(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+        return Math.round(2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+    }
+
+    function getManeuverIcon(type, modifier) {
+        if (type === 'turn') {
+            if (modifier === 'sharp right')    return 'fa-turn-right';
+            if (modifier === 'right')           return 'fa-turn-right';
+            if (modifier === 'slight right')    return 'fa-arrow-turn-right';
+            if (modifier === 'sharp left')      return 'fa-turn-left';
+            if (modifier === 'left')            return 'fa-turn-left';
+            if (modifier === 'slight left')     return 'fa-arrow-turn-left';
+            if (modifier === 'uturn')           return 'fa-arrow-rotate-left';
+        }
+        if (type === 'new name')    return 'fa-arrow-up';
+        if (type === 'depart')      return 'fa-person-walking';
+        if (type === 'arrive')      return 'fa-flag-checkered';
+        if (type === 'roundabout')  return 'fa-rotate-right';
+        if (type === 'continue')    return 'fa-arrow-up';
+        if (type === 'merge')       return 'fa-code-merge';
+        if (type === 'fork') {
+            if (modifier?.includes('right')) return 'fa-code-fork';
+            return 'fa-code-fork';
+        }
+        return 'fa-arrow-up';
+    }
+
+    function stepLabel(type, modifier) {
+        if (type === 'turn') {
+            if (modifier?.includes('right')) return 'Turn right';
+            if (modifier?.includes('left'))  return 'Turn left';
+            if (modifier === 'uturn')        return 'Make a U-turn';
+        }
+        if (type === 'depart')     return 'Start walking';
+        if (type === 'arrive')     return 'You have arrived';
+        if (type === 'roundabout') return 'Enter roundabout';
+        if (type === 'continue')   return 'Continue straight';
+        if (type === 'merge')      return 'Merge onto path';
+        if (type === 'new name')   return 'Continue';
+        if (type === 'fork') {
+            if (modifier?.includes('right')) return 'Keep right';
+            return 'Keep left';
+        }
+        return 'Continue';
+    }
+
+    // ══════════════════════════════════════════
+    //  SHARE
+    // ══════════════════════════════════════════
+    function shareLocation(name, lat, lng) {
+        const url = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=18`;
+        if (navigator.share) {
+            navigator.share({ title: name + ' – AAMUSTED CampusOS', url });
+        } else {
+            navigator.clipboard?.writeText(url);
+            showToast('Link copied to clipboard');
+        }
+    }
+
+    // ══════════════════════════════════════════
+    //  LAYER TOGGLE
+    // ══════════════════════════════════════════
+    let isSatellite = false;
+    document.getElementById('btnLayers').addEventListener('click', () => {
+        isSatellite = !isSatellite;
+        if (isSatellite) {
+            map.removeLayer(tileLayers.osm);
+            tileLayers.satellite.addTo(map);
+            showToast('Satellite view');
+        } else {
+            map.removeLayer(tileLayers.satellite);
+            tileLayers.osm.addTo(map);
+            showToast('Street map view');
+        }
+    });
+
+    // ══════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ══════════════════════════════════════════
+    //  OFFLINE DETECTION
+    // ══════════════════════════════════════════
+    window.addEventListener('offline', () => document.body.classList.add('offline'));
+    window.addEventListener('online',  () => document.body.classList.remove('offline'));
+    if (!navigator.onLine) document.body.classList.add('offline');
+
+    // ══════════════════════════════════════════
+    //  BOOT
+    // ══════════════════════════════════════════
+    initMap();
+    loadBuildings();
+
+    // Register Service Worker for offline
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    </script>
 </body>
 </html>

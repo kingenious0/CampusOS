@@ -1,24 +1,21 @@
 /**
- * Main Application - Initializes all modules
+ * Main Application – CampusOS AAMUSTED Kumasi
  */
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize map
-    MapModule.init();
-
-    // Initialize search
-    setTimeout(() => {
-        SearchModule.init();
-    }, 500);
-
-    // Handle filter checkboxes
-    const filterCheckboxes = document.querySelectorAll('.filter-checkbox');
-    filterCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const activeFilters = Array.from(filterCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.value);
-            MapModule.filterMarkers(activeFilters);
+    // Only init map modules on the map page
+    if (document.getElementById('map')) {
+        MapModule.init().then(() => {
+            SearchModule.init();
         });
-    });
+
+        // Filter checkboxes
+        document.querySelectorAll('.filter-checkbox').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const active = Array.from(document.querySelectorAll('.filter-checkbox'))
+                    .filter(c => c.checked)
+                    .map(c => c.value);
+                MapModule.filterMarkers(active);
+            });
+        });
+    }
 });

@@ -3,69 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusOS - Smart Campus Navigation</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>CampusOS – AAMUSTED Kumasi</title>
+    <meta name="description" content="Find buildings, get directions and navigate AAMUSTED Kumasi campus.">
+    <meta name="theme-color" content="#4338ca">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+        }
+        .splash {
+            padding: 2rem;
+            max-width: 360px;
+            width: 100%;
+        }
+        .icon-ring {
+            width: 90px; height: 90px;
+            background: #4338ca;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.2rem;
+            box-shadow: 0 0 0 16px rgba(67,56,202,.15);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { box-shadow: 0 0 0 12px rgba(67,56,202,.15); }
+            50%      { box-shadow: 0 0 0 24px rgba(67,56,202,.05); }
+        }
+        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; }
+        .sub { font-size: .95rem; color: rgba(255,255,255,.5); margin: .5rem 0 2.5rem; }
+        .campus-name {
+            font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+            color: #818cf8; text-transform: uppercase; margin-bottom: .3rem;
+        }
+        .open-btn {
+            display: flex; align-items: center; justify-content: center; gap: .6rem;
+            width: 100%;
+            padding: 1rem;
+            background: #4338ca;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: background .2s, transform .15s;
+        }
+        .open-btn:hover { background: #3730a3; transform: translateY(-2px); }
+        .open-btn:active { transform: scale(.97); }
+        .pills {
+            display: flex; gap: .6rem; justify-content: center;
+            flex-wrap: wrap; margin-top: 1.5rem;
+        }
+        .pill {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 50px;
+            padding: .35rem .9rem;
+            font-size: .75rem;
+            color: rgba(255,255,255,.55);
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .pill i { color: #818cf8; }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <i class="fas fa-map-location-dot"></i>
-                <h1>CampusOS</h1>
-            </div>
-            <nav class="nav">
-                <a href="index.html" class="nav-link active">Home</a>
-                <a href="map.html" class="nav-link">Campus Map</a>
-                <a href="#features" class="nav-link">Features</a>
-            </nav>
+    <div class="splash">
+        <div class="icon-ring"><i class="fas fa-map-location-dot"></i></div>
+        <p class="campus-name">AAMUSTED · Kumasi Campus</p>
+        <h1>CampusOS</h1>
+        <p class="sub">Search, find and get directions across campus — works offline.</p>
+        <a href="map.html" class="open-btn">
+            <i class="fas fa-compass"></i> Open Campus Map
+        </a>
+        <div class="pills">
+            <span class="pill"><i class="fas fa-magnifying-glass"></i> Smart Search</span>
+            <span class="pill"><i class="fas fa-route"></i> Walking Routes</span>
+            <span class="pill"><i class="fas fa-wifi-slash"></i> Offline Ready</span>
+            <span class="pill"><i class="fas fa-location-dot"></i> GPS Locate</span>
         </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h2>Navigate Your Campus with Confidence</h2>
-                <p>Find buildings, lecture halls, and exam rooms instantly</p>
-                <a href="map.html" class="btn btn-primary">Explore Campus Map</a>
-            </div>
-        </section>
-
-        <section id="features" class="features">
-            <h2>Phase 1 Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-map"></i>
-                    <h3>Interactive Campus Map</h3>
-                    <p>Explore your campus with an interactive map powered by Leaflet.js</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-search"></i>
-                    <h3>Smart Search</h3>
-                    <p>Search by building name, lecture hall, department, or hostel</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-route"></i>
-                    <h3>Route Planning</h3>
-                    <p>Get walking directions with distance and time estimates</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-building"></i>
-                    <h3>Building Info</h3>
-                    <p>View detailed information about buildings and facilities</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta">
-            <h2>Ready to Navigate?</h2>
-            <p>Start exploring your campus now</p>
-            <a href="map.html" class="btn btn-secondary">Open Campus Map</a>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2026 CampusOS. Smart Campus Infrastructure Mapper.</p>
-    </footer>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
 </body>
 </html>
