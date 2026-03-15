@@ -30,6 +30,7 @@ const MapModule = (() => {
         }).addTo(map);
 
         await loadBuildingsData();
+        await loadRoadsData();
         addMarkers();
         requestUserLocation();
 
@@ -42,6 +43,36 @@ const MapModule = (() => {
             weight: 2,
             dashArray: '6 4'
         }).addTo(map).bindTooltip('AAMUSTED Kumasi Campus', { permanent: false });
+    };
+
+    const loadRoadsData = async () => {
+        try {
+            const response = await fetch('data/roads.geojson');
+            const data = await response.json();
+            
+            // Modern "Tarred Road" Style - Thick Asphalt
+            L.geoJSON(data, {
+                style: (feature) => ({
+                    color: '#1e293b', // Deep Charcoal
+                    weight: 12,       // Thicker for visibility
+                    opacity: 1,
+                    lineJoin: 'round'
+                })
+            }).addTo(map);
+
+            // Bright Centerline for "Highway" effect
+            L.geoJSON(data, {
+                style: (feature) => ({
+                    color: '#cbd5e1', // Light Slate
+                    weight: 2,
+                    dashArray: '10, 15',
+                    opacity: 0.8
+                })
+            }).addTo(map);
+
+        } catch (error) {
+            console.warn('Roads data not found or failed to load:', error);
+        }
     };
 
     const loadBuildingsData = async () => {

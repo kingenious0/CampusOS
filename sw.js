@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'campusos-v1';
+const CACHE_NAME  = 'campusos-v8';
 const TILE_CACHE  = 'campusos-tiles-v1';
 
 // App shell files to cache on install
@@ -11,8 +11,9 @@ const APP_SHELL = [
     './map.html',
     './index.html',
     './data/buildings.json',
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
+    './data/campus.geojson',
+    'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js',
+    'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
@@ -40,16 +41,24 @@ self.addEventListener('activate', e => {
 
 // ── FETCH: serve from cache, fallback to network ──
 self.addEventListener('fetch', e => {
-    const url = new URL(e.request.url);
+    // Only handle GET requests
+    if (e.request.method !== 'GET') return;
 
-    // Cache map tiles (OSM + satellite)
+    const url = new URL(e.request.url);
+    if (!url.protocol.startsWith('http')) return;
+
+    // Skip Mapbox events/telemetry
+    if (url.hostname.includes('events.mapbox.com')) return;
+
+    // Cache map tiles & Mapbox API
     if (url.hostname.includes('tile.openstreetmap.org') ||
-        url.hostname.includes('arcgisonline.com')) {
+        url.hostname.includes('arcgisonline.com') ||
+        url.hostname.includes('tiles.mapbox.com') ||
+        url.hostname.includes('api.mapbox.com')) {
         e.respondWith(cacheTile(e.request));
         return;
     }
 
-    // App shell — cache first
     e.respondWith(
         caches.match(e.request).then(cached => {
             if (cached) return cached;
@@ -59,7 +68,6 @@ self.addEventListener('fetch', e => {
                 caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
                 return resp;
             }).catch(() => {
-                // Offline fallback for HTML pages
                 if (e.request.destination === 'document') {
                     return caches.match('./map.html');
                 }

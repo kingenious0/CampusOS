@@ -1,0 +1,19 @@
+{
+  "name": "campusos",
+  "version": "1.0.0",
+  "description": "Smart Campus Infrastructure Intelligence System for AAMUSTED",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx -y http-server ./ -p 8080",
+    "dev": "npx -y http-server ./ -p 8080 -c-1"
+  },
+  "keywords": [
+    "campus",
+    "map",
+    "navigation",
+    "leaflet",
+    "aamusted"
+  ],
+  "author": "",
+  "license": "MIT"
+}

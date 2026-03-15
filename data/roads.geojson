@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Main Entrance Road", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6815, 6.6965],
+          [-1.6816, 6.6976],
+          [-1.6818, 6.6982]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Library-Clinic Connector", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6818, 6.6982],
+          [-1.6801, 6.6980],
+          [-1.6797, 6.6975]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Hostel Road", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6797, 6.6975],
+          [-1.6795, 6.6968]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic North Road", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6818, 6.6982],
+          [-1.6822, 6.7008],
+          [-1.6831, 6.7012],
+          [-1.6833, 6.7020]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "ROB Block", "type": "academic" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-1.6829, 6.7007],
+          [-1.6823, 6.7007],
+          [-1.6823, 6.7002],
+          [-1.6829, 6.7002],
+          [-1.6829, 6.7007]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "AAMUSTED Library", "type": "academic" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-1.6820, 6.6984],
+          [-1.6816, 6.6984],
+          [-1.6816, 6.6980],
+          [-1.6820, 6.6980],
+          [-1.6820, 6.6984]
+        ]]
+      }
+    },
+    {
+        "type": "Feature",
+        "properties": { "name": "New Library", "type": "academic" },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [-1.6815, 6.7006],
+            [-1.6811, 6.7006],
+            [-1.6811, 6.7002],
+            [-1.6815, 6.7002],
+            [-1.6815, 6.7006]
+          ]]
+        }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "New Auditorium", "type": "academic" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-1.6803, 6.6982],
+          [-1.6799, 6.6982],
+          [-1.6799, 6.6978],
+          [-1.6803, 6.6978],
+          [-1.6803, 6.6982]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Main Entrance Road", "type": "road" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68170, 6.6960],
+          [-1.68175, 6.6970],
+          [-1.68181, 6.6981],
+          [-1.68188, 6.6990],
+          [-1.68195, 6.7000],
+          [-1.68205, 6.7010],
+          [-1.68215, 6.7020]
+        ]
+      }
+    },
+    {
+        "type": "Feature",
+        "properties": { "name": "Academic Loop North", "type": "road" },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [-1.68205, 6.7010],
+            [-1.68100, 6.7011],
+            [-1.68000, 6.7011],
+            [-1.67900, 6.7005]
+          ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": { "name": "Academic Loop South", "type": "road" },
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [-1.68181, 6.6981],
+            [-1.68100, 6.69811],
+            [-1.68000, 6.69812],
+            [-1.67900, 6.6978]
+          ]
+        }
+      }
+  ]
+}

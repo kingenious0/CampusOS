@@ -10,8 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <!-- Mapbox GL JS (The Premium Choice) -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
@@ -53,6 +54,9 @@
         #map {
             position: fixed;
             inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0f172a;
             z-index: 0;
         }
 
@@ -94,11 +98,11 @@
         }
         .search-bar input {
             width: 100%;
-            padding: 12px 44px 12px 44px;
+            padding: 14px 44px 14px 44px; /* slightly taller */
             border: none;
             border-radius: 50px;
             background: var(--surface);
-            font-size: 14px;
+            font-size: 16px; /* 16px prevents iOS auto-zoom */
             font-family: inherit;
             color: var(--text);
             box-shadow: var(--shadow);
@@ -124,7 +128,8 @@
             display: none;
             background: none;
             border: none;
-            padding: 4px;
+            padding: 10px; /* Thumb-friendly tap target */
+            margin-right: -6px; /* Offset the extra padding */
         }
 
         /* Search results dropdown */
@@ -145,8 +150,8 @@
         .result-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 11px 14px;
+            gap: 12px;
+            padding: 14px; /* Increased for thumb target */
             cursor: pointer;
             border-bottom: 1px solid var(--border);
             transition: background .15s;
@@ -276,15 +281,19 @@
 
         .close-sheet {
             position: absolute;
-            top: 10px; right: 0;
+            top: 12px; right: 0;
             background: var(--bg);
             border: none;
-            width: 30px; height: 30px;
+            width: 38px; height: 38px;
             border-radius: 50%;
             cursor: pointer;
             color: var(--muted);
-            font-size: 13px;
+            font-size: 16px;
             display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .close-sheet:active {
+            background: var(--border);
         }
 
         .place-desc {
@@ -322,10 +331,10 @@
             padding: 12px 0 4px;
         }
         .action-btn {
-            padding: 13px 10px;
+            padding: 15px 10px; /* Thicker for thumbs */
             border: none;
             border-radius: var(--radius-sm);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             font-family: inherit;
             cursor: pointer;
@@ -608,25 +617,15 @@
             box-shadow: 0 3px 12px rgba(0,0,0,.25);
         }
 
-        /* Leaflet popup */
-        .leaflet-popup-content-wrapper {
+        /* MapLibre popup */
+        .maplibregl-popup-content {
             border-radius: 12px !important;
             padding: 0 !important;
             box-shadow: var(--shadow) !important;
         }
-        .leaflet-popup-content { margin: 0 !important; }
         .map-popup { padding: 10px 14px; }
         .map-popup strong { display: block; font-size: 13px; font-weight: 700; color: var(--text); }
         .map-popup span { font-size: 11px; color: var(--muted); }
-        .leaflet-control-zoom { border: none !important; }
-        .leaflet-control-zoom a {
-            border-radius: 8px !important;
-            border: none !important;
-            box-shadow: var(--shadow-sm) !important;
-            color: var(--primary) !important;
-            font-weight: 700 !important;
-            margin-bottom: 4px !important;
-        }
 
         /* ── OFFLINE BANNER ───────────────────── */
         .offline-banner {
@@ -678,10 +677,10 @@
         .chip {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 6px 12px;
+            gap: 6px;
+            padding: 8px 16px;
             border-radius: 50px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
             cursor: pointer;
@@ -705,12 +704,12 @@
         }
         .mode-btn {
             flex: 1;
-            padding: 9px 6px;
+            padding: 12px 8px; /* Taller for thumbs */
             border: 2px solid var(--border);
             border-radius: 10px;
             background: var(--bg);
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             font-family: inherit;
             display: flex;
@@ -761,6 +760,79 @@
             transform: translateX(-50%) translateY(0);
         }
         .stop-nav-pill:active { filter: brightness(.88); }
+
+        /* Prevent Mapbox UI from hiding behind the mobile bottom sheet */
+        .mapboxgl-ctrl-bottom-left {
+            bottom: 230px !important;
+            transition: bottom 0.3s ease;
+        }
+
+        /* ── DESKTOP ADJUSTMENTS ──────────────── */
+        @media (min-width: 768px) {
+            .top-bar {
+                width: 380px;
+                padding: 24px;
+                left: 0;
+                right: auto;
+            }
+            .filter-chips {
+                width: 380px;
+                left: 0;
+                top: 96px;
+                padding: 0 24px;
+                flex-wrap: wrap; /* allow wrapping on desktop so chips don't overflow sideways tightly */
+            }
+            .sheet {
+                top: 154px;
+                left: 24px;
+                right: auto;
+                bottom: 24px;
+                width: 332px;
+                height: auto;
+                max-height: calc(100vh - 178px);
+                border-radius: var(--radius);
+                transform: translateX(-120%);
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            }
+            .sheet.open {
+                transform: translateX(0);
+            }
+            .sheet.expanded {
+                max-height: calc(100vh - 178px); /* stays fully expanded on desktop as scrollable sidebar */
+            }
+            .sheet-handle {
+                display: none; /* hide grab handle on desktop */
+            }
+            .fabs {
+                bottom: 32px;
+                right: 32px;
+            }
+            .toast {
+                bottom: 32px;
+            }
+            .reroute-bar {
+                bottom: 32px;
+            }
+            .nav-hud {
+                width: 420px;
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%) translateY(-100%);
+                border-radius: 0 0 calc(var(--radius) + 4px) calc(var(--radius) + 4px);
+                overflow: hidden;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            }
+            .nav-hud.active {
+                transform: translateX(-50%) translateY(0);
+            }
+            .stop-nav-pill {
+                top: 104px;
+            }
+            .mapboxgl-ctrl-bottom-left {
+                bottom: 24px !important;
+                margin-left: 360px !important; /* Push it right of the side panel */
+            }
+        }
     </style>
 </head>
 <body>
@@ -843,8 +915,6 @@
         <div class="sheet-content" id="sheetContent"></div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
     <script>
     // ══════════════════════════════════════════
@@ -873,61 +943,45 @@
     // Stores the pending route so Start Navigation works after manual GPS set
     const _route = { steps: [], destLat: 0, destLng: 0, destName: '' };
 
+    const TOKEN = 'pk.eyJ1Ijoia2luZ2VuaW91cyIsImEiOiJjbWdnczJ4YXcwMGt4MmpzNzl0OW9yZXMxIn0.iPOsSjNONKbjrjb6-TUeQw'.trim();
+    if (typeof mapboxgl !== 'undefined') {
+        mapboxgl.accessToken = TOKEN;
+    }
+
     // ══════════════════════════════════════════
     //  MAP INIT
     // ══════════════════════════════════════════
     function initMap() {
-        map = L.map('map', {
-            center:       [CAMPUS.lat, CAMPUS.lng],
-            zoom:         CAMPUS.zoom,
-            zoomControl:  false,
-            attributionControl: true
+        if (typeof mapboxgl === 'undefined') {
+            console.error('Mapbox GL JS not loaded');
+            showToast('Map library failed to load');
+            return;
+        }
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            center: [CAMPUS.lng, CAMPUS.lat],
+            zoom: CAMPUS.zoom,
+            antialias: true
         });
 
-        // Tile layers
-        // OSM — goes up to zoom 19 natively; set maxZoom:21 so Leaflet
-        // can over-zoom using the z=19 tiles (no blank tiles)
-        tileLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://osm.org">OpenStreetMap</a>',
-            maxZoom: 21,
-            maxNativeZoom: 19
+        map.addControl(new mapboxgl.NavigationControl({ position: 'bottom-left' }));
+
+        map.on('load', () => {
+            initLayerToggle();
+            setupNavigation();
         });
-        // Esri satellite — native tiles only to zoom 19 for rural Ghana;
-        // maxNativeZoom:19 prevents the grey "Map data not yet available" tiles
-        tileLayers.satellite = L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '© Esri World Imagery',
-            maxZoom: 21,
-            maxNativeZoom: 19
-        });
-        tileLayers.osm.addTo(map);
 
-        // Move zoom controls to bottom-left
-        L.control.zoom({ position: 'bottomleft' }).addTo(map);
-
-        // Campus boundary ring — 800m radius covers all real campus buildings
-        L.circle([CAMPUS.lat, CAMPUS.lng], {
-            radius: 800,
-            color: '#4338ca',
-            fillColor: '#4338ca',
-            fillOpacity: 0.04,
-            weight: 2,
-            dashArray: '6 5',
-            interactive: false
-        }).addTo(map).bindTooltip('AAMUSTED Campus Boundary', { permanent: false, className: 'boundary-tip' });
-
-        map.on('click', e => {
+        map.on('click', (e) => {
             if (settingManualLocation) {
-                setManualLocation(e.latlng.lat, e.latlng.lng);
+                setManualLocation(e.lngLat.lat, e.lngLat.lng);
             } else {
                 closeSheet();
             }
         });
     }
 
-    // ══════════════════════════════════════════
-    //  LOAD BUILDINGS
-    // ══════════════════════════════════════════
+    // Load markers
     async function loadBuildings() {
         try {
             const r = await fetch('data/buildings.json');
@@ -940,29 +994,32 @@
 
     function addMarker(b) {
         const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
-        const icon = L.divIcon({
-            html: `<div class="pin" style="background:${cfg.color}" data-id="${b.id}">
-                       <i class="fas ${cfg.icon}"></i>
-                   </div>`,
-            iconSize:   [36, 36],
-            iconAnchor: [18, 18],
-            popupAnchor:[0, -22],
-            className:  ''
-        });
+        
+        // Create custom marker element
+        const el = document.createElement('div');
+        el.className = 'pin';
+        el.style.backgroundColor = cfg.color;
+        el.innerHTML = `<i class="fas ${cfg.icon}"></i>`;
+        el.dataset.id = b.id;
 
-        const m = L.marker([b.lat, b.lng], { icon })
-            .addTo(map)
-            .bindPopup(`<div class="map-popup">
+        // Popup
+        const popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<div class="map-popup">
                 <strong>${b.name}</strong>
                 <span>${b.shortName || cfg.label}</span>
-            </div>`, { maxWidth: 200, autoPan: false });
+            </div>`);
 
-        m.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
+        const m = new mapboxgl.Marker({ element: el })
+            .setLngLat([b.lng, b.lat])
+            .setPopup(popup)
+            .addTo(map);
+
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
             showBuilding(b);
         });
 
-        markers[b.id] = { marker: m, type: b.type };
+        markers[b.id] = { marker: m, type: b.type, element: el };
     }
 
     // ══════════════════════════════════════════
@@ -977,7 +1034,6 @@
         // Update chip styles
         document.querySelectorAll('.chip').forEach(c => {
             c.classList.remove('active');
-            const dot = c.querySelector('.chip-dot');
             c.style.background = '#fff';
             c.style.color = '#0f172a';
         });
@@ -994,14 +1050,23 @@
             chip.style.color = '#fff';
         }
 
-        // Show/hide markers
-        Object.entries(markers).forEach(([id, { marker, type: mType }]) => {
+        // Show/hide markers & 3D buildings
+        Object.entries(markers).forEach(([id, { marker, type: mType, element }]) => {
             if (currentFilter === 'all' || mType === currentFilter) {
-                if (!map.hasLayer(marker)) marker.addTo(map);
+                element.style.display = 'flex';
             } else {
-                if (map.hasLayer(marker)) map.removeLayer(marker);
+                element.style.display = 'none';
             }
         });
+
+        // Filter the 3D layer as well
+        if (map.getLayer('buildings-3d')) {
+            if (currentFilter === 'all') {
+                map.setFilter('buildings-3d', ['==', 'type', 'academic']); 
+            } else {
+                map.setFilter('buildings-3d', ['all', ['==', 'type', 'academic'], ['==', 'type', currentFilter]]);
+            }
+        }
     });
 
     // ══════════════════════════════════════════
@@ -1071,7 +1136,7 @@
                 el.addEventListener('click', () => {
                     searchResults.classList.remove('open');
                     searchInput.value = b.name;
-                    map.flyTo([b.lat, b.lng], 19, { duration: .8 });
+                    map.flyTo({ center: [b.lng, b.lat], zoom: 19, duration: 800 });
                     setTimeout(() => showBuilding(b), 900);
                 });
                 searchResults.appendChild(el);
@@ -1135,7 +1200,7 @@
 
         // Highlight marker
         document.querySelectorAll('.pin.selected').forEach(el => el.classList.remove('selected'));
-        markers[b.id]?.marker.getElement()?.querySelector('.pin')?.classList.add('selected');
+        markers[b.id]?.element.classList.add('selected');
 
         let meta = '';
         if (b.hours)   meta += metaRow('fa-clock', b.hours);
@@ -1208,7 +1273,7 @@
                 const { latitude: lat, longitude: lng } = pos.coords;
                 userLatLng = { lat, lng };
                 placeUserMarker(lat, lng, pos.coords.heading);
-                map.flyTo([lat, lng], 18, { duration: .8 });
+                map.flyTo({ center: [lng, lat], zoom: 18, duration: 800 });
                 startWatching();
             },
             err => {
@@ -1285,7 +1350,7 @@
         document.getElementById('map').style.cursor = '';
         userLatLng = { lat, lng };
         placeUserMarker(lat, lng, null);
-        map.flyTo([lat, lng], 18, { duration: .8 });
+        map.flyTo({ center: [lng, lat], zoom: 18, duration: 800 });
         showToast('Your location is set ✔');
         // If there is a pending navigation, resume it automatically
         if (_route.steps.length && _route.destName) {
@@ -1293,35 +1358,41 @@
         }
     }
 
-    document.getElementById('btnLocate').addEventListener('click', () => {
-        tryGeolocation();
-    });
+    function setupNavigation() {
+        document.getElementById('btnLocate').addEventListener('click', () => {
+            tryGeolocation();
+        });
 
-    // Auto-try GPS on load (works on localhost)
-    tryGeolocation();
+        // Auto-try GPS on load (works on localhost)
+        tryGeolocation();
+    }
 
     function placeUserMarker(lat, lng, bearing) {
         const hasBearing = bearing !== null && bearing !== undefined;
         const rot = hasBearing ? `rotate(${Math.round(bearing)}deg)` : 'none';
-        const html = `<div class="user-pin-wrap${hasBearing ? ' has-bearing' : ''}">
-            <div class="user-arrow" style="transform:translateX(-50%) ${rot}"></div>
-            <div class="user-dot"></div>
-        </div>`;
-        const icon = L.divIcon({ html, iconSize: [34,34], iconAnchor: [17,17], className: '' });
-        if (userMarker) {
-            userMarker.setLatLng([lat, lng]);
-            userMarker.setIcon(icon);
+        
+        if (!userMarker) {
+            const el = document.createElement('div');
+            el.className = 'user-marker-container';
+            el.innerHTML = `<div class="user-pin-wrap${hasBearing ? ' has-bearing' : ''}">
+                <div class="user-arrow" style="transform:translateX(-50%) ${rot}"></div>
+                <div class="user-dot"></div>
+            </div>`;
+            
+            userMarker = new mapboxgl.Marker({ element: el, zIndexOffset: 2000 })
+                .setLngLat([lng, lat])
+                .addTo(map);
         } else {
-            userMarker = L.marker([lat, lng], { icon, zIndexOffset: 2000 })
-                .addTo(map)
-                .bindTooltip('You are here', { permanent: false });
+            userMarker.setLngLat([lng, lat]);
+            const el = userMarker.getElement();
+            const arrow = el.querySelector('.user-arrow');
+            if (arrow) arrow.style.transform = `translateX(-50%) ${rot}`;
         }
     }
 
     // ══════════════════════════════════════════
     //  ROUTING — OSRM  (with Live Navigation)
     // ══════════════════════════════════════════
-    let routeLayers = [];
 
     // Live navigation state
     const navState = {
@@ -1340,8 +1411,7 @@
         const hasGPS = !!userLatLng;
         const origin = userLatLng || { lat: CAMPUS.lat, lng: CAMPUS.lng };
         const modeLabel = travelMode === 'driving' ? 'driving' : 'walking';
-        const originLabel = hasGPS ? '' : `<p style="font-size:11.5px;color:var(--amber);text-align:center;margin-bottom:10px;background:#fef3c7;border-radius:8px;padding:6px 10px"><i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>GPS unavailable — route from campus centre. <strong>Tap 📍 on the map to set your spot.</strong></p>`;
-
+        
         openSheet(`<div class="loading-state"><div class="spin"></div><p>Finding shortest ${modeLabel} route to <strong>${destName}</strong>…</p></div>`);
 
         try {
@@ -1357,30 +1427,51 @@
             const route    = data.routes[0];
             const distance = route.distance;
             const duration = route.duration;
-            const coords   = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            const coords   = route.geometry.coordinates; // MapLibre wants [lng, lat]
             const rawSteps = route.legs[0].steps;
 
-            // Store steps GLOBALLY so beginLiveNav() can safely access them
             _route.steps = rawSteps;
 
-            // Route line styling: blue for walk, amber for car
-            const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
-            const line = L.polyline(coords, {
-                color: routeColor, weight: 5, opacity: .9,
-                lineJoin: 'round', lineCap: 'round'
-            }).addTo(map);
-            const dash = L.polyline(coords, {
-                color: '#fff', weight: 2, opacity: .5, dashArray: '8 14'
-            }).addTo(map);
-            routeLayers.push(line, dash);
+            // Route Data Source
+            if (map.getSource('route')) {
+                map.getSource('route').setData(route.geometry);
+            } else {
+                map.addSource('route', { type: 'geojson', data: route.geometry });
+            }
 
-            // Destination pin
-            const destPin = L.marker([destLat, destLng], {
-                icon: L.divIcon({ html: '<div class="dest-pin"></div>', iconSize:[18,18], iconAnchor:[9,18], className:'' }),
-                zIndexOffset: 1500
-            }).addTo(map);
-            routeLayers.push(destPin);
-            map.fitBounds(line.getBounds(), { padding: [80, 80] });
+            // Route Layers
+            const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
+            if (!map.getLayer('route-line')) {
+                map.addLayer({
+                    id: 'route-line',
+                    type: 'line',
+                    source: 'route',
+                    layout: { 'line-join': 'round', 'line-cap': 'round' },
+                    paint: { 'line-color': routeColor, 'line-width': 6, 'line-opacity': 0.8 }
+                });
+                map.addLayer({
+                    id: 'route-dash',
+                    type: 'line',
+                    source: 'route',
+                    paint: { 'line-color': '#fff', 'line-width': 2, 'line-dasharray': [2, 4], 'line-opacity': 0.5 }
+                });
+            } else {
+                map.setPaintProperty('route-line', 'line-color', routeColor);
+            }
+
+            // Destination Marker
+            const destEl = document.createElement('div');
+            destEl.className = 'dest-pin';
+            if (markers['dest']) markers['dest'].marker.remove();
+            
+            const destMarker = new mapboxgl.Marker({ element: destEl })
+                .setLngLat([destLng, destLat])
+                .addTo(map);
+            markers['dest'] = { marker: destMarker };
+
+            // Zoom to route
+            const bounds = coords.reduce((acc, coord) => acc.extend(coord), new mapboxgl.LngLatBounds(coords[0], coords[0]));
+            map.fitBounds(bounds, { padding: 80 });
 
             // ALL steps shown (not just 10)
             const stepsHtml = rawSteps.map((s, i) => {
@@ -1425,11 +1516,32 @@
             const dist = haversine(origin.lat, origin.lng, destLat, destLng);
             const time = Math.ceil(dist / 84);
 
-            const line = L.polyline([[origin.lat, origin.lng],[destLat, destLng]], {
-                color: '#4338ca', weight: 4, opacity: .7, dashArray: '10 8'
-            }).addTo(map);
-            routeLayers.push(line);
-            map.fitBounds(line.getBounds(), { padding: [80, 80] });
+            // Fallback Source & Layer
+            const straightRoute = {
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[origin.lng, origin.lat], [destLng, destLat]]
+                }
+            };
+            
+            if (map.getSource('route')) {
+                map.getSource('route').setData(straightRoute);
+            } else {
+                map.addSource('route', { type: 'geojson', data: straightRoute });
+            }
+
+            if (!map.getLayer('route-line')) {
+                map.addLayer({
+                    id: 'route-line',
+                    type: 'line',
+                    source: 'route',
+                    paint: { 'line-color': '#4338ca', 'line-width': 4, 'line-dasharray': [2, 2], 'line-opacity': 0.7 }
+                });
+            }
+
+            const bounds = new mapboxgl.LngLatBounds([origin.lng, origin.lat], [destLng, destLat]);
+            map.fitBounds(bounds, { padding: 80 });
 
             openSheet(`
                 <div class="route-info">
@@ -1496,7 +1608,7 @@
         showNavHUD();
         updateNavStep(0);
         // Pan to user with navigation zoom
-        map.flyTo([userLatLng.lat, userLatLng.lng], 18, { duration: 1 });
+        map.flyTo({ center: [userLatLng.lng, userLatLng.lat], zoom: 18, duration: 1000 });
         showToast('Navigation started!');
     }
 
@@ -1627,8 +1739,14 @@
     }
 
     function clearRouteLines() {
-        routeLayers.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
-        routeLayers = [];
+        if (map.getLayer('route-line')) map.removeLayer('route-line');
+        if (map.getLayer('route-dash')) map.removeLayer('route-dash');
+        if (map.getSource('route')) map.removeSource('route');
+        
+        if (markers['dest']) {
+            markers['dest'].marker.remove();
+            delete markers['dest'];
+        }
     }
 
     function formatDist(m) {
@@ -1700,19 +1818,15 @@
     // ══════════════════════════════════════════
     //  LAYER TOGGLE
     // ══════════════════════════════════════════
-    let isSatellite = false;
-    document.getElementById('btnLayers').addEventListener('click', () => {
-        isSatellite = !isSatellite;
-        if (isSatellite) {
-            map.removeLayer(tileLayers.osm);
-            tileLayers.satellite.addTo(map);
-            showToast('Satellite view');
-        } else {
-            map.removeLayer(tileLayers.satellite);
-            tileLayers.osm.addTo(map);
-            showToast('Street map view');
-        }
-    });
+    let isSatellite = true;
+    function initLayerToggle() {
+        document.getElementById('btnLayers').addEventListener('click', () => {
+            isSatellite = !isSatellite;
+            const style = isSatellite ? 'mapbox://styles/mapbox/satellite-streets-v12' : 'mapbox://styles/mapbox/streets-v12';
+            map.setStyle(style);
+            showToast(isSatellite ? 'Satellite view' : 'Street map view');
+        });
+    }
 
     // ══════════════════════════════════════════
     //  TOAST
