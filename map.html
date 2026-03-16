@@ -978,10 +978,12 @@
         });
 
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        map.addControl(new mapboxgl.ScaleControl({ maxWidth: 80, unit: 'metric' }), 'bottom-right');
 
         map.on('load', () => {
             initLayerToggle();
             setupNavigation();
+            add3DBuildings();
         });
 
         map.on('click', (e) => {
@@ -991,6 +993,39 @@
                 closeSheet();
             }
         });
+    }
+
+    // ══════════════════════════════════════════
+    //  3D BUILDINGS LAYER
+    // ══════════════════════════════════════════
+    function add3DBuildings() {
+        const layers = map.getStyle().layers;
+        // Find the first symbol layer in the style to insert buildings below labels
+        let firstSymbolId;
+        for (const layer of layers) {
+            if (layer.type === 'symbol') { firstSymbolId = layer.id; break; }
+        }
+        if (!map.getLayer('campus-3d-buildings')) {
+            map.addLayer({
+                id: 'campus-3d-buildings',
+                source: 'composite',
+                'source-layer': 'building',
+                filter: ['==', 'extrude', 'true'],
+                type: 'fill-extrusion',
+                minzoom: 15,
+                paint: {
+                    'fill-extrusion-color': [
+                        'interpolate', ['linear'], ['get', 'height'],
+                        0,   '#c7d2fe',
+                        10,  '#818cf8',
+                        30,  '#4338ca'
+                    ],
+                    'fill-extrusion-height':  ['interpolate', ['linear'], ['zoom'], 15, 0, 18, ['get', 'height']],
+                    'fill-extrusion-base':    ['interpolate', ['linear'], ['zoom'], 15, 0, 18, ['get', 'min_height']],
+                    'fill-extrusion-opacity': 0.65
+                }
+            }, firstSymbolId);
+        }
     }
 
     // Load markers
@@ -1007,29 +1042,28 @@
     function addMarker(b) {
         const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
         
-        // Create custom marker element
         const el = document.createElement('div');
         el.className = 'pin';
         el.style.backgroundColor = cfg.color;
         el.innerHTML = `<i class="fas ${cfg.icon}"></i>`;
         el.dataset.id = b.id;
-
-        // Popup
-        const popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`<div class="map-popup">
-                <strong>${b.name}</strong>
-                <span>${b.shortName || cfg.label}</span>
-            </div>`);
+        el.title = b.name;
+        // Accessibility
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', b.name);
+        el.setAttribute('tabindex', '0');
 
         const m = new mapboxgl.Marker({ element: el })
             .setLngLat([b.lng, b.lat])
-            .setPopup(popup)
             .addTo(map);
 
         el.addEventListener('click', (e) => {
             e.stopPropagation();
-            showBuilding(b);
+            map.flyTo({ center: [b.lng, b.lat], zoom: 19, duration: 700, essential: true });
+            setTimeout(() => showBuilding(b), 500);
         });
+        // Keyboard support
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
 
         markers[b.id] = { marker: m, type: b.type, element: el };
     }
@@ -1117,14 +1151,21 @@
         if (q.length < 1) { searchResults.classList.remove('open'); return; }
 
         const lq = q.toLowerCase();
-        const hits = buildingsData.filter(b =>
-            b.name.toLowerCase().includes(lq) ||
-            (b.shortName && b.shortName.toLowerCase().includes(lq)) ||
-            b.type.toLowerCase().includes(lq) ||
-            (b.description && b.description.toLowerCase().includes(lq))
-        );
+        // Score-ranked fuzzy search
+        const scored = buildingsData.map(b => {
+            let score = 0;
+            const name = b.name.toLowerCase();
+            const shortName = (b.shortName || '').toLowerCase();
+            const desc = (b.description || '').toLowerCase();
+            if (name === lq || shortName === lq)          score += 100; // exact match
+            if (name.startsWith(lq) || shortName.startsWith(lq)) score += 60; // starts with
+            if (name.includes(lq) || shortName.includes(lq))     score += 30; // contains
+            if (desc.includes(lq))                                score += 10; // in description
+            if (b.type.replace('_',' ').toLowerCase().includes(lq)) score += 5;
+            return { b, score };
+        }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
 
-        renderResults(hits, q);
+        renderResults(scored.map(x => x.b), q);
     }
 
     function renderResults(hits, q) {
@@ -1133,23 +1174,25 @@
         if (!hits.length) {
             searchResults.innerHTML = `<div class="no-result"><i class="fas fa-search" style="margin-right:6px"></i>No results for "<strong>${q}</strong>"</div>`;
         } else {
-            hits.forEach(b => {
+            hits.forEach((b, idx) => {
                 const cfg = TYPE_CFG[b.type] || TYPE_CFG.facility;
                 const el = document.createElement('div');
                 el.className = 'result-item';
+                el.dataset.idx = idx;
                 el.innerHTML = `
                     <div class="result-dot" style="background:${cfg.color}"></div>
                     <div class="result-name">
                         <strong>${highlight(b.name, q)}</strong>
-                        <span>${b.shortName ? b.shortName + ' · ' : ''}${cfg.label}</span>
+                        <span>${b.shortName ? b.shortName + ' · ' : ''}${cfg.label}${b.hours ? ' · ' + b.hours : ''}</span>
                     </div>
                     <span class="result-badge" style="background:${cfg.color}20;color:${cfg.color}">${b.shortName || cfg.label}</span>
                 `;
                 el.addEventListener('click', () => {
                     searchResults.classList.remove('open');
                     searchInput.value = b.name;
-                    map.flyTo({ center: [b.lng, b.lat], zoom: 19, duration: 800 });
-                    setTimeout(() => showBuilding(b), 900);
+                    searchClear.style.display = 'block';
+                    map.flyTo({ center: [b.lng, b.lat], zoom: 19, duration: 800, essential: true });
+                    setTimeout(() => showBuilding(b), 850);
                 });
                 searchResults.appendChild(el);
             });
@@ -1157,6 +1200,28 @@
 
         searchResults.classList.add('open');
     }
+
+    // Keyboard navigation for search results
+    searchInput.addEventListener('keydown', e => {
+        const items = [...searchResults.querySelectorAll('.result-item')];
+        const focused = searchResults.querySelector('.result-item:focus');
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = focused ? items[items.indexOf(focused) + 1] : items[0];
+            next?.focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = focused ? items[items.indexOf(focused) - 1] : items[items.length - 1];
+            prev?.focus();
+        } else if (e.key === 'Escape') {
+            searchResults.classList.remove('open');
+            searchInput.blur();
+        }
+    });
+    searchResults.addEventListener('keydown', e => {
+        if (e.key === 'Enter') e.target.closest('.result-item')?.click();
+    });
 
     function highlight(text, q) {
         const i = text.toLowerCase().indexOf(q.toLowerCase());
@@ -1223,11 +1288,11 @@
                 <div class="place-icon" style="background:${cfg.color}18;color:${cfg.color}">
                     <i class="fas ${cfg.icon}"></i>
                 </div>
-                <div style="flex:1">
+                <div style="flex:1;min-width:0">
                     <h2>${b.name}</h2>
-                    <span class="type" style="color:${cfg.color}">${cfg.label}${b.shortName ? ' · ' + b.shortName : ''}</span>
+                    <span class="type" style="color:${cfg.color}">${cfg.label}${b.shortName ? ' · ' + b.shortName : ''}${b.hours ? ' · ' + b.hours : ''}</span>
                 </div>
-                <button class="close-sheet" onclick="closeSheet()"><i class="fas fa-xmark"></i></button>
+                <button class="close-sheet" onclick="closeSheet()" aria-label="Close"><i class="fas fa-xmark"></i></button>
             </div>
             ${b.description ? `<p class="place-desc">${b.description}</p>` : ''}
             ${meta ? `<div class="meta-list">${meta}</div>` : ''}
@@ -1240,10 +1305,10 @@
                 </button>
             </div>
             <div class="sheet-actions">
-                <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${b.name.replace(/'/g,"\\'")}')">
-                    <i class="fas fa-diamond-turn-right"></i> Get Directions
+                <button class="action-btn btn-dir" id="btn-dir-${b.id}" onclick="startRoute(${b.lat}, ${b.lng}, '${b.name.replace(/'/g,"\\'")}')">
+                    <i class="fas fa-diamond-turn-right"></i> Directions
                 </button>
-                <button class="action-btn btn-share" onclick="shareLocation('${b.name.replace(/'/g,"\\'")}', ${b.lat}, ${b.lng})">
+                <button class="action-btn btn-share" onclick="shareLocation('${b.name.replace(/'/g,"\\'") }', ${b.lat}, ${b.lng})">
                     <i class="fas fa-share-nodes"></i> Share
                 </button>
             </div>
@@ -1836,8 +1901,14 @@
         document.getElementById('btnLayers').addEventListener('click', () => {
             isSatellite = !isSatellite;
             const style = isSatellite ? 'mapbox://styles/mapbox/satellite-streets-v12' : 'mapbox://styles/mapbox/streets-v12';
+            // Re-add 3D buildings after style loads since setStyle wipes all custom layers
+            map.once('styledata', () => {
+                add3DBuildings();
+                // Re-add markers that may have been removed
+                document.querySelectorAll('.pin').forEach(el => el.style.display = '');
+            });
             map.setStyle(style);
-            showToast(isSatellite ? 'Satellite view' : 'Street map view');
+            showToast(isSatellite ? '🛰 Satellite view' : '🗺 Street map view');
         });
     }
 

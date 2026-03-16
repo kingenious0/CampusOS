@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'campusos-v22';
+const CACHE_NAME  = 'campusos-v25';
 const TILE_CACHE  = 'campusos-tiles-v1';
 
 // App shell files to cache on install
