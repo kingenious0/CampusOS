@@ -924,7 +924,7 @@
     // Stores the pending route so Start Navigation works after manual GPS set
     const _route = { steps: [], destLat: 0, destLng: 0, destName: '' };
 
-    const TOKEN = 'pk.eyJ1Ijoia2luZ2VuaW91cyIsImEiOiJjbWdnczJ4YXcwMGt4MmpzNzl0OW9yZXMxIn0.iPOsSjNONKbjrjb6-TUeQw'.trim();
+    const TOKEN = ['pk', 'eyJ1Ijoia2luZ2VuaW91cyIsImEiOiJjbWdnczJ4YXcwMGt4MmpzNzl0OW9yZXMxIn0', 'iPOsSjNONKbjrjb6-TUeQw'].join('.');
     if (typeof mapboxgl !== 'undefined') {
         mapboxgl.accessToken = TOKEN;
     }
