@@ -52,11 +52,11 @@
   },
   {
     "id": 6,
-    "name": "The Mosque",
+    "name": "Opoku Ware Mosque",
     "shortName": "Mosque",
     "type": "facility",
-    "lat": 6.6979695624006785,
-    "lng": -1.68387710774935,
+    "lat": 6.697788,
+    "lng": -1.683953,
     "description": "Campus mosque for Islamic worship and community activities.",
     "hours": "Open for prayer times"
   },
@@ -85,9 +85,9 @@
     "name": "AAMUSTED Football Field",
     "shortName": "Football Field",
     "type": "facility",
-    "lat": 6.701294101191554,
-    "lng": -1.6783088418947358,
-    "description": "Main campus football field for sports events, training and recreational activities.",
+    "lat": 6.701221,
+    "lng": -1.678382,
+    "description": "Main campus football field (soccer park) for sports events, training and recreational activities.",
     "hours": "6:00 AM – 8:00 PM"
   },
   {
@@ -116,8 +116,8 @@
     "name": "T.L. Block",
     "shortName": "TL Block",
     "type": "academic",
-    "lat": 6.697613364917664,
-    "lng": -1.6816374522668014,
+    "lat": 6.697532,
+    "lng": -1.681563,
     "description": "Teaching and Learning Block housing lecture halls and tutorial rooms.",
     "hours": "7:00 AM – 6:00 PM"
   },
@@ -250,17 +250,17 @@
     "type": "administration",
     "lat": 6.700458972619646,
     "lng": -1.6820753764509622,
-    "description": "Registry and Office Block — the main student services hub for registration, records and administration.",
+    "description": "Registry and Office Block — main student services hub for registration, records and administration.",
     "hours": "8:00 AM – 5:00 PM"
   },
   {
     "id": 26,
-    "name": "AAMUSTED Administration",
+    "name": "Administration Block",
     "shortName": "Admin Block",
     "type": "administration",
-    "lat": 6.697183,
-    "lng": -1.681506,
-    "description": "Main university administration building housing the Vice-Chancellor's office, registry and key administrative units.",
+    "lat": 6.696903,
+    "lng": -1.681367,
+    "description": "Main university administration building housing the Vice-Chancellor's office, registry and key admin units.",
     "contact": "admin@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM"
   },
@@ -269,9 +269,9 @@
     "name": "ICT Lab",
     "shortName": "ICT Lab",
     "type": "academic",
-    "lat": 6.698606,
-    "lng": -1.683021,
-    "description": "Computer and ICT laboratory providing computing resources, internet access and digital training facilities for students.",
+    "lat": 6.697921,
+    "lng": -1.681560,
+    "description": "Computer and ICT laboratory providing computing resources, internet access and digital training for students.",
     "hours": "8:00 AM – 6:00 PM"
   },
   {
@@ -281,7 +281,7 @@
     "type": "faculty",
     "lat": 6.698532,
     "lng": -1.680924,
-    "description": "Faculty of Applied Science and Mathematics Education — offering science, maths and ICT education programmes.",
+    "description": "Faculty of Applied Science and Mathematics Education — science, maths and ICT education programmes.",
     "contact": "fasme@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM"
   },
@@ -290,9 +290,9 @@
     "name": "Graduate Block",
     "shortName": "Grad Block",
     "type": "academic",
-    "lat": 6.697770,
-    "lng": -1.680143,
-    "description": "Building dedicated to postgraduate students and graduate school administration.",
+    "lat": 6.697252,
+    "lng": -1.680922,
+    "description": "Building dedicated to postgraduate students and the graduate school administration.",
     "hours": "8:00 AM – 5:00 PM"
   },
   {
@@ -300,8 +300,8 @@
     "name": "Dean's Office",
     "shortName": "Dean's Office",
     "type": "administration",
-    "lat": 6.697900,
-    "lng": -1.681750,
+    "lat": 6.697846,
+    "lng": -1.681037,
     "description": "Office of the Dean of Students handling student welfare, discipline and campus life affairs.",
     "hours": "8:00 AM – 5:00 PM"
   },
@@ -310,8 +310,8 @@
     "name": "AAMUSTED Canteen",
     "shortName": "Canteen",
     "type": "facility",
-    "lat": 6.698850,
-    "lng": -1.682450,
+    "lat": 6.698624,
+    "lng": -1.683424,
     "description": "Main campus canteen providing affordable meals, snacks and refreshments for students and staff.",
     "hours": "7:00 AM – 8:00 PM"
   },
@@ -330,18 +330,18 @@
     "name": "Security Office",
     "shortName": "Security",
     "type": "administration",
-    "lat": 6.696510,
-    "lng": -1.681120,
-    "description": "Campus security headquarters managing campus safety, access control and emergency response.",
+    "lat": 6.696770,
+    "lng": -1.682201,
+    "description": "Campus security headquarters managing safety, access control and emergency response.",
     "hours": "24 hours"
   },
   {
     "id": 34,
-    "name": "AAMUSTED Food Court",
+    "name": "Food Court",
     "shortName": "Food Court",
     "type": "facility",
-    "lat": 6.700180,
-    "lng": -1.682060,
+    "lat": 6.698691,
+    "lng": -1.682611,
     "description": "Campus food court area with multiple food vendors offering diverse meal options for students and staff.",
     "hours": "7:00 AM – 9:00 PM"
   },
@@ -352,28 +352,118 @@
     "type": "faculty",
     "lat": 6.699780,
     "lng": -1.681380,
-    "description": "Faculty of Vocational Education offering programmes in fashion, catering, cosmetology and trade education.",
+    "description": "Faculty of Vocational Education offering catering, fashion, cosmetology and trade education programmes.",
     "contact": "fve@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM"
   },
   {
     "id": 36,
-    "name": "AAMUSTED Handball Court",
+    "name": "Handball Court",
     "shortName": "Handball Court",
     "type": "facility",
-    "lat": 6.696870,
-    "lng": -1.678310,
+    "lat": 6.696693,
+    "lng": -1.679889,
     "description": "Dedicated handball court for recreational sports and competitive campus games.",
     "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 37,
-    "name": "Storage Block",
-    "shortName": "Storage",
+    "name": "Transport Hub",
+    "shortName": "Transport",
     "type": "facility",
-    "lat": 6.697420,
-    "lng": -1.679800,
-    "description": "University storage and maintenance facility for campus equipment and supplies.",
-    "hours": "8:00 AM – 5:00 PM"
+    "lat": 6.697020,
+    "lng": -1.680857,
+    "description": "Campus transport and logistics hub for university vehicles, staff buses and student transport services.",
+    "hours": "6:00 AM – 6:00 PM"
+  },
+  {
+    "id": 38,
+    "name": "Credit Union",
+    "shortName": "Credit Union",
+    "type": "facility",
+    "lat": 6.701187,
+    "lng": -1.682222,
+    "description": "Staff and student credit union offering savings, loans and financial support services on campus.",
+    "hours": "8:00 AM – 4:30 PM"
+  },
+  {
+    "id": 39,
+    "name": "ESA Pavilion",
+    "shortName": "ESA Pavilion",
+    "type": "facility",
+    "lat": 6.701666,
+    "lng": -1.682772,
+    "description": "Outdoor pavilion near the ESA building used for campus events, gatherings and recreational activities.",
+    "hours": "Open access"
+  },
+  {
+    "id": 40,
+    "name": "Volleyball Court",
+    "shortName": "Volleyball Court",
+    "type": "facility",
+    "lat": 6.701751,
+    "lng": -1.679033,
+    "description": "Campus volleyball court for recreational play, inter-departmental tournaments and sports training.",
+    "hours": "6:00 AM – 8:00 PM"
+  },
+  {
+    "id": 41,
+    "name": "Basketball Court",
+    "shortName": "Basketball Court",
+    "type": "facility",
+    "lat": 6.701757,
+    "lng": -1.678843,
+    "description": "Outdoor basketball court for recreational play and campus sports competitions.",
+    "hours": "6:00 AM – 8:00 PM"
+  },
+  {
+    "id": 42,
+    "name": "Autonomy Hall",
+    "shortName": "Autonomy Hall",
+    "type": "hostel",
+    "lat": 6.700569,
+    "lng": -1.677035,
+    "description": "Modern student residential hall with accommodation, study areas and recreational amenities.",
+    "hours": "24 hours"
+  },
+  {
+    "id": 43,
+    "name": "UBA",
+    "shortName": "UBA",
+    "type": "facility",
+    "lat": 6.697340,
+    "lng": -1.683376,
+    "description": "United Bank for Africa (UBA) branch on campus offering banking services, ATM and mobile banking support.",
+    "hours": "8:30 AM – 4:30 PM"
+  },
+  {
+    "id": 44,
+    "name": "Franky Jay Shopping Mall",
+    "shortName": "Franky Jay Mall",
+    "type": "facility",
+    "lat": 6.698302,
+    "lng": -1.682416,
+    "description": "On-campus shopping mall with retail shops, phone accessories, stationery and everyday essentials.",
+    "hours": "7:00 AM – 9:00 PM"
+  },
+  {
+    "id": 45,
+    "name": "Opoku Ware Tennis Court",
+    "shortName": "Tennis Court",
+    "type": "facility",
+    "lat": 6.697564,
+    "lng": -1.683349,
+    "description": "Tennis court adjacent to Opoku Ware Hall for recreational and competitive tennis play.",
+    "hours": "6:00 AM – 8:00 PM"
+  },
+  {
+    "id": 46,
+    "name": "Campus ATM",
+    "shortName": "ATM",
+    "type": "facility",
+    "lat": 6.697423,
+    "lng": -1.682324,
+    "description": "On-campus ATM for quick cash withdrawals. Supported banks include UBA, GCB, Fidelity and others.",
+    "hours": "24 hours"
   }
 ]
