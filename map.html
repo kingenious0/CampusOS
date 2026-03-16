@@ -798,7 +798,7 @@
                 flex-wrap: wrap; /* allow wrapping on desktop so chips don't overflow sideways */
             }
             .sheet {
-                top: 200px; /* Safely tucks underneath the static search and filter headers */
+                top: 240px; /* Leave enough room for 2 rows of wrapped filter chips */
                 left: 0;
                 right: auto;
                 bottom: 0;
@@ -807,11 +807,11 @@
                 box-shadow: none;
                 border-top: 1px solid var(--border);
                 transform: translateX(0) !important; /* Always fully opened on desktop */
-                max-height: calc(100vh - 200px);
+                max-height: calc(100vh - 240px);
                 background: var(--surface);
             }
             .sheet.expanded {
-                max-height: calc(100vh - 200px); 
+                max-height: calc(100vh - 240px); 
             }
             .sheet-handle {
                 display: none; /* hide grab handle on desktop */
