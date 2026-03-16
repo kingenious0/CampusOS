@@ -1151,17 +1151,20 @@
         if (q.length < 1) { searchResults.classList.remove('open'); return; }
 
         const lq = q.toLowerCase();
-        // Score-ranked fuzzy search
+        // Score-ranked fuzzy search across all meaningful fields
         const scored = buildingsData.map(b => {
             let score = 0;
             const name = b.name.toLowerCase();
             const shortName = (b.shortName || '').toLowerCase();
             const desc = (b.description || '').toLowerCase();
-            if (name === lq || shortName === lq)          score += 100; // exact match
-            if (name.startsWith(lq) || shortName.startsWith(lq)) score += 60; // starts with
-            if (name.includes(lq) || shortName.includes(lq))     score += 30; // contains
-            if (desc.includes(lq))                                score += 10; // in description
-            if (b.type.replace('_',' ').toLowerCase().includes(lq)) score += 5;
+            const contact = (b.contact || '').toLowerCase();
+            const typeLabel = (b.type || '').replace('_',' ').toLowerCase();
+            if (name === lq || shortName === lq)                   score += 100; // exact
+            if (name.startsWith(lq) || shortName.startsWith(lq))  score += 60;  // starts with
+            if (name.includes(lq) || shortName.includes(lq))      score += 30;  // contains
+            if (desc.includes(lq))                                 score += 10;  // in description
+            if (typeLabel.includes(lq))                            score += 8;   // type match
+            if (contact.includes(lq))                              score += 5;   // contact match
             return { b, score };
         }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
 

@@ -16,7 +16,7 @@
     "type": "facility",
     "lat": 6.697511370968863,
     "lng": -1.6797035905724758,
-    "description": "Campus health facility for primary care, first aid and pharmacy services.",
+    "description": "Campus health facility offering primary care, first aid and pharmacy services.",
     "contact": "clinic@aamusted.edu.gh",
     "hours": "7:00 AM – 10:00 PM"
   },
@@ -128,7 +128,7 @@
     "type": "faculty",
     "lat": 6.698322933659775,
     "lng": -1.6799795734995073,
-    "description": "Mechanical, electrical, automotive and construction technology programmes.",
+    "description": "Faculty offering mechanical, electrical, automotive and construction technology programmes.",
     "contact": "fte@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM"
   },
@@ -209,7 +209,7 @@
     "type": "academic",
     "lat": 6.701263320240392,
     "lng": -1.6831062195613589,
-    "description": "ESA Building housing academic departments and offices.",
+    "description": "ESA Building housing academic departments and faculty offices.",
     "hours": "8:00 AM – 5:00 PM"
   },
   {
@@ -247,10 +247,133 @@
     "id": 25,
     "name": "ROB",
     "shortName": "ROB",
-    "type": "academic",
+    "type": "administration",
     "lat": 6.700458972619646,
     "lng": -1.6820753764509622,
-    "description": "Registry and Office Block containing key administrative and student services offices.",
+    "description": "Registry and Office Block — the main student services hub for registration, records and administration.",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 26,
+    "name": "AAMUSTED Administration",
+    "shortName": "Admin Block",
+    "type": "administration",
+    "lat": 6.697183,
+    "lng": -1.681506,
+    "description": "Main university administration building housing the Vice-Chancellor's office, registry and key administrative units.",
+    "contact": "admin@aamusted.edu.gh",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 27,
+    "name": "ICT Lab",
+    "shortName": "ICT Lab",
+    "type": "academic",
+    "lat": 6.698606,
+    "lng": -1.683021,
+    "description": "Computer and ICT laboratory providing computing resources, internet access and digital training facilities for students.",
+    "hours": "8:00 AM – 6:00 PM"
+  },
+  {
+    "id": 28,
+    "name": "FASME Block",
+    "shortName": "FASME",
+    "type": "faculty",
+    "lat": 6.698532,
+    "lng": -1.680924,
+    "description": "Faculty of Applied Science and Mathematics Education — offering science, maths and ICT education programmes.",
+    "contact": "fasme@aamusted.edu.gh",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 29,
+    "name": "Graduate Block",
+    "shortName": "Grad Block",
+    "type": "academic",
+    "lat": 6.697770,
+    "lng": -1.680143,
+    "description": "Building dedicated to postgraduate students and graduate school administration.",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 30,
+    "name": "Dean's Office",
+    "shortName": "Dean's Office",
+    "type": "administration",
+    "lat": 6.697900,
+    "lng": -1.681750,
+    "description": "Office of the Dean of Students handling student welfare, discipline and campus life affairs.",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 31,
+    "name": "AAMUSTED Canteen",
+    "shortName": "Canteen",
+    "type": "facility",
+    "lat": 6.698850,
+    "lng": -1.682450,
+    "description": "Main campus canteen providing affordable meals, snacks and refreshments for students and staff.",
+    "hours": "7:00 AM – 8:00 PM"
+  },
+  {
+    "id": 32,
+    "name": "Opoku Ware II Hall",
+    "shortName": "OW II Hall",
+    "type": "hostel",
+    "lat": 6.697620,
+    "lng": -1.683560,
+    "description": "Second Opoku Ware residential hall with modern student accommodation and amenities.",
+    "hours": "24 hours"
+  },
+  {
+    "id": 33,
+    "name": "Security Office",
+    "shortName": "Security",
+    "type": "administration",
+    "lat": 6.696510,
+    "lng": -1.681120,
+    "description": "Campus security headquarters managing campus safety, access control and emergency response.",
+    "hours": "24 hours"
+  },
+  {
+    "id": 34,
+    "name": "AAMUSTED Food Court",
+    "shortName": "Food Court",
+    "type": "facility",
+    "lat": 6.700180,
+    "lng": -1.682060,
+    "description": "Campus food court area with multiple food vendors offering diverse meal options for students and staff.",
+    "hours": "7:00 AM – 9:00 PM"
+  },
+  {
+    "id": 35,
+    "name": "Faculty of Vocational Education",
+    "shortName": "FVE",
+    "type": "faculty",
+    "lat": 6.699780,
+    "lng": -1.681380,
+    "description": "Faculty of Vocational Education offering programmes in fashion, catering, cosmetology and trade education.",
+    "contact": "fve@aamusted.edu.gh",
+    "hours": "8:00 AM – 5:00 PM"
+  },
+  {
+    "id": 36,
+    "name": "AAMUSTED Handball Court",
+    "shortName": "Handball Court",
+    "type": "facility",
+    "lat": 6.696870,
+    "lng": -1.678310,
+    "description": "Dedicated handball court for recreational sports and competitive campus games.",
+    "hours": "6:00 AM – 8:00 PM"
+  },
+  {
+    "id": 37,
+    "name": "Storage Block",
+    "shortName": "Storage",
+    "type": "facility",
+    "lat": 6.697420,
+    "lng": -1.679800,
+    "description": "University storage and maintenance facility for campus equipment and supplies.",
     "hours": "8:00 AM – 5:00 PM"
   }
 ]
