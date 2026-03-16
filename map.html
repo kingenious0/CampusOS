@@ -109,6 +109,7 @@
             box-shadow: var(--shadow);
             outline: none;
             -webkit-appearance: none;
+            appearance: none;
         }
         .search-bar input::placeholder { color: var(--muted); }
         .search-icon {
@@ -736,87 +737,111 @@
 
         /* ── REMOVED REDUNDANT PILL ──────────── */
 
-        /* Push Mapbox UI above the FABs and Bottom Sheet on mobile */
-        .mapboxgl-ctrl-bottom-right {
-            bottom: 350px !important;
-            transition: bottom 0.3s ease;
+        /* Ensure Mapbox Zoom/Compass controls clear the top search/notch on mobile */
+        .mapboxgl-ctrl-top-right {
+            top: 24px !important;
+            right: 12px !important;
+            transition: top 0.3s ease, margin-top 0.3s ease;
+        }
+        
+        /* Stop the Mapbox Copyright lines from floating in middle of screen */
+        .mapboxgl-ctrl-bottom-right, .mapboxgl-ctrl-bottom-left {
+            bottom: 8px !important;
         }
 
         /* ── DESKTOP ADJUSTMENTS ──────────────── */
         @media (min-width: 768px) {
+            /* Create a solid, professional white side-panel on desktop to hold all UI */
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 400px;
+                background: var(--surface);
+                z-index: 990; /* Right below the UI elements */
+                box-shadow: 4px 0 32px rgba(0,0,0,0.12);
+            }
             .top-bar {
-                width: 380px;
-                padding: 24px;
-                left: 0;
-                right: auto;
+                width: 400px;
+                padding: 32px 24px 16px;
+                background: var(--surface);
+            }
+            .app-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
             }
             .logo-pill {
-                width: auto;
-                height: auto;
-                padding: 10px 16px;
-                border-radius: 50px;
+                padding: 0;
+                box-shadow: none;
+                background: transparent;
+                color: var(--primary);
                 justify-content: flex-start;
-                gap: 8px;
             }
+            .logo-pill i { font-size: 28px; margin-right: 6px; }
             .logo-pill .logo-text {
                 display: block;
-                font-size: 14px;
-                font-weight: 700;
+                font-size: 22px;
+                font-weight: 800;
+            }
+            .search-bar { width: 100%; }
+            .search-bar input {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                box-shadow: none;
             }
             .filter-chips {
-                width: 380px;
+                width: 400px;
                 left: 0;
-                top: 96px;
+                top: 136px;
                 padding: 0 24px;
-                flex-wrap: wrap; /* allow wrapping on desktop so chips don't overflow sideways tightly */
+                flex-wrap: wrap; /* allow wrapping on desktop so chips don't overflow sideways */
             }
             .sheet {
-                top: 154px;
-                left: 24px;
+                top: 200px; /* Safely tucks underneath the static search and filter headers */
+                left: 0;
                 right: auto;
-                bottom: 24px;
-                width: 332px;
-                height: auto;
-                max-height: calc(100vh - 178px);
-                border-radius: var(--radius);
-                transform: translateX(-120%);
-                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            }
-            .sheet.open {
-                transform: translateX(0);
+                bottom: 0;
+                width: 400px;
+                border-radius: 0;
+                box-shadow: none;
+                border-top: 1px solid var(--border);
+                transform: translateX(0) !important; /* Always fully opened on desktop */
+                max-height: calc(100vh - 200px);
+                background: var(--surface);
             }
             .sheet.expanded {
-                max-height: calc(100vh - 178px); /* stays fully expanded on desktop as scrollable sidebar */
+                max-height: calc(100vh - 200px); 
             }
             .sheet-handle {
                 display: none; /* hide grab handle on desktop */
             }
-            .fabs {
-                bottom: 32px;
+            
+            /* Align FABs and Popups naturally to the new map viewable area */
+            .fabs, .reroute-bar, .toast {
                 right: 32px;
-            }
-            .toast {
-                bottom: 32px;
-            }
-            .reroute-bar {
                 bottom: 32px;
             }
             .nav-hud {
-                width: 420px;
-                left: 50%;
+                width: 460px;
+                left: calc(50% + 200px); /* Center perfectly inside the remaining map viewport */
                 right: auto;
                 transform: translateX(-50%) translateY(-100%);
-                border-radius: 0 0 calc(var(--radius) + 4px) calc(var(--radius) + 4px);
-                overflow: hidden;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                border-radius: 0 0 calc(var(--radius) + 8px) calc(var(--radius) + 8px);
+                box-shadow: 0 12px 48px rgba(0,0,0,0.3);
             }
             .nav-hud.active {
                 transform: translateX(-50%) translateY(0);
             }
+            
+            /* Pin the map attribution correctly so it is flush at the bottom */
             .mapboxgl-ctrl-bottom-right {
-                bottom: 160px !important;
-                right: 32px !important; 
-                margin-left: 0 !important;
+                bottom: 8px !important;
+                right: 8px !important; 
+            }
+            .mapboxgl-ctrl-bottom-left {
+                bottom: 8px !important;
+                left: 410px !important; /* Pushed precisely to the right of the solid side panel */
             }
         }
     </style>
@@ -946,7 +971,7 @@
             antialias: true
         });
 
-        map.addControl(new mapboxgl.NavigationControl({ position: 'bottom-right' }));
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
         map.on('load', () => {
             initLayerToggle();
