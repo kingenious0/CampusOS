@@ -751,97 +751,103 @@
 
         /* ── DESKTOP ADJUSTMENTS ──────────────── */
         @media (min-width: 768px) {
-            /* Create a solid, professional white side-panel on desktop to hold all UI */
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0; left: 0; bottom: 0;
-                width: 400px;
-                background: var(--surface);
-                z-index: 990; /* Right below the UI elements */
-                box-shadow: 4px 0 32px rgba(0,0,0,0.12);
-            }
+            /* No full-height white panel — everything floats cleanly */
+            body::before { display: none; }
+
+            /* Top bar floats at top-left as a compact bar */
             .top-bar {
-                width: 400px;
-                padding: 32px 24px 16px;
-                background: var(--surface);
+                width: 420px;
+                padding: 16px 16px 0;
+                background: transparent; /* fully transparent — sits over the map */
             }
             .app-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
             }
+            /* Logo stays as compact pill — same as mobile but slightly larger */
             .logo-pill {
-                padding: 0;
-                box-shadow: none;
-                background: transparent;
-                color: var(--primary);
-                justify-content: flex-start;
+                width: 48px; height: 48px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                box-shadow: var(--shadow);
             }
-            .logo-pill i { font-size: 28px; margin-right: 6px; }
-            .logo-pill .logo-text {
-                display: block;
-                font-size: 22px;
-                font-weight: 800;
-            }
-            .search-bar { width: 100%; }
+            .logo-pill .logo-text { display: none; } /* stays icon-only */
+
+            /* Search bar gets a clean frosted look */
+            .search-bar { flex: 1; }
             .search-bar input {
-                background: var(--bg);
+                background: rgba(255,255,255,0.96);
                 border: 1px solid var(--border);
-                box-shadow: none;
+                box-shadow: var(--shadow);
+                backdrop-filter: blur(12px);
             }
+
+            /* Filter chips: float below the top bar, wrap naturally */
             .filter-chips {
-                width: 400px;
-                left: 0;
-                top: 136px;
-                padding: 0 24px;
-                flex-wrap: wrap; /* allow wrapping on desktop so chips don't overflow sideways */
+                width: 420px;
+                left: 16px;
+                top: 76px;
+                padding: 0;
+                flex-wrap: wrap;
+                gap: 6px;
             }
+
+            /* Sheet: compact floating card on bottom-left, slides in only when needed */
             .sheet {
-                top: 240px; /* Leave enough room for 2 rows of wrapped filter chips */
-                left: 0;
+                top: auto;
+                left: 16px;
                 right: auto;
-                bottom: 0;
-                width: 400px;
-                border-radius: 0;
-                box-shadow: none;
-                border-top: 1px solid var(--border);
-                transform: translateX(0) !important; /* Always fully opened on desktop */
-                max-height: calc(100vh - 240px);
-                background: var(--surface);
+                bottom: 24px;
+                width: 360px;
+                max-height: 55vh;
+                border-radius: var(--radius);
+                box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+                border: 1px solid var(--border);
+                transform: translateY(20px);
+                opacity: 0;
+                pointer-events: none;
+                transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
+                background: rgba(255,255,255,0.97);
+                backdrop-filter: blur(16px);
+            }
+            .sheet.open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
             }
             .sheet.expanded {
-                max-height: calc(100vh - 240px); 
+                max-height: 75vh;
             }
-            .sheet-handle {
-                display: none; /* hide grab handle on desktop */
-            }
-            
-            /* Align FABs and Popups naturally to the new map viewable area */
+            .sheet-handle { display: none; }
+
+            /* FABs stay right side */
             .fabs, .reroute-bar, .toast {
-                right: 32px;
-                bottom: 32px;
+                right: 24px;
+                bottom: 24px;
             }
+
+            /* Nav HUD centered over visible map area */
             .nav-hud {
-                width: 460px;
-                left: calc(50% + 200px); /* Center perfectly inside the remaining map viewport */
+                width: 440px;
+                left: 50%;
                 right: auto;
                 transform: translateX(-50%) translateY(-100%);
-                border-radius: 0 0 calc(var(--radius) + 8px) calc(var(--radius) + 8px);
+                border-radius: 0 0 var(--radius) var(--radius);
                 box-shadow: 0 12px 48px rgba(0,0,0,0.3);
             }
             .nav-hud.active {
                 transform: translateX(-50%) translateY(0);
             }
-            
-            /* Pin the map attribution correctly so it is flush at the bottom */
+
+            /* Attribution stays cleanly at bottom */
             .mapboxgl-ctrl-bottom-right {
                 bottom: 8px !important;
-                right: 8px !important; 
+                right: 8px !important;
             }
             .mapboxgl-ctrl-bottom-left {
                 bottom: 8px !important;
-                left: 410px !important; /* Pushed precisely to the right of the solid side panel */
+                left: 8px !important;
             }
         }
     </style>
