@@ -1370,6 +1370,33 @@
         map.addControl(new mapboxgl.ScaleControl({ maxWidth: 80, unit: 'metric' }), 'bottom-right');
 
         map.on('load', () => {
+            // ELITE POLISH: Clearer / High Contrast Satellite
+            if (map.getLayer('satellite')) {
+                map.setPaintProperty('satellite', 'raster-contrast', 0.25);
+                map.setPaintProperty('satellite', 'raster-saturation', 0.3);
+                map.setPaintProperty('satellite', 'raster-brightness-max', 0.95);
+            }
+
+            // High-resolution 3D Terrain (The Secret to 'Clearer' Looking Satellite)
+            map.addSource('mapbox-dem', {
+                'type': 'raster-dem',
+                'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                'tileSize': 512,
+                'maxzoom': 14
+            });
+            map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.2 });
+
+            // High-fidelity sky for a realistic horizon
+            map.addLayer({
+                'id': 'sky',
+                'type': 'sky',
+                'paint': {
+                    'sky-type': 'atmosphere',
+                    'sky-atmosphere-sun': [0.0, 0.0],
+                    'sky-atmosphere-sun-intensity': 15
+                }
+            });
+
             initLayerToggle();
             setupNavigation();
             add3DBuildings();
