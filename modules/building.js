@@ -66,6 +66,60 @@ const BuildingModule = (() => {
         panel.innerHTML = html;
     };
 
+    const displayServiceOrRoom = (building, item) => {
+        const panel = document.getElementById('infoPanel');
+        const cfg = typeLabels[building.type] || { label: building.type, color: '#6b7280', icon: 'fa-map-pin' };
+
+        let html = `
+            <div class="building-header">
+                <div class="bh-icon" style="background:${cfg.color}20; color:${cfg.color}">
+                    <i class="fas ${cfg.icon}"></i>
+                </div>
+                <div>
+                    <h3>${building.name}</h3>
+                    <span class="type-badge" style="background:${cfg.color}20; color:${cfg.color}">${cfg.label}</span>
+                </div>
+            </div>
+        `;
+
+        if (building.description) {
+            html += `<p class="building-desc">${building.description}</p>`;
+        }
+
+        html += `<div class="info-list">`;
+
+        // Display specific service or room info
+        if (item.type === 'service') {
+            html += infoRow('fa-concierge-bell', 'Service', item.name);
+            if (item.description) html += infoRow('fa-info-circle', 'Description', item.description);
+            if (item.requirements) html += infoRow('fa-list-check', 'Requirements', item.requirements);
+            if (item.hours) html += infoRow('fa-clock', 'Hours', item.hours);
+        } else if (item.type === 'room') {
+            html += infoRow('fa-door-open', 'Room Number', item.number);
+            if (item.floor) html += infoRow('fa-layer-group', 'Floor', item.floor);
+            if (item.description) html += infoRow('fa-info-circle', 'Description', item.description);
+        }
+
+        // Add building hours if available
+        if (building.hours) {
+            html += infoRow('fa-clock', 'Building Hours', building.hours);
+        }
+
+        if (building.contact) {
+            html += infoRow('fa-envelope', 'Contact', `<a href="mailto:${building.contact}">${building.contact}</a>`);
+        }
+
+        html += `</div>`;
+
+        html += `
+            <button class="route-btn" onclick="RouteModule.calculateRoute(${building.lat}, ${building.lng}, '${building.name.replace(/'/g, "\\'")}')">
+                <i class="fas fa-diamond-turn-right"></i> Get Directions
+            </button>
+        `;
+
+        panel.innerHTML = html;
+    };
+
     const infoRow = (icon, label, value) => `
         <div class="info-row">
             <span class="info-icon"><i class="fas ${icon}"></i></span>
@@ -76,5 +130,5 @@ const BuildingModule = (() => {
         </div>
     `;
 
-    return { displayInfo };
+    return { displayInfo, displayServiceOrRoom };
 })();

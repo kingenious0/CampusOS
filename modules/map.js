@@ -1,5 +1,5 @@
 /**
- * Map Module - Leaflet + OpenStreetMap for AAMUSTED Kumasi Campus
+ * Map Module - USTED NAV AAMUSTED Kumasi Campus
  */
 const MapModule = (() => {
     let map;
@@ -25,7 +25,7 @@ const MapModule = (() => {
 
         // OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | CampusOS – AAMUSTED Kumasi',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | USTED NAV – AAMUSTED Kumasi',
             maxZoom: 20
         }).addTo(map);
 

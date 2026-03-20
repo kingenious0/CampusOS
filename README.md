@@ -1,4 +1,4 @@
-# CampusOS - Smart Campus Infrastructure Intelligence System
+# USTED NAV - Smart Campus Navigation & Infrastructure Platform
 
 **A scalable, open-source campus navigation and infrastructure platform built on OpenStreetMap, Leaflet.js, and OSRM.**
 
@@ -9,8 +9,8 @@
 ---
 
 ## Overview
-
-CampusOS transforms campus navigation from a frustrating student experience into a seamless digital infrastructure layer. Built entirely on open-source technologies, it provides:
+ 
+USTED NAV transforms campus navigation from a frustrating student experience into a seamless digital infrastructure layer. Built entirely on open-source technologies, it provides:
 
 - **Interactive Campus Maps** - Real-time navigation powered by OpenStreetMap
 - **Building Discovery** - Search and locate any campus facility
@@ -65,7 +65,7 @@ Then visit: `http://localhost:8000/pages/index.html`
 ## Project Structure
 
 ```
-CampusOS/
+USTED NAV/
 ├── pages/
 │   ├── index.html          # Main campus map
 │   ├── exam.html           # Exam room locator
@@ -166,7 +166,7 @@ CampusOS/
 - Land use areas
 - Community-maintained
 
-**Layer 2: CampusOS (Internal)**
+**Layer 2: USTED NAV (Internal)**
 - Room metadata
 - Lecture hall status
 - Exam assignments
@@ -415,7 +415,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 ### Contact
 
 - **Institution**: Akenten Appiah-Menka University of Skills Training and Entrepreneurial Development
-- **Project**: CampusOS
+- **Project**: USTED NAV
 
 ---
 
@@ -434,7 +434,7 @@ If you use CampusOS in your research or project, please cite:
 
 ```bibtex
 @software{campusos2024,
-  title={CampusOS: Smart Campus Infrastructure Intelligence System},
+  title={USTED NAV: Smart Campus Navigation & Infrastructure Platform},
   year={2024},
   url={https://gitlab.com/kingenious-creative-dev/CampusOS}
 }
@@ -442,4 +442,4 @@ If you use CampusOS in your research or project, please cite:
 
 ---
 
-**CampusOS is not just a campus map. It is a spatial intelligence layer built on open geographic infrastructure.**
+**USTED NAV is not just a campus map. It is a spatial intelligence layer built on open geographic infrastructure.**
