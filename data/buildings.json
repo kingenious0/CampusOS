@@ -4,8 +4,8 @@
     "name": "AAMUSTED Library",
     "shortName": "Library",
     "type": "academic",
-    "lat": 6.698214641331196,
-    "lng": -1.681806442412917,
+    "lat": 6.698007,
+    "lng": -1.681834,
     "description": "Main campus library with reading rooms, digital resources and WiFi access.",
     "hours": "7:00 AM – 10:00 PM",
     "services": [
@@ -26,8 +26,8 @@
     "name": "The Clinic",
     "shortName": "Clinic",
     "type": "facility",
-    "lat": 6.697511370968863,
-    "lng": -1.6797035905724758,
+    "lat": 6.69738,
+    "lng": -1.67970,
     "description": "Campus health facility offering primary care, first aid and pharmacy services.",
     "contact": "clinic@aamusted.edu.gh",
     "hours": "7:00 AM – 10:00 PM",
@@ -82,8 +82,8 @@
     "name": "New Auditorium",
     "shortName": "Auditorium",
     "type": "academic",
-    "lat": 6.698022840441925,
-    "lng": -1.6801327440054108,
+    "lat": 6.697999,
+    "lng": -1.679975,
     "description": "Large campus auditorium for convocations, events and large gatherings.",
     "hours": "By schedule",
     "rooms": [
@@ -192,8 +192,8 @@
     "name": "Faculty of Technical Education",
     "shortName": "FTE",
     "type": "faculty",
-    "lat": 6.698322933659775,
-    "lng": -1.6799795734995073,
+    "lat": 6.698387,
+    "lng": -1.680020,
     "description": "Faculty offering mechanical, electrical, automotive and construction technology programmes.",
     "contact": "fte@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM",
@@ -342,59 +342,52 @@
   },
   {
     "id": 25,
-    "name": "ROB",
+    "name": "ROB Block",
     "shortName": "ROB",
     "type": "administration",
     "lat": 6.700458972619646,
     "lng": -1.6820753764509622,
-    "description": "Registry and Office Block — main student services hub for registration, records and administration.",
-    "hours": "8:00 AM – 5:00 PM",
+    "description": "Reinhold O. Bonyo Block — Academic and administrative hub housing the Faculty of Business Education (FBE), Graduate School, and key student services.",
+    "hours": "7:00 AM – 6:00 PM",
     "services": [
       {
-        "name": "ID Card",
-        "category": "Administration",
-        "keywords": ["id", "card", "replacement", "issuance"],
-        "description": "Student ID card issuance and replacement",
-        "requirements": "Passport photo, proof of payment, student details",
-        "hours": "8:00 AM – 5:00 PM"
+        "name": "FBE Dean's Office",
+        "room": "050",
+        "floor": "Second Floor",
+        "description": "Office of the Dean, Faculty of Business Education.",
+        "keywords": ["dean", "business education", "fbe"]
       },
       {
         "name": "Guidance and Counselling Centre",
-        "category": "Student Support",
+        "room": "030",
         "floor": "First Floor",
-        "room": "Room 30",
-        "keywords": ["counselling", "guidance", "support", "student support"],
-        "description": "Provides counselling and guidance services to students",
-        "hours": "8:00 AM – 5:00 PM"
+        "description": "Professional counseling and psychological support services for students.",
+        "keywords": ["counselling", "guidance", "psychology", "support"]
       },
       {
-        "name": "Department of Languages",
-        "category": "Academic",
-        "floor": "Ground Floor",
-        "room": "Room 4",
-        "keywords": ["languages", "academic", "programs"],
-        "description": "Handles language-related academic programs",
-        "hours": "8:00 AM – 5:00 PM"
+        "name": "CCBTR",
+        "room": "058-060",
+        "floor": "Fourth Floor",
+        "description": "Centre for Competency Based Training and Research.",
+        "keywords": ["ccbtr", "research", "training"]
       },
       {
-        "name": "Fees Payment",
-        "category": "Finance",
-        "keywords": ["fees", "payment", "tuition"],
-        "description": "Tuition and other university fees payment",
-        "requirements": "Fee schedule, payment method",
-        "hours": "8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Transcript Request",
-        "category": "Administration",
-        "keywords": ["transcript", "records", "academic records"],
-        "description": "Academic transcript application and collection",
-        "requirements": "Completed form, payment receipt",
-        "hours": "8:00 AM – 5:00 PM"
+        "name": "Graduate School",
+        "room": "051-053",
+        "floor": "Third Floor",
+        "description": "Administrative offices for the University's Graduate School.",
+        "keywords": ["graduate", "masters", "postgraduate", "phd"]
       }
     ],
     "rooms": [
-      {"number": "Registry Office", "floor": "Ground", "description": "Main registry services"}
+      {"number": "Lecture Room 001", "room": "001", "floor": "Ground", "wing": "North", "description": "Large lecture hall", "keywords": ["room 1", "rm 1", "lecture 1"]},
+      {"number": "Lecture Room 025", "room": "025", "floor": "Ground", "wing": "South", "description": "Large lecture hall", "keywords": ["room 25", "rm 25", "lecture 25"]},
+      {"number": "Lecture Room 003", "room": "003", "floor": "1st", "wing": "North", "description": "Large lecture hall", "keywords": ["room 3", "rm 3", "lecture 3"]},
+      {"number": "Lecture Room 023", "room": "023", "floor": "1st", "wing": "South", "description": "Large lecture hall", "keywords": ["room 23", "rm 23", "lecture 23"]},
+      {"number": "Department of Languages", "room": "007", "floor": "Ground", "wing": "North", "description": "Academic department office", "keywords": ["languages", "english", "linguistics"]},
+      {"number": "Department of Management", "room": "039", "floor": "2nd", "wing": "North", "description": "FBE Management HOD office", "keywords": ["management", "hod"]},
+      {"number": "Department of Accounting", "room": "040", "floor": "2nd", "wing": "North", "description": "FBE Accounting HOD office", "keywords": ["accounting", "finance", "audit"]},
+      {"number": "Computer Lab 016", "room": "016", "floor": "4th", "wing": "South", "description": "Advanced computing laboratory", "keywords": ["lab", "computer", "ict"]}
     ]
   },
   {
@@ -452,8 +445,8 @@
     "name": "FASME Block",
     "shortName": "FASME",
     "type": "faculty",
-    "lat": 6.698532,
-    "lng": -1.680924,
+    "lat": 6.698066,
+    "lng": -1.680635,
     "description": "Faculty of Applied Science and Mathematics Education — science, maths and ICT education programmes.",
     "contact": "fasme@aamusted.edu.gh",
     "hours": "8:00 AM – 5:00 PM",
@@ -569,20 +562,6 @@
     ]
   },
   {
-    "id": 35,
-    "name": "Faculty of Vocational Education",
-    "shortName": "FVE",
-    "type": "faculty",
-    "lat": 6.699780,
-    "lng": -1.681380,
-    "description": "Faculty of Vocational Education offering catering, fashion, cosmetology and trade education programmes.",
-    "contact": "fve@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
-    "rooms": [
-      {"number": "Lab 1", "floor": "Ground", "description": "Vocational lab"}
-    ]
-  },
-  {
     "id": 36,
     "name": "Handball Court",
     "shortName": "Handball Court",
@@ -615,8 +594,8 @@
     "name": "Credit Union",
     "shortName": "Credit Union",
     "type": "facility",
-    "lat": 6.701187,
-    "lng": -1.682222,
+    "lat": 6.701576,
+    "lng": -1.681984,
     "description": "Staff and student credit union offering savings, loans and financial support services on campus.",
     "hours": "8:00 AM – 4:30 PM",
     "services": [
@@ -726,5 +705,15 @@
         "hours": "24 hours"
       }
     ]
+  },
+  {
+    "id": 47,
+    "name": "New Building",
+    "shortName": "New Bldg",
+    "type": "academic",
+    "lat": 6.698028,
+    "lng": -1.680243,
+    "description": "Newly constructed academic facility providing modern lecture halls and seminar rooms.",
+    "hours": "7:00 AM – 6:00 PM"
   }
 ]

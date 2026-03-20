@@ -1,5 +1,5 @@
 /**
- * Main Application – USTED NAV AAMUSTED Kumasi
+ * Main Application – USTED NAV USTED Kumasi
  */
 document.addEventListener('DOMContentLoaded', () => {
     // Only init map modules on the map page

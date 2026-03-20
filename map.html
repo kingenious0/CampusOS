@@ -111,13 +111,15 @@
             align-items: center;
             height: 48px;
             min-width: 0;
+            padding-left: 16px; /* Space for the hidden menu icon */
         }
 
         .search-menu-btn {
             background: none; border: none;
             color: #5f6368;
             width: 48px; height: 100%;
-            display: flex; align-items: center; justify-content: center;
+            display: none; /* Disabled from UI but code preserved */
+            align-items: center; justify-content: center;
             cursor: pointer;
             border-radius: 24px 0 0 24px;
         }
@@ -153,7 +155,8 @@
             background: none; border: none;
             color: #4285f4;
             width: 44px; height: 100%;
-            display: flex; align-items: center; justify-content: center;
+            display: none; /* Disabled from UI but code preserved */
+            align-items: center; justify-content: center;
             cursor: pointer;
             border-left: 1px solid #dadce0;
         }
@@ -214,7 +217,7 @@
             width: 72px;
             background: #fff;
             z-index: 2005;
-            display: flex;
+            display: none; /* Disabled from UI but code preserved */
             flex-direction: column;
             align-items: center;
             padding-top: 68px;
@@ -430,27 +433,92 @@
         /* ── FLOATING ACTION BUTTONS ──────────── */
         .fabs {
             position: fixed;
-            bottom: 24px;
-            right: 16px;
+            bottom: 140px; /* Moved up significantly to clear attribution and scale */
+            right: 12px;
             z-index: 1001;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
         .fab {
+            width: 28px; height: 25px; /* Reduced for a more compact look */
+            border-radius: 6px; 
+            background: #202124; 
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
-            box-shadow: var(--shadow);
-            transition: transform .2s, box-shadow .2s;
-            -webkit-tap-highlight-color: transparent;
+            font-size: 16px; /* Adjusted icon size */
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: background .2s;
+            pointer-events: auto;
         }
-        .fab:active { transform: scale(.92); }
-        .fab-locate { background: var(--surface); color: var(--primary); }
-        .fab-layers { background: var(--surface); color: var(--muted); }
+        .fab:hover { background: #3c4043; }
+        .fab:active { transform: scale(.95); }
+
+        .zoom-ctrl {
+            display: flex;
+            flex-direction: column;
+            background: #202124;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .zoom-btn {
+            width: 34px; height: 34px; /* Matches FAB size */
+            border: none;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .zoom-btn:hover { background: #3c4043; }
+        .zoom-btn:first-child { border-bottom: 1px solid #3c4043; }
+
+        /* ── LAYERS TOGGLE (BOTTOM LEFT) ────────── */
+        .fab-layers-container {
+            position: fixed;
+            bottom: 84px; /* Above the scale/attribution */
+            left: 12px;
+            z-index: 1001;
+            pointer-events: auto;
+            transition: transform 0.4s cubic-bezier(.4,1,0.2,1);
+        }
+        /* Elevate when sheet is open on mobile */
+        body.sheet-active .fab-layers-container {
+            transform: translateY(-40dvh);
+        }
+        .fab-layers {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            transition: background 0.2s;
+        }
+        .fab-layers:hover { background: #f8f9fa; }
+        .fab-layers img {
+            width: 32px; height: 32px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .fab-layers-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #3c4043;
+            text-transform: uppercase;
+        }
 
         /* ── BOTTOM SHEET ─────────────────────── */
         .sheet {
@@ -1004,10 +1072,11 @@
 
         /* ── DESKTOP ADJUSTMENTS (GOOGLE STYLE) ──────────────── */
         @media (min-width: 900px) {
-            .sidebar-strip { transform: translateX(0); }
-            .top-bar { left: 76px !important; }
-            .filter-chips { left: 482px !important; }
-            .side-panel { left: 76px !important; }
+            .sidebar-strip { display: none; }
+            /* Map UI stays anchored left since sidebar is disabled */
+            .top-bar { left: 12px !important; }
+            .filter-chips { left: 418px !important; }
+            .side-panel { left: 12px !important; }
         }
 
         /* ── DESKTOP ADJUSTMENTS (GOOGLE STYLE) ──────────────── */
@@ -1074,7 +1143,6 @@
             /* FABs stay right side */
             .fabs, .reroute-bar {
                 right: 24px;
-                bottom: 24px;
             }
             .toast { right: auto; } /* clear right:24px from general query if it existed */
 
@@ -1211,9 +1279,9 @@
         <button class="fab fab-locate" id="btnLocate" title="Use My Location">
             <i class="fas fa-location-crosshairs"></i>
         </button>
-        <div style="display:flex; flex-direction:column; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.3);">
-            <button class="fab" onclick="map.zoomIn()" style="border-radius:0; border-bottom:1px solid #eee; height:40px" title="Zoom In"><i class="fas fa-plus"></i></button>
-            <button class="fab" onclick="map.zoomOut()" style="border-radius:0; height:40px" title="Zoom Out"><i class="fas fa-minus"></i></button>
+        <div class="zoom-ctrl">
+            <button class="zoom-btn" onclick="map.zoomIn()" title="Zoom In"><i class="fas fa-plus"></i></button>
+            <button class="zoom-btn" onclick="map.zoomOut()" title="Zoom Out"><i class="fas fa-minus"></i></button>
         </div>
     </div>
 
@@ -1299,7 +1367,6 @@
             antialias: true
         });
 
-        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
         map.addControl(new mapboxgl.ScaleControl({ maxWidth: 80, unit: 'metric' }), 'bottom-right');
 
         map.on('load', () => {
@@ -1544,13 +1611,14 @@
             const name = b.name.toLowerCase();
             const shortName = (b.shortName || '').toLowerCase();
             const desc = (b.description || '').toLowerCase();
-            const typeLabel = (b.type || '').replace('_',' ').toLowerCase();
+            const keywords = b.keywords || [];
             
             if (name === lq || shortName === lq) score += 100;
             else if (name.startsWith(lq) || shortName.startsWith(lq)) score += 60;
             else if (name.includes(lq) || shortName.includes(lq)) score += 30;
             if (desc.includes(lq)) score += 10;
-            if (typeLabel.includes(lq)) score += 8;
+            // Keywords match
+            if (keywords.some(k => k.toLowerCase().includes(lq))) score += 50;
 
             if (score > 0) results.push({ type: 'building', data: b, score });
 
@@ -1559,9 +1627,11 @@
                 b.services.forEach(s => {
                     let sScore = 0;
                     const sName = s.name.toLowerCase();
-                    if (sName === lq) sScore += 110; // Service matches are high priority
+                    const sKeywords = s.keywords || [];
+                    if (sName === lq) sScore += 110;
                     else if (sName.startsWith(lq)) sScore += 70;
                     else if (sName.includes(lq)) sScore += 40;
+                    if (sKeywords.some(k => k.toLowerCase().includes(lq))) sScore += 60;
 
                     if (sScore > 0) results.push({ type: 'service', data: s, building: b, score: sScore });
                 });
@@ -1571,10 +1641,27 @@
             if (b.rooms) {
                 b.rooms.forEach(r => {
                     let rScore = 0;
-                    const rNum = r.number.toLowerCase();
-                    if (rNum === lq) rScore += 120; // Room matches are very specific
-                    else if (rNum.startsWith(lq)) rScore += 80;
-                    else if (rNum.includes(lq)) rScore += 50;
+                    const rName = r.number.toLowerCase();
+                    const rKeywords = r.keywords || [];
+                    const isLecture = rName.includes('lecture') || rName.includes('hall') || rName.includes('lab');
+
+                    // Match logic
+                    if (rName === lq) rScore += 120;
+                    else if (rName.startsWith(lq)) rScore += 80;
+                    else if (rName.includes(lq)) rScore += 40;
+
+                    // Flexible room matching (e.g. searching "25" matches "Lecture Room 25")
+                    if (!rScore && lq.length > 0) {
+                        const cleanNum = rName.replace(/[^0-9]/g, '');
+                        const cleanQuery = lq.replace(/[^0-9]/g, '');
+                        if (cleanNum && cleanQuery && cleanNum === cleanQuery) rScore += 100;
+                    }
+
+                    // Keywords match
+                    if (rKeywords.some(k => k.toLowerCase().includes(lq))) rScore += 70;
+
+                    // LECTURE PRIORITY: Boost score for academic rooms
+                    if (rScore > 0 && isLecture) rScore += 30;
 
                     if (rScore > 0) results.push({ type: 'room', data: r, building: b, score: rScore });
                 });
@@ -1703,6 +1790,7 @@
             // Mobile: Bottom Sheet
             sheetContent.innerHTML = html;
             sheet.classList.add('open');
+            document.body.classList.add('sheet-active');
             sidePanel.style.display = 'none';
         } else {
             // Desktop: Side Panel
@@ -1715,6 +1803,8 @@
 
     function closeSheet() {
         sheet.classList.remove('open');
+        sheet.classList.remove('expanded');
+        document.body.classList.remove('sheet-active');
         sidePanel.style.opacity = '0';
         setTimeout(() => { if (sidePanel.style.opacity === '0') sidePanel.style.display = 'none'; }, 300);
         
