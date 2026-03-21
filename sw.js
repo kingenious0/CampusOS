@@ -10,8 +10,10 @@ const TILE_CACHE  = 'ustednav-tiles-v1';
 const APP_SHELL = [
     './map.html',
     './index.html',
+    './logo.png',
     './data/buildings.json',
     './data/campus.geojson',
+    './data/roads.geojson',
     'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js',
     'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',

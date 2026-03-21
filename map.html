@@ -15,6 +15,8 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -1345,6 +1347,93 @@
     // Stores the pending route so Start Navigation works after manual GPS set
     const _route = { steps: [], destLat: 0, destLng: 0, destName: '' };
 
+    // ══════════════════════════════════════════
+    //  UTILS
+    // ══════════════════════════════════════════
+    function formatDist(m) {
+        return m >= 1000 ? (m/1000).toFixed(2)+' km' : Math.round(m)+' m';
+    }
+
+    function haversine(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+        return Math.round(2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+    }
+
+    // ══════════════════════════════════════════
+    //  OFFLINE ROUTER ENGINE (Dijkstra)
+    // ══════════════════════════════════════════
+    class PriorityQueue {
+        constructor() { this.items = []; }
+        enqueue(element, priority) {
+            const node = { element, priority };
+            let added = false;
+            for (let i = 0; i < this.items.length; i++) {
+                if (node.priority < this.items[i].priority) { this.items.splice(i,0,node); added = true; break; }
+            }
+            if (!added) this.items.push(node);
+        }
+        dequeue() { return this.items.shift(); }
+        isEmpty() { return this.items.length === 0; }
+    }
+
+    const OfflineRouter = (() => {
+        let graph = {}; let nodes = [];
+        return {
+            init: async () => {
+                try {
+                    const [res1, res2] = await Promise.all([
+                        fetch('./data/campus.geojson').then(r => r.json()),
+                        fetch('./data/roads.geojson').then(r => r.json()).catch(() => ({features: []}))
+                    ]);
+                    [...res1.features, ...res2.features].filter(f => f.geometry.type === 'LineString').forEach(road => {
+                        const coords = road.geometry.coordinates;
+                        for (let i = 0; i < coords.length - 1; i++) {
+                            const p1 = coords[i], p2 = coords[i+1];
+                            const k1 = `${p1[0]},${p1[1]}`, k2 = `${p2[0]},${p2[1]}`;
+                            const dist = haversine(p1[1], p1[0], p2[1], p2[0]);
+                            if (!graph[k1]) graph[k1] = []; if (!graph[k2]) graph[k2] = [];
+                            graph[k1].push({ node: k2, dist, coords: p2 });
+                            graph[k2].push({ node: k1, dist, coords: p1 });
+                        }
+                    });
+                    nodes = Object.keys(graph);
+                } catch(e) { console.warn('OfflineRouter init error:', e); }
+            },
+            compute: (slat, slng, dlat, dlng) => {
+                let sNode = null, dNode = null, sMin = Infinity, dMin = Infinity;
+                nodes.forEach(k => {
+                    const [nLng, nLat] = k.split(',').map(Number);
+                    const ds = haversine(slat, slng, nLat, nLng); if (ds < sMin) { sMin = ds; sNode = k; }
+                    const dd = haversine(dlat, dlng, nLat, nLng); if (dd < dMin) { dMin = dd; dNode = k; }
+                });
+                if (!sNode || !dNode) return null;
+                const dists = {}, prev = {}, pq = new PriorityQueue();
+                nodes.forEach(n => dists[n] = Infinity); dists[sNode] = 0; pq.enqueue(sNode, 0);
+                while (!pq.isEmpty()) {
+                    const { element: curr } = pq.dequeue(); if (curr === dNode) break;
+                    graph[curr]?.forEach(nb => {
+                        const alt = dists[curr] + nb.dist;
+                        if (alt < dists[nb.node]) { dists[nb.node] = alt; prev[nb.node] = curr; pq.enqueue(nb.node, alt); }
+                    });
+                }
+                if (dists[dNode] === Infinity) return null;
+                const path = []; let curr = dNode;
+                while (curr) { const [lng, lat] = curr.split(',').map(Number); path.unshift([lng, lat]); curr = prev[curr]; }
+                if (haversine(slat, slng, path[0][1], path[0][0]) > 2) path.unshift([slng, slat]);
+                if (haversine(dlat, dlng, path[path.length-1][1], path[path.length-1][0]) > 2) path.push([dlng, dlat]);
+                return {
+                    distance: dists[dNode], duration: dists[dNode] / 1.4,
+                    geometry: { type: 'LineString', coordinates: path },
+                    steps: [{ maneuver: { type: 'depart' }, name: 'Start walking (Offline Mode)' },
+                            { maneuver: { type: 'continue' }, name: 'Follow campus paths', distance: dists[dNode] },
+                            { maneuver: { type: 'arrive' }, name: 'Arrive at destination' }]
+                };
+            }
+        };
+    })();
+
     const TOKEN = ['pk', 'eyJ1Ijoia2luZ2VuaW91cyIsImEiOiJjbWdnczJ4YXcwMGt4MmpzNzl0OW9yZXMxIn0', 'iPOsSjNONKbjrjb6-TUeQw'].join('.');
     if (typeof mapboxgl !== 'undefined') {
         mapboxgl.accessToken = TOKEN;
@@ -1359,9 +1448,13 @@
             showToast('Map library failed to load');
             return;
         }
+        // DATA SAVING POLICY: Street view by default for all users
+        const defaultStyle = 'mapbox://styles/mapbox/streets-v12';
+        isSatellite = false;
+
         map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            style: defaultStyle,
             center: [CAMPUS.lng, CAMPUS.lat],
             zoom: CAMPUS.zoom,
             antialias: true
@@ -1400,6 +1493,7 @@
             initLayerToggle();
             setupNavigation();
             add3DBuildings();
+            OfflineRouter.init(); // Init offline brain
             // Set layer thumbnail dynamically
             const layerImg = document.getElementById('btnLayersImg');
             if (layerImg) layerImg.src = `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${CAMPUS.lng},${CAMPUS.lat},15,0/120x120?access_token=${TOKEN}`;
@@ -2162,6 +2256,7 @@
         stopLiveNav();
         _route.destLat = destLat; _route.destLng = destLng; _route.destName = destName;
         _route.steps = [];
+        _route.geometry = null;
         const hasGPS = !!userLatLng;
         const origin = userLatLng || { lat: CAMPUS.lat, lng: CAMPUS.lng };
         const modeLabel = travelMode === 'driving' ? 'driving' : 'walking';
@@ -2186,6 +2281,7 @@
             const rawSteps = route.legs[0].steps;
 
             _route.steps = rawSteps;
+            _route.geometry = route.geometry;
 
             // Route Data Source
             if (map.getSource('route')) {
@@ -2265,56 +2361,60 @@
             `);
 
         } catch(e) {
-            // Fallback: straight line
-            const dist = haversine(origin.lat, origin.lng, destLat, destLng);
-            const time = Math.ceil(dist / 84);
-
-            // Fallback Source & Layer
-            const straightRoute = {
-                type: 'Feature',
-                geometry: {
-                    type: 'LineString',
-                    coordinates: [[origin.lng, origin.lat], [destLng, destLat]]
-                }
-            };
+            console.log('Falling back to Offline Router...', e);
+            const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng);
             
-            if (map.getSource('route')) {
-                map.getSource('route').setData(straightRoute);
-            } else {
-                map.addSource('route', { type: 'geojson', data: straightRoute });
+            if (!offline) {
+                // Last ditch: Straight line
+                const dist = haversine(origin.lat, origin.lng, destLat, destLng);
+                const straightRoute = { type: 'Feature', geometry: { type: 'LineString', coordinates: [[origin.lng, origin.lat], [destLng, destLat]] } };
+                if (map.getSource('route')) map.getSource('route').setData(straightRoute);
+                else map.addSource('route', { type: 'geojson', data: straightRoute });
+                
+                if (!map.getLayer('route-line')) {
+                    map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#4338ca', 'line-width': 4, 'line-dasharray': [2, 2], 'line-opacity': 0.7 } });
+                }
+                const b = new mapboxgl.LngLatBounds([origin.lng, origin.lat], [destLng, destLat]);
+                map.fitBounds(b, { padding: 80 });
+                showToast('Offline: Straight-line estimate');
+                return;
             }
+
+            // SUCCESS: Offline graph route found!
+            const { distance, duration, geometry, steps } = offline;
+            _route.steps = steps;
+            _route.geometry = geometry;
+
+            if (map.getSource('route')) map.getSource('route').setData(geometry);
+            else map.addSource('route', { type: 'geojson', data: geometry });
 
             if (!map.getLayer('route-line')) {
-                map.addLayer({
-                    id: 'route-line',
-                    type: 'line',
-                    source: 'route',
-                    paint: { 'line-color': '#4338ca', 'line-width': 4, 'line-dasharray': [2, 2], 'line-opacity': 0.7 }
-                });
+                map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#4338ca', 'line-width': 6, 'line-opacity': 0.8 } });
             }
-
-            const bounds = new mapboxgl.LngLatBounds([origin.lng, origin.lat], [destLng, destLat]);
+            
+            const bounds = geometry.coordinates.reduce((acc, coord) => acc.extend(coord), new mapboxgl.LngLatBounds(geometry.coordinates[0], geometry.coordinates[0]));
             map.fitBounds(bounds, { padding: 80 });
+
+            const stepsHtml = steps.map((s, i) => {
+                const manIcon = getManeuverIcon(s.maneuver.type, s.maneuver.modifier);
+                const distStr = s.distance > 0 ? `<span style="color:var(--muted);margin-left:auto;font-size:11px">${formatDist(s.distance)}</span>` : '';
+                return `<div class="step-item" id="step-${i}"><i class="fas ${manIcon}"></i><span>${s.name}</span>${distStr}</div>`;
+            }).join('');
 
             openSheet(`
                 <div class="route-info">
-                    <p class="route-title"><i class="fas fa-route"></i> Route to ${destName}</p>
-                    <div class="route-cards">
-                        <div class="route-card">
-                            <span class="val">${formatDist(dist)}</span>
-                            <span class="lbl">~Distance</span>
-                        </div>
-                        <div class="route-card">
-                            <span class="val">${time} min</span>
-                            <span class="lbl">~Walking time</span>
-                        </div>
-                    </div>
-                    <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px">
-                        ⚠️ Straight-line estimate — no internet connection
+                    <p style="background:#eef2ff; color:#4338ca; padding:8px; border-radius:8px; font-size:12px; margin-bottom:12px; border:1px solid #c7d2fe">
+                        <i class="fas fa-wifi-slash"></i> <strong>Offline Mode:</strong> Using campus path network
                     </p>
-                    <button class="clear-route-btn" onclick="clearRoute()">
-                        <i class="fas fa-xmark"></i> Clear Route
-                    </button>
+                    <div class="route-cards">
+                        <div class="route-card"><span class="val">${formatDist(distance)}</span><span class="lbl">Distance</span></div>
+                        <div class="route-card"><span class="val">${Math.ceil(duration/60)} min</span><span class="lbl">Walk time</span></div>
+                    </div>
+                    <div class="steps-list" style="max-height: 180px; overflow-y: auto;">${stepsHtml}</div>
+                    <div class="sheet-actions">
+                        <button class="action-btn btn-nav-live" onclick="beginLiveNav()"><i class="fas fa-location-arrow"></i> Go</button>
+                        <button class="action-btn btn-share" onclick="clearRoute()"><i class="fas fa-xmark"></i> Clear</button>
+                    </div>
                 </div>
             `);
         }
@@ -2502,16 +2602,6 @@
         }
     }
 
-    function formatDist(m) {
-        return m >= 1000 ? (m/1000).toFixed(2)+' km' : Math.round(m)+' m';
-    }
-
-    function haversine(lat1, lng1, lat2, lng2) {
-        const R = 6371000;
-        const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-        return Math.round(2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
-    }
 
     function getManeuverIcon(type, modifier) {
         if (type === 'turn') {
@@ -2571,17 +2661,46 @@
     // ══════════════════════════════════════════
     //  LAYER TOGGLE
     // ══════════════════════════════════════════
-    let isSatellite = true;
+    let isSatellite = false;
     function initLayerToggle() {
-        document.getElementById('btnLayers').addEventListener('click', () => {
+        const btn = document.getElementById('btnLayers');
+        if (!btn) return;
+        
+        btn.addEventListener('click', () => {
+            if (!navigator.onLine && isSatellite) {
+                showToast('Satellite view requires internet connection');
+                return;
+            }
+
             isSatellite = !isSatellite;
             const style = isSatellite ? 'mapbox://styles/mapbox/satellite-streets-v12' : 'mapbox://styles/mapbox/streets-v12';
-            // Re-add 3D buildings after style loads since setStyle wipes all custom layers
+            
+            // ELITE RE-RENDER: setStyle wipes all data, we must restore route and buildings
             map.once('styledata', () => {
                 add3DBuildings();
-                // Re-add markers that may have been removed
-                document.querySelectorAll('.pin').forEach(el => el.style.display = '');
+                // Restore active route if it exists
+                if (_route.geometry) {
+                    if (map.getSource('route')) {
+                        map.getSource('route').setData(_route.geometry);
+                    } else {
+                        map.addSource('route', { type: 'geojson', data: _route.geometry });
+                    }
+                    
+                    const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
+                    if (!map.getLayer('route-line')) {
+                        map.addLayer({
+                            id: 'route-line', type: 'line', source: 'route',
+                            layout: { 'line-join': 'round', 'line-cap': 'round' },
+                            paint: { 'line-color': routeColor, 'line-width': 6, 'line-opacity': 0.8 }
+                        });
+                        map.addLayer({
+                            id: 'route-dash', type: 'line', source: 'route',
+                            paint: { 'line-color': '#fff', 'line-width': 2, 'line-dasharray': [2, 4], 'line-opacity': 0.5 }
+                        });
+                    }
+                }
             });
+            
             map.setStyle(style);
             showToast(isSatellite ? '🛰 Satellite view' : '🗺 Street map view');
         });
