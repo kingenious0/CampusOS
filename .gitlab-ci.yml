@@ -1,0 +1,27 @@
+stages:
+  - deploy
+  - sync
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - find . -maxdepth 1 -not -name public -not -name .git -not -name .gitignore -exec cp -r {} public/ \;
+    - rm -f public/.gitlab-ci.yml
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+
+sync_to_github:
+  stage: sync
+  image: alpine:latest
+  script:
+    - apk add --no-cache git
+    - git clone --mirror https://oauth2:${GITLAB_TOKEN}@gitlab.com/kingenious-creative-dev/CampusOS.git
+    - cd CampusOS.git
+    - git push --mirror https://kingenious0:${GITHUB_TOKEN}@github.com/kingenious0/CampusOS.git
+  only:
+    - main
+  when: on_success

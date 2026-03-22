@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USTED NAV | Campus Navigation</title>
+    <meta name="description" content="Find buildings, get directions and navigate USTED Kumasi campus.">
+    <meta name="theme-color" content="#4338ca">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+        }
+        .splash {
+            padding: 2rem;
+            max-width: 360px;
+            width: 100%;
+        }
+        .icon-ring {
+            width: 90px; height: 90px;
+            background: #4338ca;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.2rem;
+            box-shadow: 0 0 0 16px rgba(67,56,202,.15);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { box-shadow: 0 0 0 12px rgba(67,56,202,.15); }
+            50%      { box-shadow: 0 0 0 24px rgba(67,56,202,.05); }
+        }
+        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; }
+        .sub { font-size: .95rem; color: rgba(255,255,255,.5); margin: .5rem 0 2.5rem; }
+        .campus-name {
+            font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+            color: #818cf8; text-transform: uppercase; margin-bottom: .3rem;
+        }
+        .open-btn {
+            display: flex; align-items: center; justify-content: center; gap: .6rem;
+            width: 100%;
+            padding: 1rem;
+            background: #4338ca;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: background .2s, transform .15s;
+        }
+        .open-btn:hover { background: #3730a3; transform: translateY(-2px); }
+        .open-btn:active { transform: scale(.97); }
+        .pills {
+            display: flex; gap: .6rem; justify-content: center;
+            flex-wrap: wrap; margin-top: 1.5rem;
+        }
+        .pill {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 50px;
+            padding: .35rem .9rem;
+            font-size: .75rem;
+            color: rgba(255,255,255,.55);
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .pill i { color: #818cf8; }
+    </style>
+</head>
+<body>
+    <div class="splash">
+        <div class="icon-ring"><img src="logo.png" alt="USTED NAV Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
+        <p class="campus-name">USTED · Kumasi Campus</p>
+        <h1>USTED NAV</h1>
+        <p class="sub">Search, find and get directions across campus — works offline.</p>
+        <a href="map.html" class="open-btn">
+            <i class="fas fa-compass"></i> Open Navigation
+        </a>
+        <div class="pills">
+            <span class="pill"><i class="fas fa-magnifying-glass"></i> Smart Search</span>
+            <span class="pill"><i class="fas fa-route"></i> Walking Routes</span>
+            <span class="pill"><i class="fas fa-wifi-slash"></i> Offline Ready</span>
+            <span class="pill"><i class="fas fa-location-dot"></i> GPS Locate</span>
+        </div>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>

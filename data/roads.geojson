@@ -1,0 +1,145 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Main Entrance Road", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6815, 6.6945],
+          [-1.6815, 6.6965],
+          [-1.6816, 6.6976],
+          [-1.68181, 6.6981],
+          [-1.68188, 6.6990],
+          [-1.68195, 6.7000],
+          [-1.68205, 6.7010],
+          [-1.68215, 6.7020]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic Loop North", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68205, 6.7010],
+          [-1.68100, 6.7011],
+          [-1.68000, 6.7011],
+          [-1.67900, 6.7005],
+          [-1.67800, 6.7004]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic Loop South", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68181, 6.6981],
+          [-1.68100, 6.69811],
+          [-1.68000, 6.69812],
+          [-1.67900, 6.6978],
+          [-1.67800, 6.6978],
+          [-1.67700, 6.6978]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "East Campus Connection (UBS)", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.67700, 6.6978],
+          [-1.67683, 6.6970],
+          [-1.67683, 6.69687]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "East Campus Road North", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.67700, 6.6978],
+          [-1.6769, 6.6990],
+          [-1.6769, 6.7010],
+          [-1.67697, 6.7019]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "West Campus Loop", "type": "tarred" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68215, 6.7020],
+          [-1.6836, 6.7020],
+          [-1.68395, 6.7020],
+          [-1.68395, 6.7000],
+          [-1.68395, 6.69784]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "ROB Connector", "type": "path" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68207, 6.70045],
+          [-1.68195, 6.7000]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Library Path", "type": "path" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68183, 6.6980],
+          [-1.68181, 6.6981]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Clinic Connector", "type": "path" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6797, 6.6974],
+          [-1.6790, 6.6978]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Auditorium Path", "type": "path" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.6800, 6.69812],
+          [-1.67997, 6.69799]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Management Dept Connector", "type": "path" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68223, 6.70083],
+          [-1.68205, 6.7010]
+        ]
+      }
+    }
+  ]
+}
