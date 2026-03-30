@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>USTED NAV | Campus Navigation</title>
     <meta name="description" content="Find buildings, get directions and navigate AAMUSTED Kumasi campus.">
-    <meta name="theme-color" content="#4338ca">
+    <meta name="theme-color" content="#800000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,16 +27,16 @@
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary:   #4338ca;
-            --primary-l: #6366f1;
+            --primary:   #800000;
+            --primary-l: #a52a2a;
             --surface:   #ffffff;
             --bg:        #f1f5f9;
             --text:      #0f172a;
             --muted:     #64748b;
             --border:    #e2e8f0;
-            --green:     #10b981;
-            --amber:     #f59e0b;
-            --red:       #ef4444;
+            --green:     #1b5e20;
+            --amber:     #ffc107;
+            --red:       #c62828;
             --purple:    #8b5cf6;
             --sky:       #0ea5e9;
             --radius:    16px;
@@ -849,6 +849,18 @@
             box-shadow: 0 0 0 6px rgba(14,165,233,.25);
             animation: gps-pulse 2s ease-in-out infinite;
         }
+        .user-accuracy {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px; height: 40px;
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+        }
         .user-arrow {
             position: absolute;
             top: 0; left: 50%;
@@ -1508,6 +1520,13 @@
                 closeSheet();
             }
         });
+
+        // Update accuracy circle on zoom
+        map.on('zoom', () => {
+            if (userLatLng && lastAccuracy) {
+                updateAccuracyCircle(userLatLng.lat, lastAccuracy);
+            }
+        });
     }
 
     // ══════════════════════════════════════════
@@ -2109,6 +2128,7 @@
     let prevLatLng = null;
     let userBearing = null;
     let watchId = null;
+    let lastAccuracy = null;
     let settingManualLocation = false;  // referenced by map click handler
 
     // Detect if we are on HTTP (not HTTPS) — geolocation is blocked on HTTP
@@ -2121,19 +2141,25 @@
             return;
         }
 
-        // Some browsers still allow geolocation on localhost over HTTP.
-        // We attempt it; if the error code is PERMISSION_DENIED we show help.
+        showToast('📍 Pinpointing your location...');
+
+        // maximumAge: 0 ensures we get FRESH data, not cached. 
+        // Important for "pinpointing" accuracy.
         navigator.geolocation.getCurrentPosition(
             pos => {
-                const { latitude: lat, longitude: lng } = pos.coords;
+                const { latitude: lat, longitude: lng, accuracy } = pos.coords;
                 userLatLng = { lat, lng };
-                placeUserMarker(lat, lng, pos.coords.heading);
-                map.flyTo({ center: [lng, lat], zoom: 18, duration: 800 });
+                lastAccuracy = accuracy;
+                placeUserMarker(lat, lng, pos.coords.heading, accuracy);
+                map.flyTo({ center: [lng, lat], zoom: 18, duration: 1000 });
                 startWatching();
+                
+                if (accuracy > 60) {
+                    showToast('Low GPS accuracy — try moving to a clearer area');
+                }
             },
             err => {
                 if (err.code === 1 /* PERMISSION_DENIED */ && isHttp) {
-                    // Browser blocks GPS on HTTP — offer manual picker
                     showLocationBlockedSheet();
                 } else if (err.code === 2 /* POSITION_UNAVAILABLE */) {
                     showToast('GPS signal lost — try again outside');
@@ -2143,14 +2169,16 @@
                     showLocationUnavailable();
                 }
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
     }
 
     function startWatching() {
         if (watchId !== null) return;
         watchId = navigator.geolocation.watchPosition(pos => {
-            const { latitude: lat, longitude: lng, heading } = pos.coords;
+            const { latitude: lat, longitude: lng, heading, accuracy } = pos.coords;
+            lastAccuracy = accuracy;
+            
             if (prevLatLng) {
                 const dLng = (lng - prevLatLng.lng) * Math.PI / 180;
                 const lat1r = prevLatLng.lat * Math.PI / 180;
@@ -2161,9 +2189,9 @@
             }
             prevLatLng = { lat, lng };
             userLatLng = { lat, lng };
-            placeUserMarker(lat, lng, heading ?? userBearing);
+            placeUserMarker(lat, lng, heading ?? userBearing, accuracy);
             if (navState.active) liveNavUpdate(lat, lng);
-        }, null, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 });
+        }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
     }
 
     function showLocationUnavailable() {
@@ -2222,17 +2250,19 @@
         tryGeolocation();
     }
 
-    function placeUserMarker(lat, lng, bearing) {
+    function placeUserMarker(lat, lng, bearing, accuracy) {
         const hasBearing = bearing !== null && bearing !== undefined;
         const rot = hasBearing ? `rotate(${Math.round(bearing)}deg)` : 'none';
         
         if (!userMarker) {
             const el = document.createElement('div');
             el.className = 'user-marker-container';
-            el.innerHTML = `<div class="user-pin-wrap${hasBearing ? ' has-bearing' : ''}">
-                <div class="user-arrow" style="transform:translateX(-50%) ${rot}"></div>
-                <div class="user-dot"></div>
-            </div>`;
+            el.innerHTML = `
+                <div class="user-accuracy"></div>
+                <div class="user-pin-wrap${hasBearing ? ' has-bearing' : ''}">
+                    <div class="user-arrow" style="transform:translateX(-50%) ${rot}"></div>
+                    <div class="user-dot"></div>
+                </div>`;
             
             userMarker = new mapboxgl.Marker({ element: el, zIndexOffset: 2000 })
                 .setLngLat([lng, lat])
@@ -2242,6 +2272,34 @@
             const el = userMarker.getElement();
             const arrow = el.querySelector('.user-arrow');
             if (arrow) arrow.style.transform = `translateX(-50%) ${rot}`;
+            const wrap = el.querySelector('.user-pin-wrap');
+            if (wrap) wrap.classList.toggle('has-bearing', hasBearing);
+        }
+
+        if (accuracy) updateAccuracyCircle(lat, accuracy);
+    }
+
+    function updateAccuracyCircle(lat, accuracyInMeters) {
+        if (!userMarker) return;
+        const el = userMarker.getElement();
+        const circle = el.querySelector('.user-accuracy');
+        if (!circle) return;
+
+        // Meters per pixel calculation for Mapbox zoom level
+        const zoom = map.getZoom();
+        const metersPerPixel = (40075017 * Math.cos(lat * Math.PI / 180)) / Math.pow(2, zoom + 8);
+        const radiusInPixels = accuracyInMeters / metersPerPixel;
+
+        circle.style.width = `${radiusInPixels * 2}px`;
+        circle.style.height = `${radiusInPixels * 2}px`;
+
+        // Switch to amber if accuracy is poor (> 50m) to correctly inform student
+        if (accuracyInMeters > 50) {
+            circle.style.background = 'rgba(245, 158, 11, 0.08)';
+            circle.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+        } else {
+            circle.style.background = 'rgba(14, 165, 233, 0.12)';
+            circle.style.borderColor = 'rgba(14, 165, 233, 0.25)';
         }
     }
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USTED NAV | Campus Navigation</title>
     <meta name="description" content="Find buildings, get directions and navigate USTED Kumasi campus.">
-    <meta name="theme-color" content="#4338ca">
+    <meta name="theme-color" content="#800000">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +17,7 @@
         html, body {
             height: 100%;
             font-family: 'Inter', system-ui, sans-serif;
-            background: #0f172a;
+            background: radial-gradient(circle at center, #1a0202 0%, #050505 100%);
             color: #fff;
             display: flex; align-items: center; justify-content: center;
             text-align: center;
@@ -30,37 +30,43 @@
         }
         .icon-ring {
             width: 90px; height: 90px;
-            background: #4338ca;
+            background: #FFD700;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 1.5rem;
             font-size: 2.2rem;
-            box-shadow: 0 0 0 16px rgba(67,56,202,.15);
+            box-shadow: 0 0 0 16px rgba(255, 215, 0, .15);
             animation: pulse 2.5s ease-in-out infinite;
         }
         @keyframes pulse {
-            0%,100% { box-shadow: 0 0 0 12px rgba(67,56,202,.15); }
-            50%      { box-shadow: 0 0 0 24px rgba(67,56,202,.05); }
+            0%,100% { box-shadow: 0 0 0 12px rgba(255, 215, 0, .15); }
+            50%      { box-shadow: 0 0 0 24px rgba(255, 215, 0, .05); }
         }
         h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; }
         .sub { font-size: .95rem; color: rgba(255,255,255,.5); margin: .5rem 0 2.5rem; }
         .campus-name {
             font-size: .75rem; font-weight: 700; letter-spacing: .1em;
-            color: #818cf8; text-transform: uppercase; margin-bottom: .3rem;
+            color: #FFD700; text-transform: uppercase; margin-bottom: .3rem;
         }
         .open-btn {
             display: flex; align-items: center; justify-content: center; gap: .6rem;
             width: 100%;
             padding: 1rem;
-            background: #4338ca;
+            background: #800000;
             color: #fff;
             text-decoration: none;
             border-radius: 14px;
             font-size: 1rem;
             font-weight: 700;
-            transition: background .2s, transform .15s;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .open-btn:hover { background: #3730a3; transform: translateY(-2px); }
+        .open-btn:hover { 
+            background: #2E7D32; 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(46, 125, 50, 0.5);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
         .open-btn:active { transform: scale(.97); }
         .pills {
             display: flex; gap: .6rem; justify-content: center;
@@ -75,7 +81,7 @@
             color: rgba(255,255,255,.55);
             display: flex; align-items: center; gap: .4rem;
         }
-        .pill i { color: #818cf8; }
+        .pill i { color: #2E7D32; }
 
         .install-prompt {
             display: none;
@@ -100,16 +106,18 @@
             to { transform: translateY(0); opacity: 1; }
         }
         .install-btn {
-            background: #4338ca;
+            background: #800000;
             color: #fff;
-            border: none;
+            border: 1px solid rgba(255, 215, 0, 0.3);
             padding: .6rem 1.2rem;
             border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             font-size: 0.9rem;
             white-space: nowrap;
+            transition: background .2s;
         }
+        .install-btn:hover { background: #2E7D32; }
         .install-text {
             font-size: 0.85rem;
             text-align: left;
