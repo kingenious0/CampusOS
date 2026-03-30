@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         html, body {
@@ -75,6 +76,45 @@
             display: flex; align-items: center; gap: .4rem;
         }
         .pill i { color: #818cf8; }
+
+        .install-prompt {
+            display: none;
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1rem;
+            right: 1rem;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .install-btn {
+            background: #4338ca;
+            color: #fff;
+            border: none;
+            padding: .6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .install-text {
+            font-size: 0.85rem;
+            text-align: left;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -93,10 +133,69 @@
             <span class="pill"><i class="fas fa-location-dot"></i> GPS Locate</span>
         </div>
     </div>
+
+    <div id="installPrompt" class="install-prompt">
+        <div class="install-text">Install USTED NAV on your home screen for fast access.</div>
+        <button id="installBtn" class="install-btn">Install App</button>
+    </div>
+
     <script>
+        // --- 1. SERVICE WORKER WITH AUTO-REFRESH ---
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    // Check for updates periodically
+                    reg.update();
+
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    // New content is available; force refresh to activate
+                                    console.log('New content detected. Reloading...');
+                                }
+                            }
+                        };
+                    };
+                }).catch(err => console.log('SW registration failed:', err));
+            });
+
+            // Handle controller change (occurs when a new SW takes control)
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
         }
+
+        // --- 2. PWA INSTALL PROMPT ---
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to install prompt: ${outcome}`);
+            deferredPrompt = null;
+            installPrompt.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installPrompt.style.display = 'none';
+            deferredPrompt = null;
+            console.log('PWA was installed');
+        });
     </script>
 </body>
 </html>

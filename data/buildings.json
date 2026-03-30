@@ -1,24 +1,45 @@
 [
   {
     "id": 1,
-    "name": "AAMUSTED Library",
+    "name": "USTED Library",
     "shortName": "Library",
     "type": "academic",
     "lat": 6.698007,
     "lng": -1.681834,
     "description": "Main campus library with reading rooms, digital resources and WiFi access.",
-    "hours": "7:00 AM – 10:00 PM",
+    "hours": "7:00 AM \u2013 10:00 PM",
     "services": [
       {
         "name": "Library Services",
         "description": "Access to books, digital resources, and study spaces",
         "requirements": "Student ID card",
-        "hours": "7:00 AM – 10:00 PM"
+        "hours": "7:00 AM \u2013 10:00 PM",
+        "keywords": [
+          "LIBRARY LIBRARY SERVICES"
+        ]
       }
     ],
     "rooms": [
-      {"number": "101", "floor": "Ground", "description": "Main reading room"},
-      {"number": "102", "floor": "Ground", "description": "Digital resources center"}
+      {
+        "number": "101",
+        "floor": "Ground",
+        "description": "Main reading room",
+        "keywords": [
+          "LIBRARY 101",
+          "LIBRARY ROOM 101",
+          "LIBRARY GF"
+        ]
+      },
+      {
+        "number": "102",
+        "floor": "Ground",
+        "description": "Digital resources center",
+        "keywords": [
+          "LIBRARY ROOM 102",
+          "LIBRARY 102",
+          "LIBRARY GF"
+        ]
+      }
     ]
   },
   {
@@ -27,16 +48,19 @@
     "shortName": "Clinic",
     "type": "facility",
     "lat": 6.69738,
-    "lng": -1.67970,
+    "lng": -1.6797,
     "description": "Campus health facility offering primary care, first aid and pharmacy services.",
     "contact": "clinic@aamusted.edu.gh",
-    "hours": "7:00 AM – 10:00 PM",
+    "hours": "7:00 AM \u2013 10:00 PM",
     "services": [
       {
         "name": "Medical Services",
         "description": "Primary healthcare, first aid, and pharmacy",
         "requirements": "Student ID or valid identification",
-        "hours": "7:00 AM – 10:00 PM"
+        "hours": "7:00 AM \u2013 10:00 PM",
+        "keywords": [
+          "CLINIC MEDICAL SERVICES"
+        ]
       }
     ]
   },
@@ -50,7 +74,16 @@
     "description": "Student residential hall with study rooms and recreational facilities.",
     "hours": "24 hours",
     "rooms": [
-      {"number": "101", "floor": "1st", "description": "Study room"}
+      {
+        "number": "101",
+        "floor": "1st",
+        "description": "Study room",
+        "keywords": [
+          "ATWIMA HALL ROOM 101",
+          "ATWIMA HALL 101",
+          "ATWIMA HALL FF"
+        ]
+      }
     ]
   },
   {
@@ -61,19 +94,16 @@
     "lat": 6.6968720333951754,
     "lng": -1.676838991370415,
     "description": "University Banking Services on campus for student and staff financial transactions.",
-    "hours": "8:30 AM – 4:30 PM",
+    "hours": "8:30 AM \u2013 4:30 PM",
     "services": [
       {
         "name": "Banking Services",
         "description": "Account management, loans, and financial transactions",
         "requirements": "Valid ID and account details",
-        "hours": "8:30 AM – 4:30 PM"
-      },
-      {
-        "name": "Fees Payment",
-        "description": "Tuition and other fee payments",
-        "requirements": "Fee statement and payment method",
-        "hours": "8:30 AM – 4:30 PM"
+        "hours": "8:30 AM \u2013 4:30 PM",
+        "keywords": [
+          "UBS BANKING SERVICES"
+        ]
       }
     ]
   },
@@ -87,7 +117,16 @@
     "description": "Large campus auditorium for convocations, events and large gatherings.",
     "hours": "By schedule",
     "rooms": [
-      {"number": "Main Hall", "floor": "Ground", "description": "Large auditorium space"}
+      {
+        "number": "Main Hall",
+        "floor": "Ground",
+        "description": "Large auditorium space",
+        "keywords": [
+          "AUDITORIUM MAIN HALL",
+          "AUDITORIUM GF",
+          "AUDITORIUM ROOM MAIN HALL"
+        ]
+      }
     ]
   },
   {
@@ -108,18 +147,39 @@
     "lat": 6.700420346407515,
     "lng": -1.6812914582753884,
     "description": "Newly built library facility with expanded study spaces, digital resources and research support.",
-    "hours": "7:00 AM – 10:00 PM",
+    "hours": "7:00 AM \u2013 10:00 PM",
     "services": [
       {
         "name": "Library Services",
         "description": "Expanded library with digital and physical resources",
         "requirements": "Student ID card",
-        "hours": "7:00 AM – 10:00 PM"
+        "hours": "7:00 AM \u2013 10:00 PM",
+        "keywords": [
+          "NEW LIBRARY LIBRARY SERVICES"
+        ]
       }
     ],
     "rooms": [
-      {"number": "201", "floor": "2nd", "description": "Research area"},
-      {"number": "301", "floor": "3rd", "description": "Study hall"}
+      {
+        "number": "201",
+        "floor": "2nd",
+        "description": "Research area",
+        "keywords": [
+          "NEW LIBRARY ROOM 201",
+          "NEW LIBRARY 201",
+          "NEW LIBRARY SF"
+        ]
+      },
+      {
+        "number": "301",
+        "floor": "3rd",
+        "description": "Study hall",
+        "keywords": [
+          "NEW LIBRARY TF",
+          "NEW LIBRARY ROOM 301",
+          "NEW LIBRARY 301"
+        ]
+      }
     ]
   },
   {
@@ -130,9 +190,18 @@
     "lat": 6.700207235247202,
     "lng": -1.6795533868562482,
     "description": "Workshop facility for mechanical engineering practical sessions and projects.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Workshop 1", "floor": "Ground", "description": "Main mechanical workshop"}
+      {
+        "number": "Workshop 1",
+        "floor": "Ground",
+        "description": "Main mechanical workshop",
+        "keywords": [
+          "MECH. WORKSHOP GF",
+          "MECH. WORKSHOP ROOM WORKSHOP 1",
+          "MECH. WORKSHOP WORKSHOP 1"
+        ]
+      }
     ]
   },
   {
@@ -143,7 +212,7 @@
     "lat": 6.701221,
     "lng": -1.678382,
     "description": "Main campus football field (soccer park) for sports events, training and recreational activities.",
-    "hours": "6:00 AM – 8:00 PM"
+    "hours": "6:00 AM \u2013 8:00 PM"
   },
   {
     "id": 10,
@@ -154,10 +223,28 @@
     "lng": -1.6822355958550224,
     "description": "Department handling management and business-related academic programmes.",
     "contact": "management@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "101", "floor": "1st", "description": "Lecture room"},
-      {"number": "102", "floor": "1st", "description": "Seminar room"}
+      {
+        "number": "101",
+        "floor": "1st",
+        "description": "Lecture room",
+        "keywords": [
+          "MANAGEMENT DEPT. 101",
+          "MANAGEMENT DEPT. FF",
+          "MANAGEMENT DEPT. ROOM 101"
+        ]
+      },
+      {
+        "number": "102",
+        "floor": "1st",
+        "description": "Seminar room",
+        "keywords": [
+          "MANAGEMENT DEPT. ROOM 102",
+          "MANAGEMENT DEPT. FF",
+          "MANAGEMENT DEPT. 102"
+        ]
+      }
     ]
   },
   {
@@ -170,7 +257,16 @@
     "description": "Student residential hall with study rooms and recreational facilities.",
     "hours": "24 hours",
     "rooms": [
-      {"number": "Room 25", "floor": "2nd", "description": "Standard student room"}
+      {
+        "number": "Room 25",
+        "floor": "2nd",
+        "description": "Standard student room",
+        "keywords": [
+          "OW HALL 25",
+          "OW HALL SF",
+          "OW HALL ROOM 25"
+        ]
+      }
     ]
   },
   {
@@ -181,10 +277,32 @@
     "lat": 6.697532,
     "lng": -1.681563,
     "description": "Teaching and Learning Block housing lecture halls and tutorial rooms.",
-    "hours": "7:00 AM – 6:00 PM",
+    "hours": "7:00 AM \u2013 6:00 PM",
     "rooms": [
-      {"number": "LT1", "floor": "Ground", "description": "Lecture theatre 1"},
-      {"number": "LT2", "floor": "1st", "description": "Lecture theatre 2"}
+      {
+        "number": "LT1",
+        "floor": "Ground",
+        "description": "Lecture theatre 1",
+        "keywords": [
+          "TL BLOCK ROOM 1",
+          "TL BLOCK 1",
+          "TL BLOCK GF",
+          "TL BLOCK ROOM LT1",
+          "TL BLOCK LT1"
+        ]
+      },
+      {
+        "number": "LT2",
+        "floor": "1st",
+        "description": "Lecture theatre 2",
+        "keywords": [
+          "TL BLOCK LT2",
+          "TL BLOCK ROOM 2",
+          "TL BLOCK 2",
+          "TL BLOCK FF",
+          "TL BLOCK ROOM LT2"
+        ]
+      }
     ]
   },
   {
@@ -193,12 +311,21 @@
     "shortName": "FTE",
     "type": "faculty",
     "lat": 6.698387,
-    "lng": -1.680020,
+    "lng": -1.68002,
     "description": "Faculty offering mechanical, electrical, automotive and construction technology programmes.",
     "contact": "fte@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "201", "floor": "2nd", "description": "Faculty office"}
+      {
+        "number": "201",
+        "floor": "2nd",
+        "description": "Faculty office",
+        "keywords": [
+          "FTE 201",
+          "FTE ROOM 201",
+          "FTE SF"
+        ]
+      }
     ]
   },
   {
@@ -209,9 +336,18 @@
     "lat": 6.700230295041086,
     "lng": -1.6805827904715855,
     "description": "Laboratory and training facility for catering, hospitality and food service programmes.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Kitchen 1", "floor": "Ground", "description": "Main kitchen lab"}
+      {
+        "number": "Kitchen 1",
+        "floor": "Ground",
+        "description": "Main kitchen lab",
+        "keywords": [
+          "CATERING LAB GF",
+          "CATERING LAB ROOM KITCHEN 1",
+          "CATERING LAB KITCHEN 1"
+        ]
+      }
     ]
   },
   {
@@ -222,9 +358,18 @@
     "lat": 6.700211615966025,
     "lng": -1.6803445617984518,
     "description": "Laboratory for fashion design, textiles and clothing technology programmes.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Design Room", "floor": "1st", "description": "Fashion design studio"}
+      {
+        "number": "Design Room",
+        "floor": "1st",
+        "description": "Fashion design studio",
+        "keywords": [
+          "FASHION LAB FF",
+          "FASHION LAB DESIGN ROOM",
+          "FASHION LAB ROOM DESIGN ROOM"
+        ]
+      }
     ]
   },
   {
@@ -235,9 +380,18 @@
     "lat": 6.700329916761255,
     "lng": -1.6796612216432647,
     "description": "Additional mechanical workshop facility for technology and engineering practicals.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Annex Workshop", "floor": "Ground", "description": "Additional workshop space"}
+      {
+        "number": "Annex Workshop",
+        "floor": "Ground",
+        "description": "Additional workshop space",
+        "keywords": [
+          "MECH. ANNEX GF",
+          "MECH. ANNEX ROOM ANNEX WORKSHOP",
+          "MECH. ANNEX ANNEX WORKSHOP"
+        ]
+      }
     ]
   },
   {
@@ -248,9 +402,18 @@
     "lat": 6.700101616952657,
     "lng": -1.6790740088612417,
     "description": "Automotive engineering workshop for vehicle maintenance, repair and hands-on training.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Garage 1", "floor": "Ground", "description": "Vehicle repair bay"}
+      {
+        "number": "Garage 1",
+        "floor": "Ground",
+        "description": "Vehicle repair bay",
+        "keywords": [
+          "AUTO WORKSHOP GARAGE 1",
+          "AUTO WORKSHOP ROOM GARAGE 1",
+          "AUTO WORKSHOP GF"
+        ]
+      }
     ]
   },
   {
@@ -261,9 +424,18 @@
     "lat": 6.700175380605054,
     "lng": -1.6781519814855566,
     "description": "Woodwork laboratory and workshop for construction technology and carpentry students.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "Woodshop", "floor": "Ground", "description": "Woodworking area"}
+      {
+        "number": "Woodshop",
+        "floor": "Ground",
+        "description": "Woodworking area",
+        "keywords": [
+          "WOODLAB GF",
+          "WOODLAB ROOM WOODSHOP",
+          "WOODLAB WOODSHOP"
+        ]
+      }
     ]
   },
   {
@@ -294,9 +466,18 @@
     "lat": 6.701263320240392,
     "lng": -1.6831062195613589,
     "description": "ESA Building housing academic departments and faculty offices.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "101", "floor": "1st", "description": "Department office"}
+      {
+        "number": "101",
+        "floor": "1st",
+        "description": "Department office",
+        "keywords": [
+          "ESA ROOM 101",
+          "ESA FF",
+          "ESA 101"
+        ]
+      }
     ]
   },
   {
@@ -307,10 +488,32 @@
     "lat": 6.701497409024071,
     "lng": -1.6836742245585143,
     "description": "New Faculty Building with lecture halls, seminar rooms and department offices.",
-    "hours": "7:00 AM – 6:00 PM",
+    "hours": "7:00 AM \u2013 6:00 PM",
     "rooms": [
-      {"number": "LT3", "floor": "1st", "description": "Lecture theatre"},
-      {"number": "Seminar 1", "floor": "2nd", "description": "Seminar room"}
+      {
+        "number": "LT3",
+        "floor": "1st",
+        "description": "Lecture theatre",
+        "keywords": [
+          "NFB LT3",
+          "NFB ROOM 3",
+          "NFB 3",
+          "NFB ROOM LT3",
+          "NFB FF"
+        ]
+      },
+      {
+        "number": "Seminar 1",
+        "floor": "2nd",
+        "description": "Seminar room",
+        "keywords": [
+          "NFB ROOM SEMINAR 1",
+          "NFB ROOM 1",
+          "NFB SF",
+          "NFB 1",
+          "NFB SEMINAR 1"
+        ]
+      }
     ]
   },
   {
@@ -321,9 +524,40 @@
     "lat": 6.702039508930884,
     "lng": -1.6833389484263725,
     "description": "New Lecture Building providing modern lecture halls and academic spaces.",
-    "hours": "7:00 AM – 6:00 PM",
+    "hours": "7:00 AM \u2013 6:00 PM",
     "rooms": [
-      {"number": "LT4", "floor": "Ground", "description": "Large lecture hall"}
+      {
+        "number": "LT4",
+        "floor": "Ground",
+        "description": "Large lecture hall",
+        "keywords": [
+          "NLB 4",
+          "NLB ROOM LT4",
+          "NLB ROOM 4",
+          "NLB GF",
+          "NLB LT4"
+        ]
+      },
+      {
+        "number": "First Floor",
+        "floor": "1st",
+        "description": "Academic and lecture area",
+        "keywords": [
+          "NLB FF",
+          "NLB FIRST FLOOR",
+          "NLB ROOM FIRST FLOOR"
+        ]
+      },
+      {
+        "number": "Second Floor",
+        "floor": "2nd",
+        "description": "Academic and lecture area",
+        "keywords": [
+          "NLB SF",
+          "NLB SECOND FLOOR",
+          "NLB ROOM SECOND FLOOR"
+        ]
+      }
     ]
   },
   {
@@ -335,9 +569,18 @@
     "lng": -1.6824193407928505,
     "description": "Department offering economics education and business studies programmes.",
     "contact": "economics@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "201", "floor": "2nd", "description": "Lecture room"}
+      {
+        "number": "201",
+        "floor": "2nd",
+        "description": "Lecture room",
+        "keywords": [
+          "ECONOMICS DEPT. 201",
+          "ECONOMICS DEPT. ROOM 201",
+          "ECONOMICS DEPT. SF"
+        ]
+      }
     ]
   },
   {
@@ -347,47 +590,200 @@
     "type": "administration",
     "lat": 6.700458972619646,
     "lng": -1.6820753764509622,
-    "description": "Reinhold O. Bonyo Block — Academic and administrative hub housing the Faculty of Business Education (FBE), Graduate School, and key student services.",
-    "hours": "7:00 AM – 6:00 PM",
+    "description": "Reinhold O. Bonyo Block \u2014 Academic and administrative hub housing the Faculty of Business Education (FBE), Graduate School, and key student services.",
+    "hours": "7:00 AM \u2013 6:00 PM",
     "services": [
       {
         "name": "FBE Dean's Office",
         "room": "050",
         "floor": "Second Floor",
         "description": "Office of the Dean, Faculty of Business Education.",
-        "keywords": ["dean", "business education", "fbe"]
+        "keywords": [
+          "DEAN",
+          "ROB SF",
+          "FBE",
+          "BUSINESS EDUCATION",
+          "ROB FBE DEAN'S OFFICE"
+        ]
       },
       {
         "name": "Guidance and Counselling Centre",
         "room": "030",
         "floor": "First Floor",
         "description": "Professional counseling and psychological support services for students.",
-        "keywords": ["counselling", "guidance", "psychology", "support"]
+        "keywords": [
+          "COUNSELLING",
+          "PSYCHOLOGY",
+          "GUIDANCE",
+          "ROB FF",
+          "ROB GUIDANCE AND COUNSELLING CENTRE",
+          "SUPPORT"
+        ]
       },
       {
         "name": "CCBTR",
         "room": "058-060",
         "floor": "Fourth Floor",
         "description": "Centre for Competency Based Training and Research.",
-        "keywords": ["ccbtr", "research", "training"]
+        "keywords": [
+          "RESEARCH",
+          "CCBTR",
+          "ROB 4F",
+          "ROB CCBTR",
+          "TRAINING"
+        ]
       },
       {
         "name": "Graduate School",
         "room": "051-053",
         "floor": "Third Floor",
         "description": "Administrative offices for the University's Graduate School.",
-        "keywords": ["graduate", "masters", "postgraduate", "phd"]
+        "keywords": [
+          "POSTGRADUATE",
+          "GRADUATE",
+          "PHD",
+          "ROB TF",
+          "ROB GRADUATE SCHOOL",
+          "MASTERS"
+        ]
       }
     ],
     "rooms": [
-      {"number": "Lecture Room 001", "room": "001", "floor": "Ground", "wing": "North", "description": "Large lecture hall", "keywords": ["room 1", "rm 1", "lecture 1"]},
-      {"number": "Lecture Room 025", "room": "025", "floor": "Ground", "wing": "South", "description": "Large lecture hall", "keywords": ["room 25", "rm 25", "lecture 25"]},
-      {"number": "Lecture Room 003", "room": "003", "floor": "1st", "wing": "North", "description": "Large lecture hall", "keywords": ["room 3", "rm 3", "lecture 3"]},
-      {"number": "Lecture Room 023", "room": "023", "floor": "1st", "wing": "South", "description": "Large lecture hall", "keywords": ["room 23", "rm 23", "lecture 23"]},
-      {"number": "Department of Languages", "room": "007", "floor": "Ground", "wing": "North", "description": "Academic department office", "keywords": ["languages", "english", "linguistics"]},
-      {"number": "Department of Management", "room": "039", "floor": "2nd", "wing": "North", "description": "FBE Management HOD office", "keywords": ["management", "hod"]},
-      {"number": "Department of Accounting", "room": "040", "floor": "2nd", "wing": "North", "description": "FBE Accounting HOD office", "keywords": ["accounting", "finance", "audit"]},
-      {"number": "Computer Lab 016", "room": "016", "floor": "4th", "wing": "South", "description": "Advanced computing laboratory", "keywords": ["lab", "computer", "ict"]}
+      {
+        "number": "Lecture Room 001",
+        "room": "001",
+        "floor": "Ground",
+        "wing": "North",
+        "description": "Large lecture hall",
+        "keywords": [
+          "ROB GF",
+          "LECTURE 1",
+          "ROB 001",
+          "RM 1",
+          "ROB ROOM 001",
+          "ROB LECTURE ROOM 001",
+          "ROOM 1",
+          "ROB 1",
+          "ROB ROOM 1"
+        ]
+      },
+      {
+        "number": "Lecture Room 025",
+        "room": "025",
+        "floor": "Ground",
+        "wing": "South",
+        "description": "Large lecture hall",
+        "keywords": [
+          "ROB GF",
+          "LECTURE 25",
+          "ROB ROOM 025",
+          "ROB 025",
+          "ROB 25",
+          "ROOM 25",
+          "RM 25",
+          "ROB ROOM 25",
+          "ROB LECTURE ROOM 025"
+        ]
+      },
+      {
+        "number": "Lecture Room 003",
+        "room": "003",
+        "floor": "1st",
+        "wing": "North",
+        "description": "Large lecture hall",
+        "keywords": [
+          "ROB FF",
+          "ROB 3",
+          "ROB LECTURE ROOM 003",
+          "ROB ROOM 3",
+          "RM 3",
+          "LECTURE 3",
+          "ROB ROOM 003",
+          "ROOM 3",
+          "ROB 003"
+        ]
+      },
+      {
+        "number": "Lecture Room 023",
+        "room": "023",
+        "floor": "1st",
+        "wing": "South",
+        "description": "Large lecture hall",
+        "keywords": [
+          "ROB FF",
+          "ROB ROOM 023",
+          "RM 23",
+          "ROB ROOM 23",
+          "ROOM 23",
+          "LECTURE 23",
+          "ROB 23",
+          "ROB LECTURE ROOM 023",
+          "ROB 023"
+        ]
+      },
+      {
+        "number": "Department of Languages",
+        "room": "007",
+        "floor": "Ground",
+        "wing": "North",
+        "description": "Academic department office",
+        "keywords": [
+          "ROB GF",
+          "ROB DEPARTMENT OF LANGUAGES",
+          "LANGUAGES",
+          "ROB ROOM DEPARTMENT OF LANGUAGES",
+          "ENGLISH",
+          "LINGUISTICS"
+        ]
+      },
+      {
+        "number": "Department of Management",
+        "room": "039",
+        "floor": "2nd",
+        "wing": "North",
+        "description": "FBE Management HOD office",
+        "keywords": [
+          "MANAGEMENT",
+          "ROB DEPARTMENT OF MANAGEMENT",
+          "ROB ROOM DEPARTMENT OF MANAGEMENT",
+          "ROB SF",
+          "HOD"
+        ]
+      },
+      {
+        "number": "Department of Accounting",
+        "room": "040",
+        "floor": "2nd",
+        "wing": "North",
+        "description": "FBE Accounting HOD office",
+        "keywords": [
+          "FINANCE",
+          "ROB DEPARTMENT OF ACCOUNTING",
+          "ROB SF",
+          "ROB ROOM DEPARTMENT OF ACCOUNTING",
+          "ACCOUNTING",
+          "AUDIT"
+        ]
+      },
+      {
+        "number": "Computer Lab 016",
+        "room": "016",
+        "floor": "4th",
+        "wing": "South",
+        "description": "Advanced computing laboratory",
+        "keywords": [
+          "ROB 16",
+          "ROB ROOM COMPUTER LAB 016",
+          "ICT",
+          "ROB 016",
+          "ROB 4F",
+          "ROB COMPUTER LAB 016",
+          "ROB ROOM 16",
+          "LAB",
+          "COMPUTER",
+          "ROB ROOM 016"
+        ]
+      }
     ]
   },
   {
@@ -399,30 +795,48 @@
     "lng": -1.681367,
     "description": "Main university administration building housing the Vice-Chancellor's office, registry and key admin units.",
     "contact": "admin@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "services": [
       {
         "name": "Cash Office",
         "category": "Finance",
         "floor": "Ground Floor",
-        "keywords": ["fees", "payment", "admission", "forms"],
+        "keywords": [
+          "ADMIN BLOCK GF",
+          "ADMISSION",
+          "ADMIN BLOCK CASH OFFICE",
+          "PAYMENT",
+          "FEES",
+          "FORMS"
+        ],
         "description": "Purchase of admission forms and related payments",
-        "hours": "8:00 AM – 4:00 PM"
+        "hours": "8:00 AM \u2013 4:00 PM"
       },
       {
         "name": "IT Consult",
         "category": "Technical Support",
         "floor": "First Floor",
-        "keywords": ["lms", "portal", "student portal", "support", "technical"],
+        "keywords": [
+          "LMS",
+          "TECHNICAL",
+          "STUDENT PORTAL",
+          "SUPPORT",
+          "PORTAL",
+          "ADMIN BLOCK IT CONSULT",
+          "ADMIN BLOCK FF"
+        ],
         "description": "Support for student portal and LMS issues",
-        "hours": "8:00 AM – 5:00 PM"
+        "hours": "8:00 AM \u2013 5:00 PM"
       },
       {
         "name": "Administration Services",
         "category": "Administration",
         "description": "General administration and inquiries",
         "requirements": "Valid ID",
-        "hours": "8:00 AM – 5:00 PM"
+        "hours": "8:00 AM \u2013 5:00 PM",
+        "keywords": [
+          "ADMIN BLOCK ADMINISTRATION SERVICES"
+        ]
       }
     ]
   },
@@ -432,12 +846,32 @@
     "shortName": "ICT Lab",
     "type": "academic",
     "lat": 6.697921,
-    "lng": -1.681560,
+    "lng": -1.68156,
     "description": "Computer and ICT laboratory providing computing resources, internet access and digital training for students.",
-    "hours": "8:00 AM – 6:00 PM",
+    "hours": "8:00 AM \u2013 6:00 PM",
     "rooms": [
-      {"number": "Lab 1", "floor": "Ground", "description": "Computer lab"},
-      {"number": "Lab 2", "floor": "1st", "description": "Advanced computing lab"}
+      {
+        "number": "Lab 1",
+        "floor": "Ground",
+        "description": "Computer lab",
+        "keywords": [
+          "ICT LAB LAB 1",
+          "ICT LAB GF",
+          "ICT LAB 1",
+          "ICT LAB ROOM 1"
+        ]
+      },
+      {
+        "number": "Lab 2",
+        "floor": "1st",
+        "description": "Advanced computing lab",
+        "keywords": [
+          "ICT LAB 2",
+          "ICT LAB LAB 2",
+          "ICT LAB ROOM 2",
+          "ICT LAB FF"
+        ]
+      }
     ]
   },
   {
@@ -447,11 +881,20 @@
     "type": "faculty",
     "lat": 6.698066,
     "lng": -1.680635,
-    "description": "Faculty of Applied Science and Mathematics Education — science, maths and ICT education programmes.",
+    "description": "Faculty of Applied Science and Mathematics Education \u2014 science, maths and ICT education programmes.",
     "contact": "fasme@aamusted.edu.gh",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "101", "floor": "1st", "description": "Faculty office"}
+      {
+        "number": "101",
+        "floor": "1st",
+        "description": "Faculty office",
+        "keywords": [
+          "FASME ROOM 101",
+          "FASME FF",
+          "FASME 101"
+        ]
+      }
     ]
   },
   {
@@ -462,9 +905,18 @@
     "lat": 6.697252,
     "lng": -1.680922,
     "description": "Building dedicated to postgraduate students and the graduate school administration.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "rooms": [
-      {"number": "201", "floor": "2nd", "description": "Graduate study area"}
+      {
+        "number": "201",
+        "floor": "2nd",
+        "description": "Graduate study area",
+        "keywords": [
+          "GRAD BLOCK SF",
+          "GRAD BLOCK 201",
+          "GRAD BLOCK ROOM 201"
+        ]
+      }
     ]
   },
   {
@@ -475,13 +927,16 @@
     "lat": 6.697846,
     "lng": -1.681037,
     "description": "Office of the Dean of Students handling student welfare, discipline and campus life affairs.",
-    "hours": "8:00 AM – 5:00 PM",
+    "hours": "8:00 AM \u2013 5:00 PM",
     "services": [
       {
         "name": "Student Affairs",
         "description": "Student welfare, discipline, and campus services",
         "requirements": "Student ID or appointment",
-        "hours": "8:00 AM – 5:00 PM"
+        "hours": "8:00 AM \u2013 5:00 PM",
+        "keywords": [
+          "DEAN'S OFFICE STUDENT AFFAIRS"
+        ]
       }
     ]
   },
@@ -493,22 +948,31 @@
     "lat": 6.698624,
     "lng": -1.683424,
     "description": "Main campus canteen providing affordable meals, snacks and refreshments for students and staff.",
-    "hours": "7:00 AM – 8:00 PM",
+    "hours": "7:00 AM \u2013 8:00 PM",
     "services": [
       {
         "name": "Infotess Office",
         "category": "Student Organization",
         "floor": "Ground Floor",
-        "keywords": ["infotess", "student organization", "activities"],
+        "keywords": [
+          "ACTIVITIES",
+          "STUDENT ORGANIZATION",
+          "CANTEEN GF",
+          "INFOTESS",
+          "CANTEEN INFOTESS OFFICE"
+        ],
         "description": "Official office for INFOTESS activities",
-        "hours": "8:00 AM – 5:00 PM"
+        "hours": "8:00 AM \u2013 5:00 PM"
       },
       {
         "name": "Food Services",
         "category": "Facility",
         "description": "Meals, snacks, and refreshments",
         "requirements": "Payment method",
-        "hours": "7:00 AM – 8:00 PM"
+        "hours": "7:00 AM \u2013 8:00 PM",
+        "keywords": [
+          "CANTEEN FOOD SERVICES"
+        ]
       }
     ]
   },
@@ -517,12 +981,21 @@
     "name": "Opoku Ware II Hall",
     "shortName": "OW II Hall",
     "type": "hostel",
-    "lat": 6.697620,
-    "lng": -1.683560,
+    "lat": 6.69762,
+    "lng": -1.68356,
     "description": "Second Opoku Ware residential hall with modern student accommodation and amenities.",
     "hours": "24 hours",
     "rooms": [
-      {"number": "Room 15", "floor": "1st", "description": "Student room"}
+      {
+        "number": "Room 15",
+        "floor": "1st",
+        "description": "Student room",
+        "keywords": [
+          "OW II HALL FF",
+          "OW II HALL 15",
+          "OW II HALL ROOM 15"
+        ]
+      }
     ]
   },
   {
@@ -530,7 +1003,7 @@
     "name": "Security Office",
     "shortName": "Security",
     "type": "administration",
-    "lat": 6.696770,
+    "lat": 6.69677,
     "lng": -1.682201,
     "description": "Campus security headquarters managing safety, access control and emergency response.",
     "hours": "24 hours",
@@ -539,7 +1012,10 @@
         "name": "Security Services",
         "description": "Campus security and emergency response",
         "requirements": "Valid ID for access",
-        "hours": "24 hours"
+        "hours": "24 hours",
+        "keywords": [
+          "SECURITY SECURITY SERVICES"
+        ]
       }
     ]
   },
@@ -551,13 +1027,16 @@
     "lat": 6.698691,
     "lng": -1.682611,
     "description": "Campus food court area with multiple food vendors offering diverse meal options for students and staff.",
-    "hours": "7:00 AM – 9:00 PM",
+    "hours": "7:00 AM \u2013 9:00 PM",
     "services": [
       {
         "name": "Food Court Services",
         "description": "Multiple food vendors and dining options",
         "requirements": "Payment method",
-        "hours": "7:00 AM – 9:00 PM"
+        "hours": "7:00 AM \u2013 9:00 PM",
+        "keywords": [
+          "FOOD COURT FOOD COURT SERVICES"
+        ]
       }
     ]
   },
@@ -569,23 +1048,26 @@
     "lat": 6.696693,
     "lng": -1.679889,
     "description": "Dedicated handball court for recreational sports and competitive campus games.",
-    "hours": "6:00 AM – 8:00 PM"
+    "hours": "6:00 AM \u2013 8:00 PM"
   },
   {
     "id": 37,
     "name": "Transport Hub",
     "shortName": "Transport",
     "type": "facility",
-    "lat": 6.697020,
+    "lat": 6.69702,
     "lng": -1.680857,
     "description": "Campus transport and logistics hub for university vehicles, staff buses and student transport services.",
-    "hours": "6:00 AM – 6:00 PM",
+    "hours": "6:00 AM \u2013 6:00 PM",
     "services": [
       {
         "name": "Transport Services",
         "description": "Campus transport and logistics",
         "requirements": "Valid transport pass or permission",
-        "hours": "6:00 AM – 6:00 PM"
+        "hours": "6:00 AM \u2013 6:00 PM",
+        "keywords": [
+          "TRANSPORT TRANSPORT SERVICES"
+        ]
       }
     ]
   },
@@ -597,13 +1079,16 @@
     "lat": 6.701576,
     "lng": -1.681984,
     "description": "Staff and student credit union offering savings, loans and financial support services on campus.",
-    "hours": "8:00 AM – 4:30 PM",
+    "hours": "8:00 AM \u2013 4:30 PM",
     "services": [
       {
         "name": "Financial Services",
         "description": "Savings, loans, and credit union services",
         "requirements": "Membership and valid ID",
-        "hours": "8:00 AM – 4:30 PM"
+        "hours": "8:00 AM \u2013 4:30 PM",
+        "keywords": [
+          "CREDIT UNION FINANCIAL SERVICES"
+        ]
       }
     ]
   },
@@ -625,7 +1110,7 @@
     "lat": 6.701751,
     "lng": -1.679033,
     "description": "Campus volleyball court for recreational play, inter-departmental tournaments and sports training.",
-    "hours": "6:00 AM – 8:00 PM"
+    "hours": "6:00 AM \u2013 8:00 PM"
   },
   {
     "id": 41,
@@ -635,7 +1120,7 @@
     "lat": 6.701757,
     "lng": -1.678843,
     "description": "Outdoor basketball court for recreational play and campus sports competitions.",
-    "hours": "6:00 AM – 8:00 PM"
+    "hours": "6:00 AM \u2013 8:00 PM"
   },
   {
     "id": 42,
@@ -647,7 +1132,16 @@
     "description": "Modern student residential hall with accommodation, study areas and recreational amenities.",
     "hours": "24 hours",
     "rooms": [
-      {"number": "Room 10", "floor": "1st", "description": "Student accommodation"}
+      {
+        "number": "Room 10",
+        "floor": "1st",
+        "description": "Student accommodation",
+        "keywords": [
+          "AUTONOMY HALL ROOM 10",
+          "AUTONOMY HALL 10",
+          "AUTONOMY HALL FF"
+        ]
+      }
     ]
   },
   {
@@ -655,16 +1149,32 @@
     "name": "UBA",
     "shortName": "UBA",
     "type": "facility",
-    "lat": 6.697340,
+    "lat": 6.69734,
     "lng": -1.683376,
     "description": "United Bank for Africa (UBA) branch on campus offering banking services, ATM and mobile banking support.",
-    "hours": "8:30 AM – 4:30 PM",
+    "hours": "8:30 AM \u2013 4:30 PM",
     "services": [
       {
         "name": "Banking Services",
         "description": "Full banking services including ATM",
         "requirements": "Valid ID for transactions",
-        "hours": "8:30 AM – 4:30 PM"
+        "hours": "8:30 AM \u2013 4:30 PM",
+        "keywords": [
+          "UBA BANKING SERVICES"
+        ]
+      },
+      {
+          "name": "Fees Payment",
+          "description": "Tuition, hall fees and other university fee payments",
+          "requirements": "Fee statement and student ID",
+          "hours": "8:30 AM \u2013 4:00 PM",
+          "keywords": [
+              "UBA FEES PAYMENT",
+              "SCHOOL FEES",
+              "HALL FEES",
+              "FEES PAYMENT",
+              "TUITION"
+          ]
       }
     ]
   },
@@ -676,7 +1186,7 @@
     "lat": 6.698302,
     "lng": -1.682416,
     "description": "On-campus shopping mall with retail shops, phone accessories, stationery and everyday essentials.",
-    "hours": "7:00 AM – 9:00 PM"
+    "hours": "7:00 AM \u2013 9:00 PM"
   },
   {
     "id": 45,
@@ -686,7 +1196,7 @@
     "lat": 6.697564,
     "lng": -1.683349,
     "description": "Tennis court adjacent to Opoku Ware Hall for recreational and competitive tennis play.",
-    "hours": "6:00 AM – 8:00 PM"
+    "hours": "6:00 AM \u2013 8:00 PM"
   },
   {
     "id": 46,
@@ -702,7 +1212,10 @@
         "name": "ATM Services",
         "description": "Cash withdrawals and basic banking",
         "requirements": "ATM card and PIN",
-        "hours": "24 hours"
+        "hours": "24 hours",
+        "keywords": [
+          "ATM ATM SERVICES"
+        ]
       }
     ]
   },
@@ -714,6 +1227,6 @@
     "lat": 6.698028,
     "lng": -1.680243,
     "description": "Newly constructed academic facility providing modern lecture halls and seminar rooms.",
-    "hours": "7:00 AM – 6:00 PM"
+    "hours": "7:00 AM \u2013 6:00 PM"
   }
 ]

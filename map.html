@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -1776,7 +1777,7 @@
                     if (!rScore && lq.length > 0) {
                         const cleanNum = rName.replace(/[^0-9]/g, '');
                         const cleanQuery = lq.replace(/[^0-9]/g, '');
-                        if (cleanNum && cleanQuery && cleanNum === cleanQuery) rScore += 100;
+                        if (cleanNum && cleanQuery && parseInt(cleanNum) === parseInt(cleanQuery)) rScore += 100;
                     }
 
                     // Keywords match
@@ -1822,13 +1823,18 @@
                 } else if (type === 'service') {
                     icon = 'fa-concierge-bell';
                     color = '#0ea5e9';
-                    name = data.name;
-                    subtitle = `Service at ${building.name}`;
+                    const bPrefix = (building.shortName || building.name);
+                    name = `${bPrefix} - ${data.name}`;
+                    subtitle = `Service in ${building.name}`;
                     badge = 'Service';
                 } else if (type === 'room') {
                     icon = 'fa-door-open';
                     color = '#10b981';
-                    name = `Room ${data.number}`;
+                    const bPrefix = (building.shortName || building.name);
+                    const ln = data.number.toLowerCase();
+                    const isNameDescriptive = ln.startsWith('room') || ln.startsWith('lecture') || ln.includes('floor') || ln.includes('lab') || ln.includes('hall') || ln.includes('seminar');
+                    const roomName = isNameDescriptive ? data.number : `Room ${data.number}`;
+                    name = `${bPrefix} - ${roomName}`;
                     subtitle = `Located in ${building.name}`;
                     badge = 'Room';
                 }
@@ -2732,9 +2738,27 @@
     initMap();
     loadBuildings();
 
-    // Register Service Worker for offline
+    // Register Service Worker for offline with auto-refresh on update
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+        navigator.serviceWorker.register('sw.js').then(reg => {
+            reg.update();
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // Background update finished, new content ready
+                    }
+                };
+            };
+        }).catch(() => {});
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                window.location.reload();
+                refreshing = true;
+            }
+        });
     }
     </script>
 </body>
