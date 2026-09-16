@@ -13,6 +13,13 @@
     <!-- Mapbox GL JS (The Premium Choice) -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <!-- CesiumJS 1.145 (Official Release) -->
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Widgets/widgets.css">
+    <script>window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/';</script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Cesium.js"></script>
+    <!-- CampusOS 3D Modules -->
+    <script src="js/cesium-viewer.js"></script>
+    <script src="js/view-controller.js"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
@@ -72,6 +79,41 @@
             width: 100%; height: 100%;
             background: var(--bg);
             z-index: 10;
+        }
+
+        #cesiumContainer {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            background: var(--bg);
+            z-index: 10;
+            display: none;
+        }
+
+        .fab-dim-toggle {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            background: var(--surface);
+            color: var(--primary);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .fab-dim-toggle:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-l);
+        }
+        .fab-dim-toggle.active-3d {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
         }
 
         /* ── SIDEBAR STRIP (GOOGLE DESKTOP) ────── */
@@ -1256,6 +1298,8 @@
 
     <!-- MAP -->
     <div id="map"></div>
+    <!-- 3D CESIUM CONTAINER -->
+    <div id="cesiumContainer" style="display:none;"></div>
 
     <!-- SIDEBAR STRIP (DESKTOP) -->
     <div class="sidebar-strip">
@@ -1320,6 +1364,9 @@
 
     <!-- FLOATING BUTTONS (RIGHT) -->
     <div class="fabs">
+        <button class="fab fab-dim-toggle" id="btnDimToggle" title="Switch to 3D Campus View" aria-label="Toggle 2D or 3D View">
+            <span id="dimToggleLabel"><i class="fas fa-cube" style="font-size:12px;margin-right:2px"></i> 3D</span>
+        </button>
         <button class="fab" id="btnTheme" title="Toggle Light/Dark Theme" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme">
             <i class="fas fa-moon"></i>
         </button>
@@ -1327,8 +1374,8 @@
             <i class="fas fa-location-crosshairs"></i>
         </button>
         <div class="zoom-ctrl">
-            <button class="zoom-btn" onclick="map.zoomIn()" title="Zoom In"><i class="fas fa-plus"></i></button>
-            <button class="zoom-btn" onclick="map.zoomOut()" title="Zoom Out"><i class="fas fa-minus"></i></button>
+            <button class="zoom-btn" onclick="handleZoomIn()" title="Zoom In"><i class="fas fa-plus"></i></button>
+            <button class="zoom-btn" onclick="handleZoomOut()" title="Zoom Out"><i class="fas fa-minus"></i></button>
         </div>
     </div>
 
@@ -2857,6 +2904,38 @@
     // ══════════════════════════════════════════
     initMap();
     loadBuildings();
+
+    // Expose minimal CampusOS bridge for 3D viewer & view controller
+    window.CampusOS = {
+        getMap: () => map,
+        getBuildingsData: () => buildingsData,
+        getTypeCfg: () => TYPE_CFG,
+        getCampusCenter: () => CAMPUS,
+        showBuilding: (b) => showBuilding(b),
+        closeSheet: () => closeSheet(),
+        showToast: (msg) => showToast(msg)
+    };
+
+    if (window.ViewControllerModule) {
+        window.ViewControllerModule.init();
+    }
+
+    // Dynamic zoom controls (works for both 2D Mapbox & 3D Cesium)
+    window.handleZoomIn = function() {
+        if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
+            window.CesiumViewerModule?.zoomIn();
+        } else if (map) {
+            map.zoomIn();
+        }
+    };
+
+    window.handleZoomOut = function() {
+        if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
+            window.CesiumViewerModule?.zoomOut();
+        } else if (map) {
+            map.zoomOut();
+        }
+    };
 
     // Register Service Worker for offline with auto-refresh on update
     if ('serviceWorker' in navigator) {
