@@ -20,6 +20,16 @@
     <!-- CampusOS 3D Modules -->
     <script src="js/cesium-viewer.js"></script>
     <script src="js/view-controller.js"></script>
+    <!-- CampusOS Routing Engine V2 Modules -->
+    <script src="js/routing/graph-schema.js"></script>
+    <script src="js/routing/graph-validator.js"></script>
+    <script src="js/routing/cost-model.js"></script>
+    <script src="js/routing/spatial-snapper.js"></script>
+    <script src="js/routing/a-star.js"></script>
+    <script src="js/routing/maneuver-generator.js"></script>
+    <script src="js/routing/graph-builder.js"></script>
+    <script src="js/routing/routing-engine.js"></script>
+    <script src="js/routing/routing-adapter.js"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
@@ -1454,77 +1464,11 @@
     }
 
     // ══════════════════════════════════════════
-    //  OFFLINE ROUTER ENGINE (Dijkstra)
+    //  OFFLINE ROUTER ENGINE (Routing Engine V2)
     // ══════════════════════════════════════════
-    class PriorityQueue {
-        constructor() { this.items = []; }
-        enqueue(element, priority) {
-            const node = { element, priority };
-            let added = false;
-            for (let i = 0; i < this.items.length; i++) {
-                if (node.priority < this.items[i].priority) { this.items.splice(i,0,node); added = true; break; }
-            }
-            if (!added) this.items.push(node);
-        }
-        dequeue() { return this.items.shift(); }
-        isEmpty() { return this.items.length === 0; }
-    }
-
-    const OfflineRouter = (() => {
-        let graph = {}; let nodes = [];
-        return {
-            init: async () => {
-                try {
-                    const [res1, res2] = await Promise.all([
-                        fetch('./data/campus.geojson').then(r => r.json()),
-                        fetch('./data/roads.geojson').then(r => r.json()).catch(() => ({features: []}))
-                    ]);
-                    [...res1.features, ...res2.features].filter(f => f.geometry.type === 'LineString').forEach(road => {
-                        const coords = road.geometry.coordinates;
-                        for (let i = 0; i < coords.length - 1; i++) {
-                            const p1 = coords[i], p2 = coords[i+1];
-                            const k1 = `${p1[0]},${p1[1]}`, k2 = `${p2[0]},${p2[1]}`;
-                            const dist = haversine(p1[1], p1[0], p2[1], p2[0]);
-                            if (!graph[k1]) graph[k1] = []; if (!graph[k2]) graph[k2] = [];
-                            graph[k1].push({ node: k2, dist, coords: p2 });
-                            graph[k2].push({ node: k1, dist, coords: p1 });
-                        }
-                    });
-                    nodes = Object.keys(graph);
-                } catch(e) { console.warn('OfflineRouter init error:', e); }
-            },
-            compute: (slat, slng, dlat, dlng) => {
-                let sNode = null, dNode = null, sMin = Infinity, dMin = Infinity;
-                nodes.forEach(k => {
-                    const [nLng, nLat] = k.split(',').map(Number);
-                    const ds = haversine(slat, slng, nLat, nLng); if (ds < sMin) { sMin = ds; sNode = k; }
-                    const dd = haversine(dlat, dlng, nLat, nLng); if (dd < dMin) { dMin = dd; dNode = k; }
-                });
-                if (!sNode || !dNode) return null;
-                const dists = {}, prev = {}, pq = new PriorityQueue();
-                nodes.forEach(n => dists[n] = Infinity); dists[sNode] = 0; pq.enqueue(sNode, 0);
-                while (!pq.isEmpty()) {
-                    const { element: curr } = pq.dequeue(); if (curr === dNode) break;
-                    graph[curr]?.forEach(nb => {
-                        const alt = dists[curr] + nb.dist;
-                        if (alt < dists[nb.node]) { dists[nb.node] = alt; prev[nb.node] = curr; pq.enqueue(nb.node, alt); }
-                    });
-                }
-                if (dists[dNode] === Infinity) return null;
-                const path = []; let curr = dNode;
-                while (curr) { const [lng, lat] = curr.split(',').map(Number); path.unshift([lng, lat]); curr = prev[curr]; }
-                if (haversine(slat, slng, path[0][1], path[0][0]) > 2) path.unshift([slng, slat]);
-                if (haversine(dlat, dlng, path[path.length-1][1], path[path.length-1][0]) > 2) path.push([dlng, dlat]);
-                return {
-                    distance: dists[dNode], duration: dists[dNode] / 1.4,
-                    geometry: { type: 'LineString', coordinates: path },
-                    steps: [{ maneuver: { type: 'depart' }, name: 'Start walking (Offline Mode)' },
-                            { maneuver: { type: 'continue' }, name: 'Follow campus paths', distance: dists[dNode] },
-                            { maneuver: { type: 'arrive' }, name: 'Arrive at destination' }]
-                };
-            }
-        };
-    })();
+    // Powered by js/routing/ modules (A*, canonical graph 2.0, spatial snapping, costing, and maneuvers).
+    // Falls back to window.OfflineRouterV2 or preserves interface.
+    const OfflineRouter = window.OfflineRouterV2 || window.OfflineRouter;
 
     // Obfuscated for push — Full token verified: 
     const TOKEN = atob('cGsuZXlKMUlqb2lhMmx1WjJWdWFXOTFjeUlzSW1FaU9pSmpiV2RuY3pKNFlYY3dNR3Q0TW1wek56bDBPVzl5WlhNeEluMC5pUE9zU2pOT05LYmpyamI2LVRVZVF3');
@@ -1662,10 +1606,16 @@
             initLayerToggle();
             setupNavigation();
             add3DBuildings();
-            OfflineRouter.init(); // Init offline brain
             // Set layer thumbnail dynamically
             const layerImg = document.getElementById('btnLayersImg');
-            if (layerImg) layerImg.src = `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${CAMPUS.lng},${CAMPUS.lat},15,0/120x120?access_token=${TOKEN}`;
+            if (layerImg && navigator.onLine) layerImg.src = `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/${CAMPUS.lng},${CAMPUS.lat},15,0/120x120?access_token=${TOKEN}`;
+        });
+
+        // Graceful error handling when offline
+        map.on('error', (e) => {
+            if (!navigator.onLine) {
+                console.warn('Mapbox network request offline:', e?.error?.message || e);
+            }
         });
 
         map.on('click', (e) => {
@@ -2539,18 +2489,8 @@
             const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng);
             
             if (!offline) {
-                // Last ditch: Straight line
-                const dist = haversine(origin.lat, origin.lng, destLat, destLng);
-                const straightRoute = { type: 'Feature', geometry: { type: 'LineString', coordinates: [[origin.lng, origin.lat], [destLng, destLat]] } };
-                if (map.getSource('route')) map.getSource('route').setData(straightRoute);
-                else map.addSource('route', { type: 'geojson', data: straightRoute });
-                
-                if (!map.getLayer('route-line')) {
-                    map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#4338ca', 'line-width': 4, 'line-dasharray': [2, 2], 'line-opacity': 0.7 } });
-                }
-                const b = new mapboxgl.LngLatBounds([origin.lng, origin.lat], [destLng, destLat]);
-                map.fitBounds(b, { padding: 80 });
-                showToast('Offline: Straight-line estimate');
+                showToast('Unable to find a connected walking route on the campus network.');
+                closeSheet();
                 return;
             }
 
@@ -2746,8 +2686,18 @@
         setTimeout(() => bar.classList.remove('show'), 3500);
     }
 
-    // Rough point-to-step proximity using step intersections
+    // ── DISTANCE TO ACTIVE ROUTE (Snapping & Reroute Evaluation) ──
+    // Uses SpatialSnapper equirectangular segment projection when route geometry is available
     function pointToRouteDistance(lat, lng, step) {
+        if (_route.geometry?.coordinates?.length >= 2 && window.SpatialSnapper) {
+            const coords = _route.geometry.coordinates;
+            let minD = Infinity;
+            for (let i = 0; i < coords.length - 1; i++) {
+                const p = SpatialSnapper.projectPointOnSegment(lat, lng, coords[i][1], coords[i][0], coords[i+1][1], coords[i+1][0]);
+                if (p.distanceMeters < minD) minD = p.distanceMeters;
+            }
+            return minD;
+        }
         if (!step.intersections?.length) return 0;
         let minDist = Infinity;
         step.intersections.forEach(inter => {
@@ -2902,6 +2852,7 @@
     // ══════════════════════════════════════════
     //  BOOT
     // ══════════════════════════════════════════
+    OfflineRouter.init(); // Init local prepared routing graph immediately (100% offline capable)
     initMap();
     loadBuildings();
 

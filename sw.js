@@ -3,8 +3,8 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v3';
-const TILE_CACHE  = 'ustednav-tiles-v3';
+const CACHE_NAME  = 'ustednav-v4';
+const TILE_CACHE  = 'ustednav-tiles-v4';
 
 // App shell files to cache on install
 const APP_SHELL = [
@@ -15,6 +15,17 @@ const APP_SHELL = [
     './data/buildings.json',
     './data/campus.geojson',
     './data/roads.geojson',
+    './js/cesium-viewer.js',
+    './js/view-controller.js',
+    './js/routing/graph-schema.js',
+    './js/routing/graph-validator.js',
+    './js/routing/cost-model.js',
+    './js/routing/spatial-snapper.js',
+    './js/routing/a-star.js',
+    './js/routing/maneuver-generator.js',
+    './js/routing/graph-builder.js',
+    './js/routing/routing-engine.js',
+    './js/routing/routing-adapter.js',
     'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js',
     'https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
@@ -84,12 +95,21 @@ async function cacheTile(request) {
     const cache  = await caches.open(TILE_CACHE);
     const cached = await cache.match(request);
 
+    if (!navigator.onLine && cached) {
+        return cached;
+    }
+
     const networkFetch = fetch(request).then(resp => {
-        if (resp && resp.status === 200) {
+        if (resp && (resp.status === 200 || resp.type === 'opaque')) {
             cache.put(request, resp.clone());
         }
         return resp;
     }).catch(() => null);
 
-    return cached || await networkFetch;
+    if (cached) return cached;
+    const netResp = await networkFetch;
+    if (netResp) return netResp;
+
+    // Return empty 204 or transparent fallback if tile cannot be fetched while offline
+    return new Response('', { status: 204, statusText: 'No Content (Offline)' });
 }
