@@ -1,0 +1,45 @@
+# ── Environment & Secrets ──
+.env
+.env*.local
+*.key
+*.pem
+*.token
+b64.txt
+
+# ── Academic Documents, Slides & Reports ──
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+*.pdf
+
+# ── Report Generation & Extraction Scratches ──
+current_report_text.txt
+report_output.txt
+read_docx.py
+build_report.py
+
+# ── Node & Package Artifacts ──
+node_modules/
+.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Python Artifacts ──
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# ── OS & IDE ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

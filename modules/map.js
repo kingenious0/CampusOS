@@ -13,21 +13,21 @@ const MapModule = (() => {
     const DEFAULT_ZOOM = 17;
 
     const typeConfig = {
-        faculty:        { color: '#4f46e5', icon: 'fa-university',    label: 'Faculty' },
+        faculty:        { color: '#6366f1', icon: 'fa-university',    label: 'Faculty' },
         lecture_hall:   { color: '#f59e0b', icon: 'fa-chalkboard',    label: 'Lecture Hall / Lab' },
         hostel:         { color: '#10b981', icon: 'fa-bed',           label: 'Hostel' },
         administration: { color: '#ef4444', icon: 'fa-building',      label: 'Administration' },
         facility:       { color: '#8b5cf6', icon: 'fa-circle-info',   label: 'Facility' }
     };
 
-    const init = async () => {
-        map = L.map('map', { zoomControl: true }).setView(CAMPUS_CENTER, DEFAULT_ZOOM);
+    let tileLayer = null;
 
-        // OpenStreetMap tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | USTED NAV – AAMUSTED Kumasi',
-            maxZoom: 20
-        }).addTo(map);
+    const init = async () => {
+        map = L.map('map', { zoomControl: false }).setView(CAMPUS_CENTER, DEFAULT_ZOOM);
+
+        // Check if dark mode is active on page load
+        const isDark = document.body.classList.contains('dark-theme');
+        updateTileLayer(isDark);
 
         await loadBuildingsData();
         await loadRoadsData();
@@ -37,12 +37,28 @@ const MapModule = (() => {
         // Campus boundary ring — 800m covers all campus buildings
         L.circle(CAMPUS_CENTER, {
             radius: 800,
-            color: '#4f46e5',
-            fillColor: '#4f46e5',
+            color: '#6366f1',
+            fillColor: '#6366f1',
             fillOpacity: 0.04,
             weight: 2,
             dashArray: '6 4'
         }).addTo(map).bindTooltip('AAMUSTED Kumasi Campus', { permanent: false });
+    };
+
+    const updateTileLayer = (isDark) => {
+        if (!map) return;
+        if (tileLayer) {
+            map.removeLayer(tileLayer);
+        }
+
+        const url = isDark
+            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+        tileLayer = L.tileLayer(url, {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 20
+        }).addTo(map);
     };
 
     const loadRoadsData = async () => {
@@ -179,5 +195,5 @@ const MapModule = (() => {
     const getBuildingsData = () => buildingsData;
     const getUserLocation = () => userLocation || { lat: CAMPUS_CENTER[0], lng: CAMPUS_CENTER[1] };
 
-    return { init, filterMarkers, centerOnBuilding, getBuildingsData, getMap, getUserLocation };
+    return { init, filterMarkers, centerOnBuilding, getBuildingsData, getMap, getUserLocation, updateTileLayer };
 })();

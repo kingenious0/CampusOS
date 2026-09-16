@@ -14,114 +14,236 @@
     <link rel="manifest" href="manifest.json">
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --bg: #05070c;
+            --accent: #4f46e5;
+            --accent-glow: rgba(79, 70, 229, 0.12);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --surface: rgba(255, 255, 255, 0.02);
+        }
+        
         html, body {
             height: 100%;
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #0f172a;
-            color: #fff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
             display: flex; align-items: center; justify-content: center;
             text-align: center;
             -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+            position: relative;
         }
+
+        /* Premium ambient background glow */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .splash {
-            padding: 2rem;
-            max-width: 360px;
+            position: relative;
+            z-index: 1;
+            padding: 2.5rem;
+            max-width: 400px;
             width: 100%;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .icon-ring {
-            width: 90px; height: 90px;
-            background: #4338ca;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2.2rem;
-            box-shadow: 0 0 0 16px rgba(67,56,202,.15);
-            animation: pulse 2.5s ease-in-out infinite;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pulse {
-            0%,100% { box-shadow: 0 0 0 12px rgba(67,56,202,.15); }
-            50%      { box-shadow: 0 0 0 24px rgba(67,56,202,.05); }
+
+        .brand-header {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; }
-        .sub { font-size: .95rem; color: rgba(255,255,255,.5); margin: .5rem 0 2.5rem; }
+
+        .logo-wrapper {
+            width: 72px;
+            height: 72px;
+            padding: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .logo-wrapper:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
         .campus-name {
-            font-size: .75rem; font-weight: 700; letter-spacing: .1em;
-            color: #818cf8; text-transform: uppercase; margin-bottom: .3rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.25em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
         }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -.05em;
+            background: linear-gradient(180deg, #ffffff 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
+        }
+
+        .sub {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+
         .open-btn {
-            display: flex; align-items: center; justify-content: center; gap: .6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
             width: 100%;
-            padding: 1rem;
-            background: #4338ca;
-            color: #fff;
+            padding: 1.1rem;
+            background: #ffffff;
+            color: #05070c;
             text-decoration: none;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: background .2s, transform .15s;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid transparent;
         }
-        .open-btn:hover { background: #3730a3; transform: translateY(-2px); }
-        .open-btn:active { transform: scale(.97); }
+        .open-btn:hover {
+            background: var(--bg);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        .open-btn:active {
+            transform: scale(0.98);
+        }
+
         .pills {
-            display: flex; gap: .6rem; justify-content: center;
-            flex-wrap: wrap; margin-top: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2.2rem;
+            opacity: 0.85;
         }
+
         .pill {
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: 50px;
-            padding: .35rem .9rem;
-            font-size: .75rem;
-            color: rgba(255,255,255,.55);
-            display: flex; align-items: center; gap: .4rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
-        .pill i { color: #818cf8; }
+        .pill:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .pill i {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
 
         .install-prompt {
             display: none;
             position: fixed;
-            bottom: 1.5rem;
-            left: 1rem;
-            right: 1rem;
-            background: #1e293b;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            padding: 1rem;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2rem);
+            max-width: 360px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.85rem 1.1rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             z-index: 1000;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from { transform: translate(-50%, 100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
         .install-btn {
-            background: #4338ca;
-            color: #fff;
+            background: #ffffff;
+            color: #05070c;
             border: none;
-            padding: .6rem 1.2rem;
-            border-radius: 10px;
-            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .install-btn:hover {
+            opacity: 0.9;
         }
         .install-text {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-align: left;
-            opacity: 0.9;
+            opacity: 0.85;
+            line-height: 1.4;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
     <div class="splash">
-        <div class="icon-ring"><img src="logo.png" alt="USTED NAV Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
-        <p class="campus-name">USTED · Kumasi Campus</p>
-        <h1>USTED NAV</h1>
+        <div class="brand-header">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="USTED NAV Logo">
+            </div>
+            <p class="campus-name">USTED · Kumasi Campus</p>
+            <h1>USTED NAV</h1>
+        </div>
         <p class="sub">Search, find and get directions across campus — works offline.</p>
         <a href="map.html" class="open-btn">
             <i class="fas fa-compass"></i> Open Navigation
