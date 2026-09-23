@@ -246,6 +246,13 @@
             line-height: 1.4;
             color: var(--text-muted);
         }
+
+        @media all and (display-mode: standalone), (display-mode: fullscreen) {
+            #installPrompt,
+            .install-prompt {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -307,30 +314,50 @@
         }
 
         // --- 2. PWA INSTALL PROMPT ---
-        let deferredPrompt;
         const installPrompt = document.getElementById('installPrompt');
         const installBtn = document.getElementById('installBtn');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installPrompt.style.display = 'flex';
-        });
+        const isInstalledApp =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true ||
+            (document.referrer && document.referrer.startsWith('android-app://'));
 
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to install prompt: ${outcome}`);
-            deferredPrompt = null;
-            installPrompt.style.display = 'none';
-        });
+        if (isInstalledApp) {
+            if (installPrompt) {
+                installPrompt.style.setProperty('display', 'none', 'important');
+            }
+        } else {
+            let deferredPrompt;
 
-        window.addEventListener('appinstalled', () => {
-            installPrompt.style.display = 'none';
-            deferredPrompt = null;
-            console.log('PWA was installed');
-        });
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (installPrompt) {
+                    installPrompt.style.display = 'flex';
+                }
+            });
+
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to install prompt: ${outcome}`);
+                    deferredPrompt = null;
+                    if (installPrompt) {
+                        installPrompt.style.display = 'none';
+                    }
+                });
+            }
+
+            window.addEventListener('appinstalled', () => {
+                if (installPrompt) {
+                    installPrompt.style.display = 'none';
+                }
+                deferredPrompt = null;
+                console.log('PWA was installed');
+            });
+        }
     </script>
 </body>
 </html>
