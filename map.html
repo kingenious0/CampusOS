@@ -1980,12 +1980,17 @@
         let s = String(str).trim();
         s = s.replace(/^Room\s+(Rm|Room)\.?\s*/i, 'Room ');
         s = s.replace(/^Rm\.?\s+/i, 'Room ');
+        s = s.replace(/^Room\s*-\s*Room\s+/i, 'Room ');
+        s = s.replace(/^(Room|Rm)\.?\s*[-–—]?\s*(Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division)\b/i, '$2');
         return s;
     }
 
     function formatRoomNumber(num) {
         if (!num) return '';
         let s = sanitizeRoomTitle(num);
+        if (/^(Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division|Library|Auditorium|Hall|Lecture|Lab|Office|Room)/i.test(s)) {
+            return s.replace(/^Room\s+((Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division)\b)/i, '$1');
+        }
         if (!/^(Room|Lecture|Hall|Lab|Auditorium|Office)/i.test(s)) {
             s = `Room ${s}`;
         }
@@ -2614,6 +2619,8 @@
                     const pillText = `${bPrefix} — ${floorStr}, ${roomStr}`;
                     const breadcrumb = formatRoomBreadcrumb(b, r);
                     const occupants = r.occupant ? `Occupant: ${r.occupant}` : (r.staff && r.staff.length ? `Staff: ${r.staff.join(', ')}` : `Located in ${b.name}`);
+                    const isDept = /Department|Dept\.?/i.test(roomStr);
+                    const tagText = isDept ? 'Department' : (/Lab/i.test(roomStr) ? 'Lab' : 'Room');
 
                     el.className = 'result-item room-result';
                     el.innerHTML = `
@@ -2622,7 +2629,7 @@
                             <!-- Line 1: Room code & name -->
                             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                                 <strong style="font-size:14px;color:var(--text);font-weight:700">${highlight(bPrefix + ' - ' + roomStr, q)}</strong>
-                                <span class="staff-pos-tag" style="color:#059669;background:rgba(16,185,129,0.1)">Room</span>
+                                <span class="staff-pos-tag" style="color:#059669;background:rgba(16,185,129,0.1)">${tagText}</span>
                             </div>
                             <!-- Line 2: Occupant or Building -->
                             <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${highlight(occupants, q)}</div>
@@ -3056,6 +3063,8 @@
         const floorStr = r.floor ? (r.floor.toLowerCase().includes('floor') ? r.floor : r.floor + ' Floor') : 'Ground Floor';
         const roomStr = formatRoomNumber(r.number);
         const pill = `${b.shortName || b.name} — ${floorStr}, ${roomStr}`;
+        const isDept = /Department|Dept\.?/i.test(roomStr);
+        const typeBadgeText = isDept ? 'Department Office' : (/Lab/i.test(roomStr) ? 'Laboratory' : 'Lecture Hall / Room');
 
         meta += metaRow('fa-layer-group', `Floor: ${floorStr}`);
         meta += metaRow('fa-building', `Located in ${b.name}`);
@@ -3072,7 +3081,7 @@
                 </div>
                 <div style="flex:1;min-width:0">
                     <h2>${roomStr}</h2>
-                    <span class="type-badge" style="background:#10b98118;color:#10b981">Lecture Hall / Room</span>
+                    <span class="type-badge" style="background:#10b98118;color:#10b981">${typeBadgeText}</span>
                     <div style="margin-top:6px">
                         <span class="location-pill room-pill">
                             <i class="fas fa-location-dot"></i>

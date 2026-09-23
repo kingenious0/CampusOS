@@ -207,11 +207,27 @@ console.log(`[PASS] Dr. Lawer resolves to Building 26 entrance [${adminBuilding.
 assert.strictEqual(searchModule.sanitizeRoomTitle('Room Rm 30'), 'Room 30', 'Room Rm 30 -> Room 30');
 assert.strictEqual(searchModule.sanitizeRoomTitle('Room Room 101'), 'Room 101', 'Room Room 101 -> Room 101');
 assert.strictEqual(searchModule.sanitizeRoomTitle('Room Rm. 05'), 'Room 05', 'Room Rm. 05 -> Room 05');
+assert.strictEqual(searchModule.sanitizeRoomTitle('Room Department of Management'), 'Department of Management', 'Strip Room before Department');
+assert.strictEqual(searchModule.sanitizeRoomTitle('Rm. Department of Languages'), 'Department of Languages', 'Strip Rm. before Department');
 assert.strictEqual(searchModule.formatRoomNumber('Room Rm 30'), 'Room 30', 'formatRoomNumber with double room prefix');
 assert.strictEqual(searchModule.formatRoomNumber('Room 101'), 'Room 101', 'formatRoomNumber with single room prefix');
 assert.strictEqual(searchModule.formatRoomNumber('Rm 12'), 'Room 12', 'formatRoomNumber with Rm prefix');
 assert.strictEqual(searchModule.formatRoomNumber('018'), 'Room 018', 'formatRoomNumber with number only');
-console.log('[PASS] String sanitization and regex redundancy cleanup verified for all room variations.');
+assert.strictEqual(searchModule.formatRoomNumber('Department of Languages'), 'Department of Languages', 'Never prepend Room to Department of Languages');
+assert.strictEqual(searchModule.formatRoomNumber('Department of Management'), 'Department of Management', 'Never prepend Room to Department of Management');
+assert.strictEqual(searchModule.formatRoomNumber('Department of Accounting'), 'Department of Accounting', 'Never prepend Room to Department of Accounting');
+assert.strictEqual(searchModule.formatRoomNumber('Room Department of Accounting'), 'Department of Accounting', 'Strip Room prefix on Department');
+console.log('[PASS] String sanitization and regex redundancy cleanup verified for all room and department variations.');
+
+// Test 11b: Department Search Result Titles & Pills
+const robResults = searchEngine.search('ROB Management');
+const mgmtDept = robResults.find(r => r.type === 'room' && r.name.includes('Management'));
+assert(mgmtDept, 'Search for ROB Management should return Department of Management');
+assert.strictEqual(mgmtDept.name, 'Department of Management');
+assert.strictEqual(searchModule.formatRoomNumber(mgmtDept.data.number), 'Department of Management');
+assert(!searchModule.formatRoomNumber(mgmtDept.data.number).includes('Room Department'), 'Must NOT contain Room Department');
+assert.strictEqual(searchModule.formatRoomBreadcrumb(mgmtDept.data, mgmtDept.building), 'ROB Block — 2nd Floor, Department of Management');
+console.log('[PASS] Department search results format cleanly as "ROB - Department of ..." and NOT "ROB - Room Department of ...".');
 
 // Test 12: Punchy Outdoor Hand-off Copy
 const exactRoomHandoff = searchModule.formatOutdoorHandoff({

@@ -166,12 +166,17 @@ const SearchModule = (() => {
         let s = String(str).trim();
         s = s.replace(/^Room\s+(Rm|Room)\.?\s*/i, 'Room ');
         s = s.replace(/^Rm\.?\s+/i, 'Room ');
+        s = s.replace(/^Room\s*-\s*Room\s+/i, 'Room ');
+        s = s.replace(/^(Room|Rm)\.?\s*[-–—]?\s*(Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division)\b/i, '$2');
         return s;
     };
 
     const formatRoomNumber = (num) => {
         if (!num) return '';
         let s = sanitizeRoomTitle(num);
+        if (/^(Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division|Library|Auditorium|Hall|Lecture|Lab|Office|Room)/i.test(s)) {
+            return s.replace(/^Room\s+((Department|Dept\.?|Faculty|Centre|Center|Directorate|Unit|Division)\b)/i, '$1');
+        }
         if (!/^(Room|Lecture|Hall|Lab|Auditorium|Office)/i.test(s)) {
             s = `Room ${s}`;
         }
@@ -515,7 +520,7 @@ const SearchModule = (() => {
                         room: r.number,
                         matchScore: rScore,
                         score: rScore,
-                        locationPill: `${b.shortName || b.name} — Floor ${r.floor || '1'}, ${r.number}`,
+                        locationPill: `${b.shortName || b.name} — ${r.floor ? (String(r.floor).match(/floor/i) ? r.floor : `${r.floor} Floor`) : 'Ground Floor'}, ${formatRoomNumber(r.number)}`,
                         breadcrumb: formatRoomBreadcrumb(r, b)
                     });
                 }
@@ -764,6 +769,8 @@ const SearchModule = (() => {
                     const pillText = `${bPrefix} — ${floorStr}, ${roomStr}`;
                     const breadcrumb = formatRoomBreadcrumb(rData, bObj);
                     const occupants = rData.occupant ? `Occupant: ${rData.occupant}` : (rData.staff && rData.staff.length ? `Staff: ${rData.staff.join(', ')}` : `Located in ${bObj.name}`);
+                    const isDept = /Department|Dept\.?/i.test(roomStr);
+                    const tagText = isDept ? 'Department' : (/Lab/i.test(roomStr) ? 'Lab' : 'Room');
 
                     el.className = 'result-item room-result';
                     el.innerHTML = `
@@ -772,7 +779,7 @@ const SearchModule = (() => {
                             <!-- Line 1: Room code & name -->
                             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                                 <strong style="font-size:14px;color:var(--text, #0f172a);font-weight:700">${highlightMatch(bPrefix + ' - ' + roomStr, query)}</strong>
-                                <span class="staff-pos-tag" style="color:#059669;background:rgba(16,185,129,0.1)">Room</span>
+                                <span class="staff-pos-tag" style="color:#059669;background:rgba(16,185,129,0.1)">${tagText}</span>
                             </div>
                             <!-- Line 2: Occupant or Building -->
                             <div style="font-size:12px;color:var(--muted, #64748b);margin-top:2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${highlightMatch(occupants, query)}</div>
