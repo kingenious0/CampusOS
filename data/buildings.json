@@ -61,29 +61,6 @@
           "LIBRARY GF",
           "GROUND FLOOR"
         ]
-      },
-      {
-        "number": "Room dosa liblrb 01",
-        "room": "dosa liblrb 01",
-        "floor": "Ground",
-        "description": "Staff Office – Prof. Stephen Baffour Adjei (Department of Interdisciplinary Studies)",
-        "staff": [
-          "Prof. Stephen Baffour Adjei"
-        ],
-        "keywords": [
-          "PROF. STEPHEN BAFFOUR ADJEI",
-          "ADJEI",
-          "LIBRARY DOSA LIBLRB 01",
-          "LIBRARY ROOM DOSA LIBLRB 01",
-          "ROOM DOSA LIBLRB 01",
-          "DOSA LIBLRB 01",
-          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
-          "DIS",
-          "INTERDISCIPLINARY",
-          "IDS",
-          "LIBRARY GF",
-          "GROUND FLOOR"
-        ]
       }
     ],
     "keywords": [
@@ -97,17 +74,7 @@
       "ROOM ODSA LIB",
       "ODSA LIB",
       "LIBRARY GF",
-      "GROUND FLOOR",
-      "PROF. STEPHEN BAFFOUR ADJEI",
-      "ADJEI",
-      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
-      "DIS",
-      "INTERDISCIPLINARY",
-      "IDS",
-      "LIBRARY DOSA LIBLRB 01",
-      "LIBRARY ROOM DOSA LIBLRB 01",
-      "ROOM DOSA LIBLRB 01",
-      "DOSA LIBLRB 01"
+      "GROUND FLOOR"
     ]
   },
   {
@@ -1111,12 +1078,15 @@
         "room": "039",
         "floor": "2nd",
         "wing": "North",
-        "description": "FBE Management HOD office",
+        "description": "FBE Management Studies HOD office",
         "keywords": [
           "MANAGEMENT",
           "ROB DEPARTMENT OF MANAGEMENT",
           "ROB SF",
-          "HOD"
+          "HOD",
+          "MANAGEMENT HOD",
+          "ROB 039",
+          "FBE MANAGEMENT STUDIES HOD OFFICE"
         ]
       },
       {
@@ -1124,13 +1094,81 @@
         "room": "040",
         "floor": "2nd",
         "wing": "North",
-        "description": "FBE Accounting HOD office",
+        "description": "FBE Accounting Studies HOD office",
         "keywords": [
           "FINANCE",
           "ROB DEPARTMENT OF ACCOUNTING",
           "ROB SF",
           "ACCOUNTING",
-          "AUDIT"
+          "AUDIT",
+          "HOD",
+          "ACCOUNTING HOD",
+          "ROB 040",
+          "FBE ACCOUNTING STUDIES HOD OFFICE"
+        ]
+      },
+      {
+        "number": "Room 022",
+        "room": "022",
+        "floor": "1st",
+        "wing": "North",
+        "description": "DEL HOD Office (Languages)",
+        "keywords": [
+          "HOD",
+          "DEL",
+          "LANGUAGES HOD",
+          "ROB 022",
+          "ROB ROOM 022",
+          "DEL HOD OFFICE",
+          "LANGUAGES HOD OFFICE",
+          "ROB FF"
+        ]
+      },
+      {
+        "number": "Room 023",
+        "room": "023",
+        "floor": "1st",
+        "wing": "South",
+        "description": "DIS HOD Office (Interdisciplinary)",
+        "keywords": [
+          "HOD",
+          "DIS",
+          "INTERDISCIPLINARY HOD",
+          "ROB 023",
+          "ROB ROOM 023",
+          "DIS HOD OFFICE",
+          "INTERDISCIPLINARY HOD OFFICE",
+          "ROB FF"
+        ]
+      },
+      {
+        "number": "Room 046",
+        "room": "046",
+        "floor": "2nd",
+        "wing": "North",
+        "description": "Accounting Exams Office",
+        "keywords": [
+          "ACCOUNTING EXAMS",
+          "EXAMS OFFICE",
+          "ROB 046",
+          "ROB ROOM 046",
+          "ACCOUNTING EXAMS OFFICE",
+          "ROB SF"
+        ]
+      },
+      {
+        "number": "Room 047",
+        "room": "047",
+        "floor": "2nd",
+        "wing": "North",
+        "description": "Management Exams Office",
+        "keywords": [
+          "MANAGEMENT EXAMS",
+          "EXAMS OFFICE",
+          "ROB 047",
+          "ROB ROOM 047",
+          "MANAGEMENT EXAMS OFFICE",
+          "ROB SF"
         ]
       },
       {
@@ -1852,7 +1890,93 @@
       "ROB ROOM 27",
       "ROOM 27",
       "RM 27",
-      "27"
+      "27",
+      "PROF. STEPHEN BAFFOUR ADJEI",
+      "ADJEI",
+      "STEPHEN BAFFOUR ADJEI",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DIS",
+      "INTERDISCIPLINARY"
+    ],
+    "services": [
+      {
+        "name": "FBE Management Studies HOD Office",
+        "category": "Department Office",
+        "floor": "2nd Floor",
+        "room": "Room 039",
+        "description": "Head of Department Office for Management Studies Education",
+        "keywords": [
+          "HOD",
+          "MANAGEMENT HOD",
+          "ROB 039",
+          "ROB HOD",
+          "MANAGEMENT STUDIES HOD"
+        ]
+      },
+      {
+        "name": "FBE Accounting Studies HOD Office",
+        "category": "Department Office",
+        "floor": "2nd Floor",
+        "room": "Room 040",
+        "description": "Head of Department Office for Accounting Studies Education",
+        "keywords": [
+          "HOD",
+          "ACCOUNTING HOD",
+          "ROB 040",
+          "ROB HOD",
+          "ACCOUNTING STUDIES HOD"
+        ]
+      },
+      {
+        "name": "DEL HOD Office (Languages)",
+        "category": "Department Office",
+        "floor": "1st Floor",
+        "room": "Room 022",
+        "description": "Head of Department Office for Languages Education",
+        "keywords": [
+          "HOD",
+          "DEL",
+          "LANGUAGES HOD",
+          "ROB 022"
+        ]
+      },
+      {
+        "name": "DIS HOD Office (Interdisciplinary)",
+        "category": "Department Office",
+        "floor": "1st Floor",
+        "room": "Room 023",
+        "description": "Head of Department Office for Interdisciplinary Studies",
+        "keywords": [
+          "HOD",
+          "DIS",
+          "INTERDISCIPLINARY HOD",
+          "ROB 023"
+        ]
+      },
+      {
+        "name": "Accounting Exams Office",
+        "category": "Exams Office",
+        "floor": "2nd Floor",
+        "room": "Room 046",
+        "description": "Department of Accounting Examination Office",
+        "keywords": [
+          "ACCOUNTING EXAMS",
+          "EXAMS OFFICE",
+          "ROB 046"
+        ]
+      },
+      {
+        "name": "Management Exams Office",
+        "category": "Exams Office",
+        "floor": "2nd Floor",
+        "room": "Room 047",
+        "description": "Department of Management Examination Office",
+        "keywords": [
+          "MANAGEMENT EXAMS",
+          "EXAMS OFFICE",
+          "ROB 047"
+        ]
+      }
     ]
   },
   {
@@ -2147,13 +2271,7 @@
       "ROOM OF THE DEAN OF STUDENT AFFAIRS",
       "OF THE DEAN OF STUDENT AFFAIRS",
       "ODSA GF",
-      "GROUND FLOOR",
-      "PROF. STEPHEN BAFFOUR ADJEI",
-      "ADJEI",
-      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
-      "DIS",
-      "INTERDISCIPLINARY",
-      "IDS"
+      "GROUND FLOOR"
     ],
     "rooms": [
       {
@@ -2162,8 +2280,7 @@
         "floor": "Ground",
         "description": "Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)",
         "staff": [
-          "Prof. Dr. Philip Oti-Agyen",
-          "Prof. Stephen Baffour Adjei"
+          "Prof. Dr. Philip Oti-Agyen"
         ],
         "keywords": [
           "PROF. DR. PHILIP OTI-AGYEN",
@@ -2178,13 +2295,7 @@
           "DEL",
           "EDUCATIONAL LEADERSHIP",
           "ODSA GF",
-          "GROUND FLOOR",
-          "PROF. STEPHEN BAFFOUR ADJEI",
-          "ADJEI",
-          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
-          "DIS",
-          "INTERDISCIPLINARY",
-          "IDS"
+          "GROUND FLOOR"
         ]
       }
     ]

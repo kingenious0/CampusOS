@@ -874,8 +874,8 @@
     "location": {
       "building": "Main Administration Block",
       "targetBuildingId": 26,
-      "floor": "",
-      "room": "",
+      "floor": null,
+      "room": null,
       "status": "building_only"
     },
     "contact": {
@@ -1590,15 +1590,15 @@
     "id": "prof-stephen-baffour-adjei",
     "name": "Prof. Stephen Baffour Adjei",
     "title": "Prof.",
-    "position": "Assoc. Prof. , Dean of Students’ Affairs",
-    "department": "Department of Interdisciplinary Studies",
+    "position": "Associate Professor",
+    "department": "Department of Interdisciplinary Studies (DIS)",
     "faculty": "Faculty of Education and Communication Sciences (FECS)",
     "location": {
-      "building": "ODSA",
-      "floor": "Ground Floor",
-      "room": "Office of the Dean of Student Affairs",
-      "status": "exact",
-      "targetBuildingId": 30
+      "building": "ROB Block",
+      "floor": null,
+      "room": null,
+      "status": "building_only",
+      "targetBuildingId": 25
     },
     "contact": {
       "email": "sbadjei@aamusted.edu.gh",

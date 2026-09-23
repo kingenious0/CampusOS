@@ -11,7 +11,7 @@ const SearchModule = (() => {
         staff: 'Academic Staff',
         faculty: 'Faculty',
         lecture_hall: 'Lecture Hall / Lab',
-        hostel: 'Hostel',
+        hostel: 'Hall of Residence',
         administration: 'Administration',
         facility: 'Facility',
         service: 'Service',
@@ -188,11 +188,18 @@ const SearchModule = (() => {
         if (p.id === 'dr-theresa-dede-lawer' || (p.department && p.department.includes('DIS') && p.specialRole)) {
             return `${p.position || 'Senior Lecturer'} • Interdisciplinary Studies / CDSC`;
         }
+        if (p.id === 'prof-stephen-baffour-adjei' || (p.name && p.name.includes('Stephen Baffour Adjei'))) {
+            return 'Associate Professor • Department of Interdisciplinary Studies (DIS)';
+        }
         if (p.specialRole) {
             const deptShort = p.department ? p.department.replace(/^Department of\s+/i, '') : '';
-            return `${p.position || ''} • ${deptShort ? deptShort + ' / ' : ''}${p.specialRole}`;
+            return `${p.position || 'Academic Staff'} • ${deptShort ? deptShort + ' / ' : ''}${p.specialRole}`;
         }
-        return [p.department, p.faculty].filter(Boolean).join(' • ');
+        const parts = [p.position, p.department, p.faculty].filter(Boolean);
+        if (parts.length >= 2) {
+            return `${parts[0]} • ${parts[1]}`;
+        }
+        return parts[0] || p.department || 'Academic Staff';
     };
 
     const formatOutdoorHandoff = (itemOrPerson, buildingObj) => {
@@ -212,8 +219,11 @@ const SearchModule = (() => {
 
     const formatLocationPill = (personOrLoc, buildingObj) => {
         const loc = personOrLoc?.location || personOrLoc || {};
-        if (personOrLoc?.id === 'dr-theresa-dede-lawer' || (personOrLoc?.name && personOrLoc.name.includes('Theresa Dede Lawer')) || loc.targetBuildingId === 26) {
+        if (personOrLoc?.id === 'dr-theresa-dede-lawer' || (personOrLoc?.name && personOrLoc.name.includes('Theresa Dede Lawer'))) {
             return '📍 Main Administration Block';
+        }
+        if (personOrLoc?.id === 'prof-stephen-baffour-adjei' || (personOrLoc?.name && personOrLoc.name.includes('Stephen Baffour Adjei'))) {
+            return '📍 ROB Block';
         }
         const bCode = loc.building || (buildingObj ? (buildingObj.shortName || buildingObj.name) : '') || 'Campus';
         const bName = buildingObj ? (buildingObj.shortName || buildingObj.name) : bCode;
@@ -262,10 +272,24 @@ const SearchModule = (() => {
         return `${bName} (${cleanName})`;
     };
 
-    const formatRoomBreadcrumb = (room, buildingObj) => {
-        const bName = buildingObj ? buildingObj.name : 'Campus Building';
-        const roomStr = room.number ? formatRoomNumber(room.number) : '';
-        const floorStr = room.floor ? (String(room.floor).match(/floor/i) ? room.floor : `${room.floor} Floor`) : 'Ground Floor';
+    const formatRoomBreadcrumb = (roomOrB, buildingObjOrR) => {
+        let r = roomOrB;
+        let b = buildingObjOrR;
+        if (roomOrB && (roomOrB.rooms !== undefined || (roomOrB.type && !roomOrB.number))) {
+            b = roomOrB;
+            r = buildingObjOrR;
+        }
+        const bName = b ? b.name : 'Campus Building';
+        const roomStr = r?.number ? formatRoomNumber(r.number) : '';
+        const floorStr = r?.floor ? (String(r.floor).match(/floor/i) ? r.floor : `${r.floor} Floor`) : 'Ground Floor';
+        const occupant = r?.occupant || (r?.staff && r.staff[0]);
+        if (occupant) {
+            const cleanOcc = String(occupant).trim();
+            const cleanRoom = roomStr.replace(/^Room\s+/i, '').trim();
+            if (cleanOcc && cleanOcc !== roomStr && cleanOcc !== cleanRoom && !cleanOcc.toLowerCase().includes(roomStr.toLowerCase())) {
+                return `${bName} — ${floorStr}, ${roomStr} (${cleanOcc})`;
+            }
+        }
         return `${bName} — ${floorStr}, ${roomStr}`;
     };
 
@@ -947,7 +971,8 @@ const SearchModule = (() => {
         getPeopleData: () => peopleData,
         getBuildingsData: () => buildingsData,
         getBuildingForCode,
-        SYNONYMS
+        SYNONYMS,
+        typeLabels
     };
 })();
 

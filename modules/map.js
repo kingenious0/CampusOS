@@ -15,7 +15,7 @@ const MapModule = (() => {
     const typeConfig = {
         faculty:        { color: '#6366f1', icon: 'fa-university',    label: 'Faculty' },
         lecture_hall:   { color: '#f59e0b', icon: 'fa-chalkboard',    label: 'Lecture Hall / Lab' },
-        hostel:         { color: '#10b981', icon: 'fa-bed',           label: 'Hostel' },
+        hostel:         { color: '#10b981', icon: 'fa-bed',           label: 'Hall of Residence' },
         administration: { color: '#ef4444', icon: 'fa-building',      label: 'Administration' },
         facility:       { color: '#8b5cf6', icon: 'fa-circle-info',   label: 'Facility' }
     };

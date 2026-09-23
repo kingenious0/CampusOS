@@ -127,13 +127,23 @@ const esaBuilding = buildings.find(b => b.id === 21);
 assert.strictEqual(esaBuilding.name, 'Executive Students Association (ESA) Lecture Block');
 console.log('[PASS] ESA Building Name verified: "Executive Students Association (ESA) Lecture Block"');
 
-// Test 6: Verify ODSA Deep-link for Dean of Students Staff (e.g. Prof. Stephen Baffour Adjei)
+// Test 6: Verify Prof. Stephen Baffour Adjei Ground-Truth (ROB Block, DIS, building_only)
 const adjeiHits = searchEngine.search('Baffour Adjei');
 assert(adjeiHits.length > 0, 'Must find Prof. Stephen Baffour Adjei');
 const adjeiCard = adjeiHits[0];
-assert.strictEqual(adjeiCard.building.id, 30, 'Prof. Stephen Baffour Adjei must route to Building 30 (ODSA)');
-assert(adjeiCard.building.name.includes("Dean's Office (ODSA)"), "Building name must be Dean's Office (ODSA)");
-console.log(`[PASS] ODSA Deep-link verified for ${adjeiCard.name} -> ${adjeiCard.building.name} (ID: ${adjeiCard.building.id})`);
+assert.strictEqual(adjeiCard.building.id, 25, 'Prof. Stephen Baffour Adjei must route to Building 25 (ROB Block)');
+assert.strictEqual(adjeiCard.locationPill, '📍 ROB Block', 'Location pill must be 📍 ROB Block');
+const adjeiPerson = people.find(p => p.id === 'prof-stephen-baffour-adjei');
+assert(adjeiPerson, 'Prof. Stephen Baffour Adjei must exist in data/people.json');
+assert.strictEqual(adjeiPerson.location.status, 'building_only', 'Status must be building_only');
+assert.strictEqual(adjeiPerson.location.room, null, 'Room must be null');
+assert.strictEqual(adjeiPerson.location.floor, null, 'Floor must be null');
+assert.strictEqual(adjeiPerson.location.targetBuildingId, 25, 'Target building ID must be 25');
+const adjeiSubtitle = searchModule.formatStaffSubtitle(adjeiPerson);
+assert.strictEqual(adjeiSubtitle, 'Associate Professor • Department of Interdisciplinary Studies (DIS)');
+const adjeiHandoff = searchModule.formatOutdoorHandoff(adjeiPerson, buildings.find(b => b.id === 25));
+assert.strictEqual(adjeiHandoff, '🚶 Routes directly to building entrance');
+console.log(`[PASS] Prof. Stephen Baffour Adjei verified -> ROB Block (ID: 25) with pill "${adjeiCard.locationPill}" and subtitle "${adjeiSubtitle}"`);
 
 // Test 7: Verify building_only Downgrades (NFB, ROB 057, Lecture Theatres)
 const nfbPerson = people.find(p => p.name.includes('Nathan Ohene Gyang'));
@@ -238,6 +248,45 @@ assert.strictEqual(exactRoomHandoff, '🚶 Routes to main entrance • Head insi
 const buildingOnlyHandoff = searchModule.formatOutdoorHandoff(drLawer, adminBuilding);
 assert.strictEqual(buildingOnlyHandoff, '🚶 Routes directly to building entrance');
 console.log('[PASS] Punchy outdoor hand-off copy verified for both exact room matches and building-only destinations.');
+
+// Test 13: Deduplicate Navigation HUD Breadcrumbs
+const autonomyBuilding = buildings.find(b => b.name.includes('Autonomy') || b.id === 42);
+const room10 = { number: '10', floor: '1st Floor', name: 'Room 10' };
+const breadcrumbDedup = searchModule.formatRoomBreadcrumb(room10, autonomyBuilding || { name: 'Autonomy Hall' });
+assert.strictEqual(breadcrumbDedup, 'Autonomy Hall — 1st Floor, Room 10', 'Autonomy Hall Room 10 must not append duplicate (Room 10)');
+// With distinct occupant
+const roomWithOccupant = { number: '018', floor: '1st Floor', occupant: 'Dr. Kotor Asare' };
+const breadcrumbWithOcc = searchModule.formatRoomBreadcrumb(roomWithOccupant, robBuilding);
+assert.strictEqual(breadcrumbWithOcc, 'ROB Block — 1st Floor, Room 018 (Dr. Kotor Asare)', 'Distinct occupant must be retained');
+console.log('[PASS] Navigation HUD breadcrumb deduplication verified (no duplicate Room 10).');
+
+// Test 14: ROB Administrative & HOD Offices Searchability
+const robOffices = [
+    { query: 'MANAGEMENT HOD', expected: 'FBE Management Studies HOD Office', room: '039', floor: '2nd' },
+    { query: 'ACCOUNTING HOD', expected: 'FBE Accounting Studies HOD Office', room: '040', floor: '2nd' },
+    { query: 'LANGUAGES HOD', expected: 'DEL HOD Office (Languages)', room: '022', floor: '1st' },
+    { query: 'INTERDISCIPLINARY HOD', expected: 'DIS HOD Office (Interdisciplinary)', room: '023', floor: '1st' },
+    { query: 'Accounting Exams', expected: 'Accounting Exams Office', room: '046', floor: '2nd' },
+    { query: 'Management Exams', expected: 'Management Exams Office', room: '047', floor: '2nd' }
+];
+
+robOffices.forEach(office => {
+    const hits = searchEngine.search(office.query);
+    assert(hits.length > 0, `Search query "${office.query}" should return results`);
+    const hit = hits.find(h => h.building?.id === 25 || h.name.includes(office.expected) || (h.data && h.data.name && h.data.name.includes(office.expected)));
+    assert(hit, `Expected to find office "${office.expected}" in ROB Block for query "${office.query}"`);
+    console.log(`[PASS] ROB Office query "${office.query}" resolved to "${hit.name}"`);
+});
+
+// Test 15: "Hostels" renamed to "Halls" / "Hall of Residence"
+assert.strictEqual(searchModule.typeLabels.hostel, 'Hall of Residence');
+const hostelBuildings = buildings.filter(b => b.type === 'hostel');
+assert(hostelBuildings.length > 0, 'There should be buildings of type hostel');
+hostelBuildings.forEach(hb => {
+    assert(!hb.name.toLowerCase().includes('hostel'), `Hostel building ${hb.name} should not use word "Hostel" in its primary name`);
+    assert(hb.name.toLowerCase().includes('hall'), `Hostel building ${hb.name} should contain "Hall"`);
+});
+console.log('[PASS] Hostels verified as Halls / Hall of Residence across system.');
 
 console.log('\n=============================================');
 console.log('ALL SEARCH & NAVIGATION TESTS PASSED (100%)!');

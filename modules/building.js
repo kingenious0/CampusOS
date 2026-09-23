@@ -6,7 +6,7 @@ const BuildingModule = (() => {
     const typeLabels = {
         faculty:        { label: 'Faculty',               color: '#4f46e5', icon: 'fa-university' },
         lecture_hall:   { label: 'Lecture Hall / Lab',    color: '#f59e0b', icon: 'fa-chalkboard' },
-        hostel:         { label: 'Student Hostel',        color: '#10b981', icon: 'fa-bed' },
+        hostel:         { label: 'Hall of Residence',     color: '#10b981', icon: 'fa-bed' },
         administration: { label: 'Administration',        color: '#ef4444', icon: 'fa-building' },
         facility:       { label: 'Campus Facility',       color: '#8b5cf6', icon: 'fa-circle-info' }
     };
