@@ -43,3 +43,10 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# ── Raw Scraped Datasets, Ingestion Scripts & Scratches ──
+*.csv
+data/*.csv
+usted_kumasi_staff*
+data/staff_overrides.json
+scripts/

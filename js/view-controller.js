@@ -94,6 +94,12 @@ const ViewControllerModule = (() => {
             window.CesiumViewerModule.resetCamera(0.8);
         }
 
+        // Bridge active navigation route to 3D Cesium terrain if active
+        const activeRoute = window.CampusOS?.getActiveRoute ? window.CampusOS.getActiveRoute() : window._route;
+        if (activeRoute && activeRoute.geometry && Array.isArray(activeRoute.geometry.coordinates) && activeRoute.geometry.coordinates.length > 0) {
+            window.CesiumViewerModule?.renderRoute(activeRoute.geometry.coordinates);
+        }
+
         if (window.CampusOS?.showToast) {
             window.CampusOS.showToast('🌐 3D Campus Mode');
         }

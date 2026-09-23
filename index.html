@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USTED NAV | Campus Navigation</title>
     <meta name="description" content="Find buildings, get directions and navigate USTED Kumasi campus.">
-    <meta name="theme-color" content="#4338ca">
+    <meta name="theme-color" content="#33449b">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,13 +15,15 @@
     <style>
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         :root {
-            --bg: #05070c;
-            --accent: #4f46e5;
-            --accent-glow: rgba(79, 70, 229, 0.12);
+            --bg: #080c18;
+            --primary: #33449b;
+            --accent: #f8b511;
+            --primary-glow: rgba(51, 68, 155, 0.28);
+            --accent-glow: rgba(248, 181, 17, 0.15);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
-            --surface: rgba(255, 255, 255, 0.02);
+            --surface: rgba(255, 255, 255, 0.03);
         }
         
         html, body {
@@ -36,13 +38,13 @@
             position: relative;
         }
 
-        /* Premium ambient background glow */
+        /* Premium ambient background glow with USTED Royal Blue and Gold */
         body::before {
             content: '';
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            width: 540px;
+            height: 540px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, var(--accent-glow) 40%, transparent 70%);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -54,7 +56,7 @@
             position: relative;
             z-index: 1;
             padding: 2.5rem;
-            max-width: 400px;
+            max-width: 420px;
             width: 100%;
             animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -72,21 +74,22 @@
         }
 
         .logo-wrapper {
-            width: 72px;
-            height: 72px;
+            width: 76px;
+            height: 76px;
             padding: 4px;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(248, 181, 17, 0.3);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 32px rgba(8, 12, 24, 0.6), 0 0 20px rgba(51, 68, 155, 0.3);
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .logo-wrapper:hover {
             transform: rotate(5deg) scale(1.05);
+            border-color: #f8b511;
         }
 
         .logo-wrapper img {
@@ -97,27 +100,28 @@
         }
 
         .campus-name {
-            font-size: 0.72rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             letter-spacing: 0.25em;
-            color: var(--text-muted);
+            color: #f8b511;
             text-transform: uppercase;
             margin-bottom: 0.5rem;
-            opacity: 0.8;
+            text-shadow: 0 0 12px rgba(248, 181, 17, 0.3);
         }
 
         h1 {
-            font-size: 2.4rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            letter-spacing: -.05em;
-            background: linear-gradient(180deg, #ffffff 0%, #c7d2fe 100%);
+            letter-spacing: -.03em;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 60%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.75rem;
+            text-shadow: 0 4px 20px rgba(51, 68, 155, 0.35);
         }
 
         .sub {
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             color: var(--text-muted);
             line-height: 1.6;
             margin-bottom: 2.5rem;
@@ -131,21 +135,20 @@
             gap: 0.75rem;
             width: 100%;
             padding: 1.1rem;
-            background: #ffffff;
-            color: #05070c;
+            background: #f8b511;
+            color: #080c18;
             text-decoration: none;
             border-radius: 16px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+            font-weight: 700;
+            box-shadow: 0 4px 22px rgba(248, 181, 17, 0.28);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid transparent;
+            border: 1px solid rgba(248, 181, 17, 0.4);
         }
         .open-btn:hover {
-            background: var(--bg);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            background: #ffc42e;
+            color: #080c18;
+            box-shadow: 0 8px 30px rgba(248, 181, 17, 0.45);
             transform: translateY(-2px);
         }
         .open-btn:active {
@@ -154,35 +157,41 @@
 
         .pills {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.55rem;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 2.2rem;
-            opacity: 0.85;
         }
 
         .pill {
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
             border-radius: 12px;
-            padding: 0.4rem 0.85rem;
-            font-size: 0.72rem;
-            color: var(--text-muted);
+            padding: 0.42rem 0.85rem;
+            font-size: 0.73rem;
+            color: #e2e8f0;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            font-weight: 500;
+            gap: 0.45rem;
+            font-weight: 600;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
         .pill:hover {
-            color: var(--text-main);
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.04);
+            color: #ffffff;
+            border-color: rgba(248, 181, 17, 0.35);
+            background: rgba(51, 68, 155, 0.3);
+            transform: translateY(-1px);
         }
-        .pill i {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            opacity: 0.7;
+        .pill i.gold-icon {
+            font-size: 0.78rem;
+            color: #f8b511;
+        }
+        .pill i.blue-icon {
+            font-size: 0.78rem;
+            color: #60a5fa;
         }
 
         .install-prompt {
@@ -193,14 +202,14 @@
             transform: translateX(-50%);
             width: calc(100% - 2rem);
             max-width: 360px;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(8, 12, 24, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
+            border: 1px solid rgba(248, 181, 17, 0.25);
             color: var(--text-main);
             padding: 0.85rem 1.1rem;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             z-index: 1000;
             align-items: center;
             justify-content: space-between;
@@ -212,19 +221,19 @@
             to { transform: translate(-50%, 0); opacity: 1; }
         }
         .install-btn {
-            background: #ffffff;
-            color: #05070c;
+            background: #f8b511;
+            color: #080c18;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             font-size: 0.8rem;
             white-space: nowrap;
             transition: all 0.2s ease;
         }
         .install-btn:hover {
-            opacity: 0.9;
+            background: #ffc42e;
         }
         .install-text {
             font-size: 0.8rem;
@@ -241,7 +250,7 @@
             <div class="logo-wrapper">
                 <img src="logo.png" alt="USTED NAV Logo">
             </div>
-            <p class="campus-name">USTED · Kumasi Campus</p>
+            <p class="campus-name">USTED · KUMASI CAMPUS</p>
             <h1>USTED NAV</h1>
         </div>
         <p class="sub">Search, find and get directions across campus — works offline.</p>
@@ -249,10 +258,10 @@
             <i class="fas fa-compass"></i> Open Navigation
         </a>
         <div class="pills">
-            <span class="pill"><i class="fas fa-magnifying-glass"></i> Smart Search</span>
-            <span class="pill"><i class="fas fa-route"></i> Walking Routes</span>
-            <span class="pill"><i class="fas fa-wifi-slash"></i> Offline Ready</span>
-            <span class="pill"><i class="fas fa-location-dot"></i> GPS Locate</span>
+            <span class="pill"><i class="fas fa-magnifying-glass gold-icon"></i> Smart Search</span>
+            <span class="pill"><i class="fas fa-route blue-icon"></i> Walking Routes</span>
+            <span class="pill"><i class="fas fa-wifi-slash gold-icon"></i> Offline Ready</span>
+            <span class="pill"><i class="fas fa-location-dot blue-icon"></i> GPS Locate</span>
         </div>
     </div>
 

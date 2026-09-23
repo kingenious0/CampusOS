@@ -120,6 +120,73 @@ const BuildingModule = (() => {
         panel.innerHTML = html;
     };
 
+    const displayStaff = (building, person) => {
+        const panel = document.getElementById('infoPanel');
+        if (!panel) return;
+        const b = building || { name: person.location?.building || 'Campus Building', lat: 6.697332, lng: -1.681513 };
+        const bName = b.name;
+        const floor = person.location?.floor;
+        const room = person.location?.room;
+        const roomStr = room ? (room.match(/^(room|rm|office)/i) ? room : `Room ${room}`) : '';
+        
+        let breadcrumb = bName;
+        if (person.location?.status === 'building_only' || !roomStr) {
+            breadcrumb = `${bName} (${person.name})`;
+        } else if (floor && roomStr) {
+            breadcrumb = `${bName} — ${floor}, ${roomStr} (${person.name})`;
+        } else if (roomStr) {
+            breadcrumb = `${bName} — ${roomStr} (${person.name})`;
+        } else if (floor) {
+            breadcrumb = `${bName} — ${floor} (${person.name})`;
+        } else {
+            breadcrumb = `${bName} (${person.name})`;
+        }
+
+        let html = `
+            <div class="building-header">
+                <div class="bh-icon" style="background:#4f46e520; color:#4f46e5">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h3>${person.name}</h3>
+                    <span class="type-badge" style="background:#4f46e520; color:#4f46e5">${person.position || 'Academic Staff'}</span>
+                </div>
+            </div>
+        `;
+
+        if (person.department) {
+            html += `<p class="building-desc">${person.department}${person.faculty ? ' &bull; ' + person.faculty : ''}</p>`;
+        }
+
+        html += `<div class="info-list">`;
+        if (b.name) {
+            html += infoRow('fa-building', 'Building', b.name);
+        }
+        if (person.location?.status !== 'building_only') {
+            if (person.location?.floor) {
+                html += infoRow('fa-layer-group', 'Floor Level', person.location.floor);
+            }
+            if (person.location?.room) {
+                html += infoRow('fa-door-open', 'Office / Room', person.location.room);
+            }
+        }
+        if (person.contact?.email) {
+            html += infoRow('fa-envelope', 'Email', `<a href="mailto:${person.contact.email}">${person.contact.email}</a>`);
+        }
+        if (person.contact?.phone) {
+            html += infoRow('fa-phone', 'Phone', `<a href="tel:${person.contact.phone.replace(/[^0-9+]/g, '')}">${person.contact.phone}</a>`);
+        }
+        html += `</div>`;
+
+        html += `
+            <button class="route-btn" onclick="RouteModule.calculateRoute(${b.lat}, ${b.lng}, '${breadcrumb.replace(/'/g, "\\'")}')">
+                <i class="fas fa-diamond-turn-right"></i> Get Directions
+            </button>
+        `;
+
+        panel.innerHTML = html;
+    };
+
     const infoRow = (icon, label, value) => `
         <div class="info-row">
             <span class="info-icon"><i class="fas ${icon}"></i></span>
@@ -130,5 +197,5 @@ const BuildingModule = (() => {
         </div>
     `;
 
-    return { displayInfo, displayServiceOrRoom };
+    return { displayInfo, displayServiceOrRoom, displayStaff };
 })();

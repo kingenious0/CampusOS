@@ -1,0 +1,1734 @@
+[
+  {
+    "id": "abigail-nkansah",
+    "name": "Abigail Nkansah",
+    "title": "Ms.",
+    "position": "Assist. Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "room 20",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ankansah@aamusted.edu.gh",
+      "phone": "+233 24 646 3586"
+    }
+  },
+  {
+    "id": "andrew-adu-asabere",
+    "name": "Andrew Adu Asabere",
+    "title": "Mr.",
+    "position": "Assist. Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "026",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "aaasabere@aamusted.edu.gh",
+      "phone": "+233 24 615 1792"
+    }
+  },
+  {
+    "id": "antwi-edmund",
+    "name": "Antwi Edmund",
+    "title": "",
+    "position": "Assist. Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Engineering and Technology (FET)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "eantwi@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "arc-wisdom-d-adzraku",
+    "name": "Arc. Wisdom D. Adzraku",
+    "title": "Arc.",
+    "position": "Senior Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "assoc-prof-dr-dr-frank-yao-gbadago",
+    "name": "ASSOC. PROF. DR. DR. FRANK YAO GBADAGO",
+    "title": "Assoc. Prof. Dr. Dr.",
+    "position": "Head Department Of Accounting Studies Education",
+    "department": "Department of Accounting Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "045",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "frankggh@yahoo.com",
+      "phone": "+233 24 282 4124"
+    }
+  },
+  {
+    "id": "assoc-prof-kwaku-antwi",
+    "name": "Associate Professor Dr. Engr. Kwaku Antwi",
+    "title": "Assoc. Prof. Dr. Engr.",
+    "position": "Assoc Prof, Head of Department",
+    "department": "Department of Civil Engineering",
+    "faculty": "Faculty of Engineering and Technology (FET)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "02",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "antwikwaku10@gmail.com",
+      "phone": "+233 20 815 0964"
+    }
+  },
+  {
+    "id": "charlotte-caitoe",
+    "name": "Charlotte Caitoe",
+    "title": "",
+    "position": "Assist. Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "033",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ccaitoe@aamusted.edu.gh",
+      "phone": "+233 24 080 2281"
+    }
+  },
+  {
+    "id": "chibudo-kenneth-nworu",
+    "name": "Chibudo Kenneth Nworu",
+    "title": "",
+    "position": "Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "claudia-miakimeni-pumpuni",
+    "name": "Claudia Miakimeni Pumpuni",
+    "title": "Ms.",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "033 , CBT 13",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "cmpumpuni@aamusted.edu.gh",
+      "phone": "+233 50 724 7317"
+    }
+  },
+  {
+    "id": "donald-yeboah",
+    "name": "Donald Yeboah",
+    "title": "",
+    "position": "Snr It Asst",
+    "department": "Department of Information Technology Education",
+    "faculty": "Directorate of IT Services",
+    "location": {
+      "building": "Main Administration Block",
+      "floor": "",
+      "room": "Dept. Doc. & Web Mgt. - Main Adm. Blk.",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ydonald@aamusted.edu.gh",
+      "phone": "+233 24 263 7542"
+    }
+  },
+  {
+    "id": "doreen-dedo-adi",
+    "name": "Doreen Dedo Adi",
+    "title": "Prof.",
+    "position": "Assoc Prof",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "Room 12",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ddadi@aamusted.edu.gh",
+      "phone": "+233 50 727 2700"
+    }
+  },
+  {
+    "id": "dr-mrs-ellen-animah-agyei",
+    "name": "Dr (Mrs) Ellen Animah Agyei",
+    "title": "Dr. (Mrs.)",
+    "position": "Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "eanimahagyei@aamuated.edu.gh",
+      "phone": "+233 26 376 1536"
+    }
+  },
+  {
+    "id": "dr-daniel-kwabena-danso",
+    "name": "Dr Daniel Kwabena Danso",
+    "title": "Dr.",
+    "position": "FVE Examination Officer , Senior Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "007",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "dansartgh@yahoo.com",
+      "phone": "+233 24 485 1798, +233 20 380 9532"
+    }
+  },
+  {
+    "id": "dr-mrs-veronica-adu-brobbey",
+    "name": "Dr. (Mrs) Veronica Adu-Brobbey",
+    "title": "Dr. (Mrs.)",
+    "position": "Senior Lecturer",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 34",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "vabrobbey@aamusted.edu.gh",
+      "phone": "+233 20 811 4898"
+    }
+  },
+  {
+    "id": "dr-mrs-priscilla-oyeladun-ajiboye",
+    "name": "Dr. (Mrs.) Priscilla Oyeladun Ajiboye",
+    "title": "Dr. (Mrs.)",
+    "position": "Lecturer",
+    "department": "Department of Electrical and Electronic Engineering Technology Education",
+    "faculty": "Faculty of Engineering and Technology (FET)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "poajiboye@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-adasa-nkrumah-kofi-frimpong",
+    "name": "Dr. Adasa Nkrumah Kofi Frimpong",
+    "title": "Dr.",
+    "position": "Lecturer Ag Head Academic And Administrative Computing",
+    "department": "Department of Information Technology Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "ADB",
+      "floor": "1st Floor",
+      "room": "10",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "adasankrumahkf@aamusted.edu.gh",
+      "phone": "+233 550 241 711"
+    }
+  },
+  {
+    "id": "dr-appiagyei-ebenezer",
+    "name": "Dr. Appiagyei Ebenezer",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "sirpaddy2014@gmail.com",
+      "phone": "+233548753871"
+    }
+  },
+  {
+    "id": "dr-claudia-nyarko-mensah",
+    "name": "Dr. Claudia Nyarko Mensah (Ph.D)",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Human Resource and Business Strategy",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "cnmensah@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-courage-s-k-dogbe",
+    "name": "Dr. Courage S.K. Dogbe",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ESA",
+      "floor": "Ground Floor",
+      "room": "Room 3",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "courageskd@gmail.com",
+      "phone": "+233 24 919 7966"
+    }
+  },
+  {
+    "id": "mr-emmanuel-akweittey",
+    "name": "Dr. Emmanuel Akweittey",
+    "title": "Dr.",
+    "position": "H.O.D, DME , Senior Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "eakweittey@aamusted.edu.gh",
+      "phone": "+233 24 357 0191"
+    }
+  },
+  {
+    "id": "engr-martha-danso-mrs",
+    "name": "Dr. Engr. Martha Danso (Mrs)",
+    "title": "Dr. Engr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "mdanso@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "mr-p-n-ayambire",
+    "name": "Dr. Engr. P. N. Ayambire",
+    "title": "Dr. Engr.",
+    "position": "Lecturer",
+    "department": "Department of Electrical and Electronic Engineering Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "pnayambire@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "mr-ernest-larbi",
+    "name": "Dr. Ernest Larbi",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "elarbi@aamusted.edu.gh",
+      "phone": "+233 24 481 2402"
+    }
+  },
+  {
+    "id": "dr-fredrick-simpeh",
+    "name": "Dr. Fredrick Simpeh",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "09",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "fsimpeh@aamusted.edu.gh",
+      "phone": "+233 55 552 9329"
+    }
+  },
+  {
+    "id": "dr-george-asante",
+    "name": "Dr. George Asante",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Information Technology Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "gasante@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-haruna-ibrahim",
+    "name": "Dr. Haruna Ibrahim",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "Room 005",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "harunaibrahim@aamusted.edu.gh",
+      "phone": "+233 24 405 3065, +233 50 933 8684"
+    }
+  },
+  {
+    "id": "dr-ing-koffi-a-dotche",
+    "name": "Dr. Ing. Koffi A. Dotche",
+    "title": "Dr. Ing.",
+    "position": "Lecturer",
+    "department": "Department of Electrical and Electronic Engineering Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-jacob-ofori-darko",
+    "name": "Dr. Jacob Ofori-Darko",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "15",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "jodarko@aamusted.edu.gh",
+      "phone": "+233 24 380 9951"
+    }
+  },
+  {
+    "id": "dr-james-nsoh-adogpa",
+    "name": "Dr. James Nsoh Adogpa",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "Ground Floor",
+      "room": "005",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "jnadogpa@aamusted.edu.gh",
+      "phone": "+233 24 371 0066"
+    }
+  },
+  {
+    "id": "mr-jonathan-essuman",
+    "name": "Dr. Jonathan Essuman",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Languages Education",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "Ground Floor",
+      "room": "Rm 3",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "jonathanessuman@aamusted.edu.gh",
+      "phone": "+233 24 994 1607"
+    }
+  },
+  {
+    "id": "dr-joseph-frank-gordon",
+    "name": "Dr. Joseph Frank Gordon",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "28",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "jfgordon@aamusted.edu.gh",
+      "phone": "+233 24 365 8174"
+    }
+  },
+  {
+    "id": "dr-justice-williams",
+    "name": "Dr. Justice Williams",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "16",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "justicewilliams@aamusted.edu.gh",
+      "phone": "+233 24 491 5867, +233 20 849 1571"
+    }
+  },
+  {
+    "id": "dr-kotor-asare",
+    "name": "Dr. Kotor Asare",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "018",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "akotor@aamusted.edu.gh",
+      "phone": "+233 24 472 5604"
+    }
+  },
+  {
+    "id": "dr-kwabena-offeh-gyimah",
+    "name": "Dr. Kwabena Offeh Gyimah",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "kogyimah@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-kwadwo-arhin",
+    "name": "Dr. Kwadwo Arhin",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "021",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "arhinkwadwo@gmail.com",
+      "phone": "+233 55 497 3575"
+    }
+  },
+  {
+    "id": "dr-kwame-acheampong",
+    "name": "Dr. Kwame Acheampong",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "kacheampong@aamusted.edu.gh",
+      "phone": "+233 24 453 3261"
+    }
+  },
+  {
+    "id": "lawyer-mrs-ohenewaa-boateng-newman",
+    "name": "Dr. Lawyer Mrs. Ohenewaa Boateng Newman",
+    "title": "Dr. Lawyer Mrs.",
+    "position": "Senior Lecturer",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "037",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "",
+      "phone": "+233 24 854 3898"
+    }
+  },
+  {
+    "id": "dr-mark-bright-donkoh",
+    "name": "Dr. Mark Bright Donkoh",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-mavis-adu-gyamfi",
+    "name": "Dr. Mavis Adu-Gyamfi",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "magyamfi@aamusted.edu.gh",
+      "phone": "+233 24 228 7243"
+    }
+  },
+  {
+    "id": "florence-brenyah",
+    "name": "Dr. Mrs. Florence Brenyah",
+    "title": "Dr. (Mrs.)",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "034",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "fbrenyah@aamusted.edu.gh",
+      "phone": "+233 20 421 3136, +233 54 068 0871"
+    }
+  },
+  {
+    "id": "mercy-boadi",
+    "name": "Dr. Mrs. Mercy Boadi",
+    "title": "Dr. (Mrs.)",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "033",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "Mercyboadi@aamusted.edu.gh",
+      "phone": "+233 24 403 8539"
+    }
+  },
+  {
+    "id": "mr-nathan-ohene-gyang",
+    "name": "Dr. Nathan Ohene Gyang",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "NFB",
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "nogyang@aamusted.edu.gh",
+      "phone": "+233 54 064 3517, 0244871418"
+    }
+  },
+  {
+    "id": "ninette-afi-appiah-phd",
+    "name": "Dr. Ninette Afi Appiah",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "006",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "naappiah@aamusted.edu.gh",
+      "phone": "+233 24 324 5251"
+    }
+  },
+  {
+    "id": "dr-nongiba-a-kheni",
+    "name": "Dr. Nongiba A. Kheni",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-philip-baidoo",
+    "name": "Dr. Philip Baidoo",
+    "title": "Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "pbaidoo@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "phyllis-mensah",
+    "name": "Dr. Phyllis Mensah",
+    "title": "Dr.",
+    "position": "Assist. Lecturer",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "room 20",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "phyllismensah@aamusted.edu.gh",
+      "phone": "+233 24 409 1973"
+    }
+  },
+  {
+    "id": "dr-samuel-kwadwo-aboagye",
+    "name": "Dr. Samuel Kwadwo Aboagye",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Educational Leadership",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "NFB",
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "skaboagye@aamusted.edu.gh",
+      "phone": "+233 20 815 0194"
+    }
+  },
+  {
+    "id": "seth-amoako",
+    "name": "Dr. Seth Amoako",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-theresa-dede-lawer",
+    "name": "Dr. Theresa Dede Lawer",
+    "title": "Senior Lecturer",
+    "position": "Senior Lecturer",
+    "department": "Department of Interdisciplinary Studies (DIS)",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "specialRole": "Head, Career Development and Counselling Centre (CDSC)",
+    "location": {
+      "building": "Main Administration Block",
+      "targetBuildingId": 26,
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "tdlawer@aamusted.edu.gh",
+      "phone": "+233 20 849 6191"
+    }
+  },
+  {
+    "id": "dr-yaw-boateng-atakorah",
+    "name": "Dr. Yaw Boateng Atakorah",
+    "title": "Dr.",
+    "position": "Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "atakorahboateng@gmail.com",
+      "phone": "+233 24 280 1889"
+    }
+  },
+  {
+    "id": "engr-dorothy-manu",
+    "name": "Engr. Dorothy Manu",
+    "title": "Engr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-albert-k-awopone",
+    "name": "Engr. Dr. Albert Kotawoke Awopone",
+    "title": "Engr. Dr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Electrical and Electronic Engineering Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "aawopone@aamusted.edu.gh",
+      "phone": "+233 20 078 4372"
+    }
+  },
+  {
+    "id": "mr-elijah-kusi",
+    "name": "Engr. Dr. Elijah Kusi",
+    "title": "Engr. Dr.",
+    "position": "Lecturer",
+    "department": "Department of Construction Technology and Management",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "7",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ekusi@aamusted.edu.gh",
+      "phone": "+233 24 320 9292"
+    }
+  },
+  {
+    "id": "francis-opuni-kesseh-esq",
+    "name": "FRANCIS OPUNI KESSEH, ESQ.",
+    "title": "",
+    "position": "Lecturer",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "3rd Floor",
+      "room": "Rm 54",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "fokesseh@aamusted.edu.gh",
+      "phone": "+233 24 801 6123"
+    }
+  },
+  {
+    "id": "franco-osei-wusu",
+    "name": "Franco Osei-Wusu",
+    "title": "",
+    "position": "Assist. Lecturer",
+    "department": "Department of Information Technology Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": "+233 54 916 4924"
+    }
+  },
+  {
+    "id": "dr-enock-andrews-duodu",
+    "name": "Ing. Dr. Enock Andrews Duodu",
+    "title": "",
+    "position": "Senior Lecturer",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "prof-emmanuel-appiah-kubi",
+    "name": "Ing. Prof. Emmanuel Appiah-Kubi (PhD, SPE-GhIE)",
+    "title": "Ing. Prof.",
+    "position": "DEAN, FTE",
+    "department": "Department of Civil Engineering",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "eakubi@aamusted.edu.gh",
+      "phone": "+233 24 489 6621"
+    }
+  },
+  {
+    "id": "miss-nafisatu-salam",
+    "name": "Miss Nafisatu Salam",
+    "title": "Miss",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "034",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "",
+      "phone": "+233 24 313 0102"
+    }
+  },
+  {
+    "id": "abraham-yeboah",
+    "name": "Mr. Abraham Yeboah",
+    "title": "Mr.",
+    "position": "Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "NFB",
+      "floor": "",
+      "room": "",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "abrahamyeboah@aamusted.edu.gh",
+      "phone": "+233 24 070 9156"
+    }
+  },
+  {
+    "id": "mr-benjamin-mensah",
+    "name": "Mr. Benjamin Mensah",
+    "title": "Mr.",
+    "position": "Assistant Registrar , Head, Planning Section, QAPA",
+    "department": "Quality Assurance Planning and Accreditation Directorate",
+    "faculty": "",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "bmensah@aamusted.edu.gh",
+      "phone": "+233 24 406 8255, +233 20 033 4966, +233 24 458 4794"
+    }
+  },
+  {
+    "id": "mr-eldad-antwi-bekoe",
+    "name": "Mr. Eldad Antwi-Bekoe",
+    "title": "Mr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Information Technology Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "mr-eric-effah-sarkodie",
+    "name": "Mr. Eric Effah Sarkodie",
+    "title": "Mr.",
+    "position": "H.O.D - Dept. Economics Edu. , Senior Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "Ground Floor",
+      "room": "008",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "eesarkodie@aamusted.edu.gh",
+      "phone": "+233 24 681 0974"
+    }
+  },
+  {
+    "id": "mr-ficus-gyasi",
+    "name": "Mr. Ficus Gyasi",
+    "title": "Mr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 26",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "fgyasi@aamusted.edu.gh",
+      "phone": "+233 24 321 3799"
+    }
+  },
+  {
+    "id": "mr-franklin-benjamin-appiah",
+    "name": "Mr. Franklin Benjamin Appiah",
+    "title": "Mr.",
+    "position": "Lecturer",
+    "department": "Department of Languages Education",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "Rm 16",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "fbappiah@yahoo.com",
+      "phone": "+233 55 597 4363"
+    }
+  },
+  {
+    "id": "mr-k-b-owusu-akyaw",
+    "name": "Mr. K.B. Owusu-Akyaw",
+    "title": "Mr.",
+    "position": "Lecturer",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "",
+      "phone": ""
+    }
+  },
+  {
+    "id": "mr-kennedy-gyimah",
+    "name": "Mr. Kennedy Gyimah",
+    "title": "Mr.",
+    "position": "Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "kennedygyimah@aamusted.edu.gh",
+      "phone": "+233 50 137 3042"
+    }
+  },
+  {
+    "id": "mr-philip-boateng",
+    "name": "Mr. Philip Boateng",
+    "title": "Mr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "Office No. 19",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "pboateng@aamusted.edu.gh",
+      "phone": "+233 24 228 0074"
+    }
+  },
+  {
+    "id": "mr-sylvanus-kofie",
+    "name": "Mr. Sylvanus Kofie",
+    "title": "Mr.",
+    "position": "Lecturer",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "Rm 25",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "skofie@aamusted.edu.gh",
+      "phone": "+233 24 493 4499"
+    }
+  },
+  {
+    "id": "mr-williams-kwasi-boachie",
+    "name": "Mr. Williams Kwasi Boachie",
+    "title": "Mr.",
+    "position": "Senior Lecturer",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "044",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "boachiewilliams@yahoo.com",
+      "phone": "+233 249 443 971"
+    }
+  },
+  {
+    "id": "mrs-abena-sekyere",
+    "name": "Mrs. Abena Sekyere",
+    "title": "Mrs.",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "032",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "abenasekyere@aamusted.edu.gh",
+      "phone": "+233 24 487 8387"
+    }
+  },
+  {
+    "id": "mrs-emma-maame-afua-darkoa-douglas-anyan",
+    "name": "Mrs. Emma Maame Afua Darkoa Douglas Anyan",
+    "title": "Mrs.",
+    "position": "Snr. Assist. Registrar",
+    "department": "School of Graduate Studies",
+    "faculty": "School of Graduate Studies (SGS)",
+    "location": {
+      "building": "ROB",
+      "floor": "3rd Floor",
+      "room": "School of Graduate Studies",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "edaikins@aamusted.edu.gh",
+      "phone": "+233 24 919 4669"
+    }
+  },
+  {
+    "id": "mrs-gertrude-effeh-brew",
+    "name": "Mrs. Gertrude Effeh Brew",
+    "title": "Mrs.",
+    "position": "University Counsellor",
+    "department": "Guidance and Counselling Centre",
+    "faculty": "",
+    "location": {
+      "building": "ROB",
+      "floor": "1st Floor",
+      "room": "Room 30",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "gebrew@aamusted.edu.gh",
+      "phone": "+233204386324"
+    }
+  },
+  {
+    "id": "ms-akosua-afriyie-addi",
+    "name": "Ms. Akosua Afriyie Addi",
+    "title": "Ms.",
+    "position": "Prin Admin Assist",
+    "department": "Department of Electrical and Electronic Engineering Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "26",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "aaaddi@aamusted.edu.gh",
+      "phone": "+233 50 836 1140"
+    }
+  },
+  {
+    "id": "ms-beatrice-acheampong",
+    "name": "Ms. Beatrice Acheampong",
+    "title": "Ms.",
+    "position": "Assistant Registrar",
+    "department": "Admissions Office",
+    "faculty": "Academic Affairs",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "Admissions Office",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "bacheampong@aamusted.edu.gh",
+      "phone": "+233 24 388 6051"
+    }
+  },
+  {
+    "id": "nicholas-donkor",
+    "name": "Nicholas Donkor",
+    "title": "",
+    "position": "Ag. Director - IT Services",
+    "department": "Directorate of IT Services",
+    "faculty": "Directorate of IT Services",
+    "location": {
+      "building": "Main Administration Block",
+      "floor": "Top Floor",
+      "room": "Main Admin. Block",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ndonkor@aamusted.edu.gh",
+      "phone": "+233 26 464 2114, +233 54 255 7667"
+    }
+  },
+  {
+    "id": "prince-gyimah-phd-fchpa",
+    "name": "Prince Gyimah (PhD, FChPA)",
+    "title": "",
+    "position": "Senior Lecturer",
+    "department": "Department of Accounting Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "Ground Floor",
+      "room": "Office Rm 1",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "pgyimah@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "prof-dr-isaac-abraham",
+    "name": "Prof. Dr. Isaac Abraham",
+    "title": "Prof. Dr.",
+    "position": "Assoc Prof, Head of Department",
+    "department": "Department of Fashion Design and Textiles Education (DFDTE)",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "R5",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "iabraham@aamusted.edu.gh",
+      "phone": "+233 24 488 3429"
+    }
+  },
+  {
+    "id": "prof-dr-masud-ibrahim",
+    "name": "Prof. Dr. Masud Ibrahim",
+    "title": "Prof. Dr.",
+    "position": "Assoc Prof",
+    "department": "Department of Management Studies Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 37",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "mibrahim@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "prof-dr-philip-oti-agyen",
+    "name": "Prof. Dr. Philip Oti-Agyen",
+    "title": "Prof. Dr.",
+    "position": "Assoc. Prof. , H.O.D, DEL",
+    "department": "Department of Educational Leadership",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ODSA",
+      "floor": "Ground Floor",
+      "room": "Office of the Dean of Student Affairs",
+      "status": "exact",
+      "targetBuildingId": 30
+    },
+    "contact": {
+      "email": "poagyen@ammusted.edu.gh",
+      "phone": "+233 24 350 6798"
+    }
+  },
+  {
+    "id": "prof-dr-sherry-kwabla-amedorme",
+    "name": "Prof. Dr. Sherry Kwabla Amedorme",
+    "title": "Prof. Dr.",
+    "position": "Assoc. Prof. , H.O.D, DMATE",
+    "department": "Department of Mechanical and Automotive Technology Education",
+    "faculty": "Faculty of Technical Education (FTE)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "skamedorme@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "prof-ebenezer-bonyah",
+    "name": "Prof. Ebenezer Bonyah",
+    "title": "Prof.",
+    "position": "Ag. Director, DRIPIA",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "FBR",
+      "floor": "",
+      "room": "28",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "ebonyah@aamusted.edu.gh",
+      "phone": "+233243357651"
+    }
+  },
+  {
+    "id": "professor-edmond-akwasi-agyeman",
+    "name": "Prof. Edmond Akwasi Agyeman",
+    "title": "Prof.",
+    "position": "Director, Quality Assurance, Planning & Accreditation",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Directorate of Quality Assurance Planning and Accreditation (QAPA)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "eaagyeman@aamusted.edu.gh",
+      "phone": ""
+    }
+  },
+  {
+    "id": "dr-francis-ohene-boateng",
+    "name": "Prof. Francis Ohene Boateng",
+    "title": "Prof.",
+    "position": "Assoc Prof",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "foboateng@aamusted.edu.gh",
+      "phone": "+233 24 497 7243"
+    }
+  },
+  {
+    "id": "prof-humprey-danso",
+    "name": "Prof. Humprey Danso",
+    "title": "Prof.",
+    "position": "Dean, School of Graduate Studies",
+    "department": "Department of Construction and Wood Technology Education",
+    "faculty": "School of Graduate Studies (SGS)",
+    "location": {
+      "building": "ROB",
+      "floor": "3rd Floor",
+      "room": "School of Graduate Studies",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "hdanso@aamusted.edu.gh",
+      "phone": "+233 24 459 2831"
+    }
+  },
+  {
+    "id": "dr-isaac-addai",
+    "name": "PROF. ISAAC ADDAI",
+    "title": "Prof.",
+    "position": "Vice Dean, SGS",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 32",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "iaddai@aamusted.edu.gh",
+      "phone": "+233 20 543 4821"
+    }
+  },
+  {
+    "id": "prof-joseph-antwi-baafi",
+    "name": "Prof. Joseph Antwi Baafi",
+    "title": "Prof.",
+    "position": "Assoc Prof",
+    "department": "Department of Economics Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "Ground Floor",
+      "room": "008",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "Jbantwi@aamusted.edu.gh",
+      "phone": "+233 24 499 4010"
+    }
+  },
+  {
+    "id": "josephine-aboagyewaa-ntiri",
+    "name": "Prof. Josephine Aboagyewaa-Ntiri",
+    "title": "Prof.",
+    "position": "Assoc. Prof. , Dean",
+    "department": "Department of Fashion Design and Textiles Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "CBT",
+      "floor": "",
+      "room": "025",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "jantiri@aamusted.edu.gh",
+      "phone": "+233 55 040 1490"
+    }
+  },
+  {
+    "id": "stella-appiah",
+    "name": "Prof. Stella Appiah",
+    "title": "Prof.",
+    "position": "Assoc Prof",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "ESA",
+      "floor": "1st Floor",
+      "room": "Room 17",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "stellaappiah@aamusted.edu.gh",
+      "phone": "+233 20 896 9866"
+    }
+  },
+  {
+    "id": "prof-stephen-baffour-adjei",
+    "name": "Prof. Stephen Baffour Adjei",
+    "title": "Prof.",
+    "position": "Assoc. Prof. , Dean of Students’ Affairs",
+    "department": "Department of Interdisciplinary Studies",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ODSA",
+      "floor": "Ground Floor",
+      "room": "Office of the Dean of Student Affairs",
+      "status": "exact",
+      "targetBuildingId": 30
+    },
+    "contact": {
+      "email": "sbadjei@aamusted.edu.gh",
+      "phone": "+233 55 497 3575"
+    }
+  },
+  {
+    "id": "prof-yarhands-dissou-arthur",
+    "name": "Prof. Yarhands Dissou Arthur",
+    "title": "Prof.",
+    "position": "DEAN, FASME",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "ydarthur@aamusted.edu.gh",
+      "phone": "+233244071973"
+    }
+  },
+  {
+    "id": "mrs-rabiatu-kamil",
+    "name": "Rabiatu Kamil (Ph.D. FCCA, ICAG)",
+    "title": "",
+    "position": "Lecturer",
+    "department": "Department of Accounting Education",
+    "faculty": "Faculty of Business Education (FBE)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 42",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "rkamil@aamusted.edu.gh",
+      "phone": "+233 50 808 4880"
+    }
+  },
+  {
+    "id": "rev-dr-benjamin-adu-obeng",
+    "name": "Rev. Dr. Benjamin Adu Obeng",
+    "title": "Rev. Dr.",
+    "position": "Lecturer",
+    "department": "Department of Mathematics Education",
+    "faculty": "Faculty of Applied Sciences and Mathematics Education (FASME)",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "baduobeng@aamusted.edu.gh",
+      "phone": "+233 54 344 8218"
+    }
+  },
+  {
+    "id": "sawan-dankyi",
+    "name": "Sawan Dankyi",
+    "title": "",
+    "position": "Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "ESA",
+      "floor": "1st Floor",
+      "room": "ESA",
+      "status": "building_only"
+    },
+    "contact": {
+      "email": "sdankyi@aamusted.edu.gh",
+      "phone": "+233 55 496 8626"
+    }
+  },
+  {
+    "id": "sr-dr-mary-assumpta-ayikue",
+    "name": "Sr. Dr. Mary Assumpta Ayikue",
+    "title": "Sr. Dr.",
+    "position": "Lecturer",
+    "department": "Department of Educational Leadership",
+    "faculty": "Faculty of Education and Communication Sciences (FECS)",
+    "location": {
+      "building": "ROB",
+      "floor": "2nd Floor",
+      "room": "Rm 27",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "maayikue@aamusted.edu.gh",
+      "phone": "+233 20 066 0287, +233 54 663 8361"
+    }
+  },
+  {
+    "id": "veronica-adwoa-agyare",
+    "name": "Veronica Adwoa Agyare",
+    "title": "Ms.",
+    "position": "Assist. Lecturer",
+    "department": "Department of Hospitality and Tourism Education",
+    "faculty": "Faculty of Vocational Education (FVE)",
+    "location": {
+      "building": "ESA",
+      "floor": "1st Floor",
+      "room": "Room 15",
+      "status": "exact"
+    },
+    "contact": {
+      "email": "vaagyare@aamusted.edu.gh",
+      "phone": "+233 54 813 4038"
+    }
+  },
+  {
+    "id": "victoria-timah",
+    "name": "Victoria Timah",
+    "title": "",
+    "position": "Assistant Registrar",
+    "department": "Quality Assurance Planning and Accreditation Directorate",
+    "faculty": "",
+    "location": {
+      "building": "",
+      "floor": "",
+      "room": "",
+      "status": "unresolved"
+    },
+    "contact": {
+      "email": "timahv37@gmail.com",
+      "phone": "+233 24 406 8255, +233 20 033 4966"
+    }
+  }
+]

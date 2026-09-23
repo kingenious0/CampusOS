@@ -7,13 +7,13 @@
     "lat": 6.698007,
     "lng": -1.681834,
     "description": "Main campus library with reading rooms, digital resources and WiFi access.",
-    "hours": "7:00 AM \u2013 10:00 PM",
+    "hours": "7:00 AM – 10:00 PM",
     "services": [
       {
         "name": "Library Services",
         "description": "Access to books, digital resources, and study spaces",
         "requirements": "Student ID card",
-        "hours": "7:00 AM \u2013 10:00 PM",
+        "hours": "7:00 AM – 10:00 PM",
         "keywords": [
           "LIBRARY LIBRARY SERVICES"
         ]
@@ -39,7 +39,75 @@
           "LIBRARY 102",
           "LIBRARY GF"
         ]
+      },
+      {
+        "number": "Room odsa lib",
+        "room": "odsa lib",
+        "floor": "Ground",
+        "description": "Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)",
+        "staff": [
+          "Prof. Dr. Philip Oti-Agyen"
+        ],
+        "keywords": [
+          "PROF. DR. PHILIP OTI-AGYEN",
+          "OTI-AGYEN",
+          "LIBRARY ODSA LIB",
+          "LIBRARY ROOM ODSA LIB",
+          "ROOM ODSA LIB",
+          "ODSA LIB",
+          "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+          "DEL",
+          "EDUCATIONAL LEADERSHIP",
+          "LIBRARY GF",
+          "GROUND FLOOR"
+        ]
+      },
+      {
+        "number": "Room dosa liblrb 01",
+        "room": "dosa liblrb 01",
+        "floor": "Ground",
+        "description": "Staff Office – Prof. Stephen Baffour Adjei (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Prof. Stephen Baffour Adjei"
+        ],
+        "keywords": [
+          "PROF. STEPHEN BAFFOUR ADJEI",
+          "ADJEI",
+          "LIBRARY DOSA LIBLRB 01",
+          "LIBRARY ROOM DOSA LIBLRB 01",
+          "ROOM DOSA LIBLRB 01",
+          "DOSA LIBLRB 01",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "LIBRARY GF",
+          "GROUND FLOOR"
+        ]
       }
+    ],
+    "keywords": [
+      "PROF. DR. PHILIP OTI-AGYEN",
+      "OTI-AGYEN",
+      "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+      "DEL",
+      "EDUCATIONAL LEADERSHIP",
+      "LIBRARY ODSA LIB",
+      "LIBRARY ROOM ODSA LIB",
+      "ROOM ODSA LIB",
+      "ODSA LIB",
+      "LIBRARY GF",
+      "GROUND FLOOR",
+      "PROF. STEPHEN BAFFOUR ADJEI",
+      "ADJEI",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DIS",
+      "INTERDISCIPLINARY",
+      "IDS",
+      "LIBRARY DOSA LIBLRB 01",
+      "LIBRARY ROOM DOSA LIBLRB 01",
+      "ROOM DOSA LIBLRB 01",
+      "DOSA LIBLRB 01"
     ]
   },
   {
@@ -51,13 +119,13 @@
     "lng": -1.6797,
     "description": "Campus health facility offering primary care, first aid and pharmacy services.",
     "contact": "clinic@aamusted.edu.gh",
-    "hours": "7:00 AM \u2013 10:00 PM",
+    "hours": "7:00 AM – 10:00 PM",
     "services": [
       {
         "name": "Medical Services",
         "description": "Primary healthcare, first aid, and pharmacy",
         "requirements": "Student ID or valid identification",
-        "hours": "7:00 AM \u2013 10:00 PM",
+        "hours": "7:00 AM – 10:00 PM",
         "keywords": [
           "CLINIC MEDICAL SERVICES"
         ]
@@ -94,13 +162,13 @@
     "lat": 6.6968720333951754,
     "lng": -1.676838991370415,
     "description": "University Banking Services on campus for student and staff financial transactions.",
-    "hours": "8:30 AM \u2013 4:30 PM",
+    "hours": "8:30 AM – 4:30 PM",
     "services": [
       {
         "name": "Banking Services",
         "description": "Account management, loans, and financial transactions",
         "requirements": "Valid ID and account details",
-        "hours": "8:30 AM \u2013 4:30 PM",
+        "hours": "8:30 AM – 4:30 PM",
         "keywords": [
           "UBS BANKING SERVICES"
         ]
@@ -147,13 +215,13 @@
     "lat": 6.700420346407515,
     "lng": -1.6812914582753884,
     "description": "Newly built library facility with expanded study spaces, digital resources and research support.",
-    "hours": "7:00 AM \u2013 10:00 PM",
+    "hours": "7:00 AM – 10:00 PM",
     "services": [
       {
         "name": "Library Services",
         "description": "Expanded library with digital and physical resources",
         "requirements": "Student ID card",
-        "hours": "7:00 AM \u2013 10:00 PM",
+        "hours": "7:00 AM – 10:00 PM",
         "keywords": [
           "NEW LIBRARY LIBRARY SERVICES"
         ]
@@ -190,7 +258,7 @@
     "lat": 6.700207235247202,
     "lng": -1.6795533868562482,
     "description": "Workshop facility for mechanical engineering practical sessions and projects.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Workshop 1",
@@ -212,7 +280,7 @@
     "lat": 6.701221,
     "lng": -1.678382,
     "description": "Main campus football field (soccer park) for sports events, training and recreational activities.",
-    "hours": "6:00 AM \u2013 8:00 PM"
+    "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 10,
@@ -223,7 +291,7 @@
     "lng": -1.6822355958550224,
     "description": "Department handling management and business-related academic programmes.",
     "contact": "management@aamusted.edu.gh",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "101",
@@ -277,7 +345,7 @@
     "lat": 6.697532,
     "lng": -1.681563,
     "description": "Teaching and Learning Block housing lecture halls and tutorial rooms.",
-    "hours": "7:00 AM \u2013 6:00 PM",
+    "hours": "7:00 AM – 6:00 PM",
     "rooms": [
       {
         "number": "LT1",
@@ -314,7 +382,7 @@
     "lng": -1.68002,
     "description": "Faculty offering mechanical, electrical, automotive and construction technology programmes.",
     "contact": "fte@aamusted.edu.gh",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "201",
@@ -325,7 +393,216 @@
           "FTE ROOM 201",
           "FTE SF"
         ]
+      },
+      {
+        "number": "Room 02",
+        "room": "02",
+        "floor": "",
+        "description": "Staff Office – Associate Professor Dr. Engr. Kwaku Antwi (Department of Civil Engineering)",
+        "staff": [
+          "Associate Professor Dr. Engr. Kwaku Antwi"
+        ],
+        "keywords": [
+          "ASSOCIATE PROFESSOR DR. ENGR. KWAKU ANTWI",
+          "ANTWI",
+          "FTE 02",
+          "FTE ROOM 02",
+          "ROOM 02",
+          "02",
+          "DEPARTMENT OF CIVIL ENGINEERING",
+          "CIVIL ENGINEERING"
+        ]
+      },
+      {
+        "number": "Room 09",
+        "room": "09",
+        "floor": "",
+        "description": "Staff Office – Dr. Fredrick Simpeh (Department of Construction and Wood Technology Education)",
+        "staff": [
+          "Dr. Fredrick Simpeh"
+        ],
+        "keywords": [
+          "DR. FREDRICK SIMPEH",
+          "SIMPEH",
+          "FTE 09",
+          "FTE ROOM 09",
+          "ROOM 09",
+          "09",
+          "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+          "DCWTE",
+          "CONSTRUCTION",
+          "WOOD TECHNOLOGY"
+        ]
+      },
+      {
+        "number": "Room 15",
+        "room": "15",
+        "floor": "",
+        "description": "Staff Office – Dr. Jacob Ofori-Darko (Department of Construction and Wood Technology Education)",
+        "staff": [
+          "Dr. Jacob Ofori-Darko"
+        ],
+        "keywords": [
+          "DR. JACOB OFORI-DARKO",
+          "OFORI-DARKO",
+          "FTE 15",
+          "FTE ROOM 15",
+          "ROOM 15",
+          "15",
+          "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+          "DCWTE",
+          "CONSTRUCTION",
+          "WOOD TECHNOLOGY"
+        ]
+      },
+      {
+        "number": "Room 28",
+        "room": "28",
+        "floor": "",
+        "description": "Staff Office – Dr. Joseph Frank Gordon (Department of Mathematics Education)",
+        "staff": [
+          "Dr. Joseph Frank Gordon",
+          "Prof. Ebenezer Bonyah"
+        ],
+        "keywords": [
+          "DR. JOSEPH FRANK GORDON",
+          "GORDON",
+          "FTE 28",
+          "FTE ROOM 28",
+          "ROOM 28",
+          "28",
+          "DEPARTMENT OF MATHEMATICS EDUCATION",
+          "MATHEMATICS",
+          "MATHS",
+          "PROF. EBENEZER BONYAH",
+          "BONYAH"
+        ]
+      },
+      {
+        "number": "Room 16",
+        "room": "16",
+        "floor": "",
+        "description": "Staff Office – Dr. Justice Williams (Department of Construction and Wood Technology Education)",
+        "staff": [
+          "Dr. Justice Williams"
+        ],
+        "keywords": [
+          "DR. JUSTICE WILLIAMS",
+          "WILLIAMS",
+          "FTE 16",
+          "FTE ROOM 16",
+          "ROOM 16",
+          "16",
+          "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+          "DCWTE",
+          "CONSTRUCTION",
+          "WOOD TECHNOLOGY"
+        ]
+      },
+      {
+        "number": "Room 7",
+        "room": "7",
+        "floor": "",
+        "description": "Staff Office – Engr. Dr. Elijah Kusi (Department of Construction Technology and Management)",
+        "staff": [
+          "Engr. Dr. Elijah Kusi"
+        ],
+        "keywords": [
+          "ENGR. DR. ELIJAH KUSI",
+          "KUSI",
+          "FTE 7",
+          "FTE ROOM 7",
+          "ROOM 7",
+          "7",
+          "DEPARTMENT OF CONSTRUCTION TECHNOLOGY AND MANAGEMENT",
+          "CONSTRUCTION MANAGEMENT"
+        ]
+      },
+      {
+        "number": "Room 26",
+        "room": "26",
+        "floor": "",
+        "description": "Staff Office – Ms. Akosua Afriyie Addi (Department of Electrical and Electronic Engineering Technology Education)",
+        "staff": [
+          "Ms. Akosua Afriyie Addi"
+        ],
+        "keywords": [
+          "MS. AKOSUA AFRIYIE ADDI",
+          "ADDI",
+          "FTE 26",
+          "FTE ROOM 26",
+          "ROOM 26",
+          "26",
+          "DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING TECHNOLOGY EDUCATION",
+          "ELECTRICAL",
+          "ELECTRONICS"
+        ]
       }
+    ],
+    "keywords": [
+      "FBR",
+      "FBR BLOCK",
+      "FACULTY BLOCK",
+      "FACULTY OF TECHNICAL EDUCATION",
+      "FET",
+      "ASSOCIATE PROFESSOR DR. ENGR. KWAKU ANTWI",
+      "ANTWI",
+      "DEPARTMENT OF CIVIL ENGINEERING",
+      "CIVIL ENGINEERING",
+      "FTE 02",
+      "FTE ROOM 02",
+      "ROOM 02",
+      "02",
+      "DR. FREDRICK SIMPEH",
+      "SIMPEH",
+      "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+      "DCWTE",
+      "CONSTRUCTION",
+      "WOOD TECHNOLOGY",
+      "FTE 09",
+      "FTE ROOM 09",
+      "ROOM 09",
+      "09",
+      "DR. JACOB OFORI-DARKO",
+      "OFORI-DARKO",
+      "FTE 15",
+      "FTE ROOM 15",
+      "ROOM 15",
+      "15",
+      "DR. JOSEPH FRANK GORDON",
+      "GORDON",
+      "DEPARTMENT OF MATHEMATICS EDUCATION",
+      "MATHEMATICS",
+      "MATHS",
+      "FTE 28",
+      "FTE ROOM 28",
+      "ROOM 28",
+      "28",
+      "DR. JUSTICE WILLIAMS",
+      "WILLIAMS",
+      "FTE 16",
+      "FTE ROOM 16",
+      "ROOM 16",
+      "16",
+      "ENGR. DR. ELIJAH KUSI",
+      "KUSI",
+      "DEPARTMENT OF CONSTRUCTION TECHNOLOGY AND MANAGEMENT",
+      "CONSTRUCTION MANAGEMENT",
+      "FTE 7",
+      "FTE ROOM 7",
+      "ROOM 7",
+      "7",
+      "MS. AKOSUA AFRIYIE ADDI",
+      "ADDI",
+      "DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING TECHNOLOGY EDUCATION",
+      "ELECTRICAL",
+      "ELECTRONICS",
+      "FTE 26",
+      "FTE ROOM 26",
+      "ROOM 26",
+      "26",
+      "PROF. EBENEZER BONYAH",
+      "BONYAH"
     ]
   },
   {
@@ -336,7 +613,7 @@
     "lat": 6.700230295041086,
     "lng": -1.6805827904715855,
     "description": "Laboratory and training facility for catering, hospitality and food service programmes.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Kitchen 1",
@@ -358,7 +635,7 @@
     "lat": 6.700211615966025,
     "lng": -1.6803445617984518,
     "description": "Laboratory for fashion design, textiles and clothing technology programmes.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Design Room",
@@ -380,7 +657,7 @@
     "lat": 6.700329916761255,
     "lng": -1.6796612216432647,
     "description": "Additional mechanical workshop facility for technology and engineering practicals.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Annex Workshop",
@@ -402,7 +679,7 @@
     "lat": 6.700101616952657,
     "lng": -1.6790740088612417,
     "description": "Automotive engineering workshop for vehicle maintenance, repair and hands-on training.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Garage 1",
@@ -424,7 +701,7 @@
     "lat": 6.700175380605054,
     "lng": -1.6781519814855566,
     "description": "Woodwork laboratory and workshop for construction technology and carpentry students.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "Woodshop",
@@ -460,13 +737,13 @@
   },
   {
     "id": 21,
-    "name": "ESA Building",
-    "shortName": "ESA",
+    "name": "Executive Students Association (ESA) Lecture Block",
+    "shortName": "ESA Block",
     "type": "academic",
     "lat": 6.701263320240392,
     "lng": -1.6831062195613589,
-    "description": "ESA Building housing academic departments and faculty offices.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "description": "Massive 3,500-capacity Executive Students Association (ESA) Lecture Block housing lecture auditoriums and faculty offices.",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "101",
@@ -477,7 +754,126 @@
           "ESA FF",
           "ESA 101"
         ]
+      },
+      {
+        "number": "Room 3",
+        "room": "3",
+        "floor": "Ground",
+        "description": "Staff Office – Dr. Courage S.K. Dogbe (Department of Management Studies Education)",
+        "staff": [
+          "Dr. Courage S.K. Dogbe"
+        ],
+        "keywords": [
+          "DR. COURAGE S.K. DOGBE",
+          "DOGBE",
+          "ESA ROOM 3",
+          "ESA 3",
+          "ROOM 3",
+          "3",
+          "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+          "MANAGEMENT",
+          "MANAGEMENT STUDIES",
+          "ESA GF",
+          "GROUND FLOOR",
+          "ESA BLOCK ROOM 3",
+          "ESA BLOCK 3",
+          "ESA BLOCK GF"
+        ]
+      },
+      {
+        "number": "Room 17",
+        "room": "17",
+        "floor": "1st",
+        "description": "Staff Office – Prof. Stella Appiah (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Prof. Stella Appiah"
+        ],
+        "keywords": [
+          "PROF. STELLA APPIAH",
+          "APPIAH",
+          "ESA ROOM 17",
+          "ESA 17",
+          "ROOM 17",
+          "17",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING",
+          "ESA FF",
+          "1ST FLOOR",
+          "ESA BLOCK ROOM 17",
+          "ESA BLOCK 17",
+          "ESA BLOCK FF"
+        ]
+      },
+      {
+        "number": "Room 15",
+        "room": "15",
+        "floor": "1st",
+        "description": "Staff Office – Veronica Adwoa Agyare (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Veronica Adwoa Agyare"
+        ],
+        "keywords": [
+          "VERONICA ADWOA AGYARE",
+          "AGYARE",
+          "ESA ROOM 15",
+          "ESA 15",
+          "ROOM 15",
+          "15",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING",
+          "ESA FF",
+          "1ST FLOOR",
+          "ESA BLOCK ROOM 15",
+          "ESA BLOCK 15",
+          "ESA BLOCK FF"
+        ]
       }
+    ],
+    "keywords": [
+      "EXECUTIVE STUDENTS ASSOCIATION",
+      "ESA",
+      "ESA BLOCK",
+      "ESA LECTURE BLOCK",
+      "3500 CAPACITY AUDITORIUM",
+      "EXECUTIVE STUDENTS",
+      "DR. COURAGE S.K. DOGBE",
+      "DOGBE",
+      "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+      "MANAGEMENT",
+      "MANAGEMENT STUDIES",
+      "ESA BLOCK ROOM 3",
+      "ESA BLOCK 3",
+      "ROOM 3",
+      "3",
+      "ESA BLOCK GF",
+      "GROUND FLOOR",
+      "PROF. STELLA APPIAH",
+      "APPIAH",
+      "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+      "DHTE",
+      "HOSPITALITY",
+      "TOURISM",
+      "CATERING",
+      "ESA BLOCK ROOM 17",
+      "ESA BLOCK 17",
+      "ROOM 17",
+      "17",
+      "ESA BLOCK FF",
+      "1ST FLOOR",
+      "SAWAN DANKYI",
+      "DANKYI",
+      "VERONICA ADWOA AGYARE",
+      "AGYARE",
+      "ESA BLOCK ROOM 15",
+      "ESA BLOCK 15",
+      "ROOM 15",
+      "15"
     ]
   },
   {
@@ -488,32 +884,40 @@
     "lat": 6.701497409024071,
     "lng": -1.6836742245585143,
     "description": "New Faculty Building with lecture halls, seminar rooms and department offices.",
-    "hours": "7:00 AM \u2013 6:00 PM",
-    "rooms": [
-      {
-        "number": "LT3",
-        "floor": "1st",
-        "description": "Lecture theatre",
-        "keywords": [
-          "NFB LT3",
-          "NFB ROOM 3",
-          "NFB 3",
-          "NFB ROOM LT3",
-          "NFB FF"
-        ]
-      },
-      {
-        "number": "Seminar 1",
-        "floor": "2nd",
-        "description": "Seminar room",
-        "keywords": [
-          "NFB ROOM SEMINAR 1",
-          "NFB ROOM 1",
-          "NFB SF",
-          "NFB 1",
-          "NFB SEMINAR 1"
-        ]
-      }
+    "hours": "7:00 AM – 6:00 PM",
+    "rooms": [],
+    "keywords": [
+      "DR. NATHAN OHENE GYANG",
+      "GYANG",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DIS",
+      "INTERDISCIPLINARY",
+      "IDS",
+      "NFB RM 06",
+      "NFB 06",
+      "NFB ROOM 06",
+      "ROOM 06",
+      "RM 06",
+      "06",
+      "DR. SAMUEL KWADWO ABOAGYE",
+      "ABOAGYE",
+      "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+      "DEL",
+      "EDUCATIONAL LEADERSHIP",
+      "NFB 6",
+      "NFB ROOM 6",
+      "ROOM 6",
+      "6",
+      "MR. ABRAHAM YEBOAH",
+      "YEBOAH",
+      "NFB RM 05",
+      "NFB 05",
+      "NFB ROOM 05",
+      "ROOM 05",
+      "RM 05",
+      "05",
+      "NFB FF",
+      "1ST FLOOR"
     ]
   },
   {
@@ -524,41 +928,8 @@
     "lat": 6.702039508930884,
     "lng": -1.6833389484263725,
     "description": "New Lecture Building providing modern lecture halls and academic spaces.",
-    "hours": "7:00 AM \u2013 6:00 PM",
-    "rooms": [
-      {
-        "number": "LT4",
-        "floor": "Ground",
-        "description": "Large lecture hall",
-        "keywords": [
-          "NLB 4",
-          "NLB ROOM LT4",
-          "NLB ROOM 4",
-          "NLB GF",
-          "NLB LT4"
-        ]
-      },
-      {
-        "number": "First Floor",
-        "floor": "1st",
-        "description": "Academic and lecture area",
-        "keywords": [
-          "NLB FF",
-          "NLB FIRST FLOOR",
-          "NLB ROOM FIRST FLOOR"
-        ]
-      },
-      {
-        "number": "Second Floor",
-        "floor": "2nd",
-        "description": "Academic and lecture area",
-        "keywords": [
-          "NLB SF",
-          "NLB SECOND FLOOR",
-          "NLB ROOM SECOND FLOOR"
-        ]
-      }
-    ]
+    "hours": "7:00 AM – 6:00 PM",
+    "rooms": []
   },
   {
     "id": 24,
@@ -569,7 +940,7 @@
     "lng": -1.6824193407928505,
     "description": "Department offering economics education and business studies programmes.",
     "contact": "economics@aamusted.edu.gh",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "201",
@@ -590,8 +961,8 @@
     "type": "administration",
     "lat": 6.700458972619646,
     "lng": -1.6820753764509622,
-    "description": "Reinhold O. Bonyo Block \u2014 Academic and administrative hub housing the Faculty of Business Education (FBE), Graduate School, and key student services.",
-    "hours": "7:00 AM \u2013 6:00 PM",
+    "description": "Reinhold O. Bonyo Block — Academic and administrative hub housing the Faculty of Business Education (FBE), Graduate School, and key student services.",
+    "hours": "7:00 AM – 6:00 PM",
     "services": [
       {
         "name": "FBE Dean's Office",
@@ -783,19 +1154,720 @@
           "COMPUTER",
           "ROB ROOM 016"
         ]
+      },
+      {
+        "number": "Room 045",
+        "room": "045",
+        "floor": "2nd",
+        "description": "Staff Office – ASSOC. PROF. DR. DR. FRANK YAO GBADAGO (Department of Accounting Studies Education)",
+        "staff": [
+          "ASSOC. PROF. DR. DR. FRANK YAO GBADAGO"
+        ],
+        "keywords": [
+          "ASSOC. PROF. DR. DR. FRANK YAO GBADAGO",
+          "GBADAGO",
+          "ROB 045",
+          "ROB ROOM 045",
+          "ROOM 045",
+          "045",
+          "DEPARTMENT OF ACCOUNTING STUDIES EDUCATION",
+          "ACCOUNTING",
+          "FINANCE",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 34",
+        "room": "34",
+        "floor": "2nd",
+        "description": "Staff Office – Dr. (Mrs) Veronica Adu-Brobbey (Department of Management Studies Education)",
+        "staff": [
+          "Dr. (Mrs) Veronica Adu-Brobbey"
+        ],
+        "keywords": [
+          "DR. (MRS) VERONICA ADU-BROBBEY",
+          "ADU-BROBBEY",
+          "ROB RM 34",
+          "ROB 34",
+          "ROB ROOM 34",
+          "ROOM 34",
+          "RM 34",
+          "34",
+          "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+          "MANAGEMENT",
+          "MANAGEMENT STUDIES",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Room 005",
+        "room": "005",
+        "floor": "Ground",
+        "description": "Staff Office – Dr. James Nsoh Adogpa (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Dr. James Nsoh Adogpa"
+        ],
+        "keywords": [
+          "DR. JAMES NSOH ADOGPA",
+          "ADOGPA",
+          "ROB 005",
+          "ROB ROOM 005",
+          "ROOM 005",
+          "005",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB GF",
+          "GROUND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 3",
+        "room": "3",
+        "floor": "Ground",
+        "description": "Staff Office – Dr. Jonathan Essuman (Department of Languages Education)",
+        "staff": [
+          "Dr. Jonathan Essuman"
+        ],
+        "keywords": [
+          "DR. JONATHAN ESSUMAN",
+          "ESSUMAN",
+          "ROB RM 3",
+          "ROB 3",
+          "ROB ROOM 3",
+          "ROOM 3",
+          "RM 3",
+          "3",
+          "DEPARTMENT OF LANGUAGES EDUCATION",
+          "LANGUAGES",
+          "ENGLISH",
+          "LINGUISTICS",
+          "ROB GF",
+          "GROUND FLOOR"
+        ]
+      },
+      {
+        "number": "Room 018",
+        "room": "018",
+        "floor": "1st",
+        "description": "Staff Office – Dr. Kotor Asare (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Dr. Kotor Asare"
+        ],
+        "keywords": [
+          "DR. KOTOR ASARE",
+          "ASARE",
+          "ROB 018",
+          "ROB ROOM 018",
+          "ROOM 018",
+          "018",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB FF",
+          "1ST FLOOR"
+        ]
+      },
+      {
+        "number": "Room 021",
+        "room": "021",
+        "floor": "1st",
+        "description": "Staff Office – Dr. Kwadwo Arhin (Department of Economics Education)",
+        "staff": [
+          "Dr. Kwadwo Arhin"
+        ],
+        "keywords": [
+          "DR. KWADWO ARHIN",
+          "ARHIN",
+          "ROB 021",
+          "ROB ROOM 021",
+          "ROOM 021",
+          "021",
+          "DEPARTMENT OF ECONOMICS EDUCATION",
+          "ECONOMICS",
+          "ROB FF",
+          "1ST FLOOR"
+        ]
+      },
+      {
+        "number": "Room 037",
+        "room": "037",
+        "floor": "2nd",
+        "description": "Staff Office – Dr. Lawyer Mrs. Ohenewaa Boateng Newman (Department of Management Studies Education)",
+        "staff": [
+          "Dr. Lawyer Mrs. Ohenewaa Boateng Newman"
+        ],
+        "keywords": [
+          "DR. LAWYER MRS. OHENEWAA BOATENG NEWMAN",
+          "NEWMAN",
+          "ROB 037",
+          "ROB ROOM 037",
+          "ROOM 037",
+          "037",
+          "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+          "MANAGEMENT",
+          "MANAGEMENT STUDIES",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Room 30",
+        "room": "30",
+        "floor": "2nd",
+        "description": "Staff Office – Mrs. Gertrude Effeh Brew (Guidance and Counselling Centre)",
+        "staff": [
+          "Mrs. Gertrude Effeh Brew"
+        ],
+        "keywords": [
+          "ROB RM 30",
+          "ROB 30",
+          "ROB ROOM 30",
+          "ROOM 30",
+          "RM 30",
+          "30",
+          "ROB SF",
+          "2ND FLOOR",
+          "MRS. GERTRUDE EFFEH BREW",
+          "BREW",
+          "GUIDANCE AND COUNSELLING CENTRE"
+        ]
+      },
+      {
+        "number": "Rm 54",
+        "room": "54",
+        "floor": "3rd",
+        "description": "Staff Office – FRANCIS OPUNI KESSEH, ESQ. (Department of Management Studies Education)",
+        "staff": [
+          "FRANCIS OPUNI KESSEH, ESQ."
+        ],
+        "keywords": [
+          "FRANCIS OPUNI KESSEH, ESQ.",
+          "ESQ.",
+          "ROB RM 54",
+          "ROB 54",
+          "ROB ROOM 54",
+          "ROOM 54",
+          "RM 54",
+          "54",
+          "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+          "MANAGEMENT",
+          "MANAGEMENT STUDIES",
+          "ROB 3F",
+          "3RD FLOOR"
+        ]
+      },
+      {
+        "number": "Room 008",
+        "room": "008",
+        "floor": "Ground",
+        "description": "Staff Office – Mr. Eric Effah Sarkodie (Department of Economics Education)",
+        "staff": [
+          "Mr. Eric Effah Sarkodie",
+          "Prof. Joseph Antwi Baafi"
+        ],
+        "keywords": [
+          "MR. ERIC EFFAH SARKODIE",
+          "SARKODIE",
+          "ROB 008",
+          "ROB ROOM 008",
+          "ROOM 008",
+          "008",
+          "DEPARTMENT OF ECONOMICS EDUCATION",
+          "ECONOMICS",
+          "ROB GF",
+          "GROUND FLOOR",
+          "PROF. JOSEPH ANTWI BAAFI",
+          "BAAFI"
+        ]
+      },
+      {
+        "number": "Rm 26",
+        "room": "26",
+        "floor": "2nd",
+        "description": "Staff Office – Mr. Ficus Gyasi (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Mr. Ficus Gyasi"
+        ],
+        "keywords": [
+          "MR. FICUS GYASI",
+          "GYASI",
+          "ROB RM 26",
+          "ROB 26",
+          "ROB ROOM 26",
+          "ROOM 26",
+          "RM 26",
+          "26",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 16",
+        "room": "16",
+        "floor": "1st",
+        "description": "Staff Office – Mr. Franklin Benjamin Appiah (Department of Languages Education)",
+        "staff": [
+          "Mr. Franklin Benjamin Appiah"
+        ],
+        "keywords": [
+          "MR. FRANKLIN BENJAMIN APPIAH",
+          "APPIAH",
+          "ROB RM 16",
+          "ROB 16",
+          "ROB ROOM 16",
+          "ROOM 16",
+          "RM 16",
+          "16",
+          "DEPARTMENT OF LANGUAGES EDUCATION",
+          "LANGUAGES",
+          "ENGLISH",
+          "LINGUISTICS",
+          "ROB FF",
+          "1ST FLOOR"
+        ]
+      },
+      {
+        "number": "Office No. 19",
+        "room": "No. 19",
+        "floor": "1st",
+        "description": "Staff Office – Mr. Philip Boateng (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Mr. Philip Boateng"
+        ],
+        "keywords": [
+          "MR. PHILIP BOATENG",
+          "BOATENG",
+          "ROB OFFICE NO. 19",
+          "ROB NO. 19",
+          "ROB ROOM NO. 19",
+          "ROOM NO. 19",
+          "OFFICE NO. 19",
+          "NO. 19",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB FF",
+          "1ST FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 25",
+        "room": "25",
+        "floor": "1st",
+        "description": "Staff Office – Mr. Sylvanus Kofie (Department of Interdisciplinary Studies)",
+        "staff": [
+          "Mr. Sylvanus Kofie"
+        ],
+        "keywords": [
+          "MR. SYLVANUS KOFIE",
+          "KOFIE",
+          "ROB RM 25",
+          "ROB 25",
+          "ROB ROOM 25",
+          "ROOM 25",
+          "RM 25",
+          "25",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB FF",
+          "1ST FLOOR"
+        ]
+      },
+      {
+        "number": "Room 044",
+        "room": "044",
+        "floor": "2nd",
+        "description": "Staff Office – Mr. Williams Kwasi Boachie (Department of Economics Education)",
+        "staff": [
+          "Mr. Williams Kwasi Boachie"
+        ],
+        "keywords": [
+          "MR. WILLIAMS KWASI BOACHIE",
+          "BOACHIE",
+          "ROB 044",
+          "ROB ROOM 044",
+          "ROOM 044",
+          "044",
+          "DEPARTMENT OF ECONOMICS EDUCATION",
+          "ECONOMICS",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Room School of Graduate Studies",
+        "room": "School of Graduate Studies",
+        "floor": "3rd",
+        "description": "Staff Office – Mrs. Emma Maame Afua Darkoa Douglas Anyan (School of Graduate Studies)",
+        "staff": [
+          "Mrs. Emma Maame Afua Darkoa Douglas Anyan",
+          "Prof. Humprey Danso"
+        ],
+        "keywords": [
+          "MRS. EMMA MAAME AFUA DARKOA DOUGLAS ANYAN",
+          "ANYAN",
+          "ROB SCHOOL OF GRADUATE STUDIES",
+          "ROB ROOM SCHOOL OF GRADUATE STUDIES",
+          "ROOM SCHOOL OF GRADUATE STUDIES",
+          "SCHOOL OF GRADUATE STUDIES",
+          "SGS",
+          "GRADUATE STUDIES",
+          "ROB 3F",
+          "3RD FLOOR",
+          "PROF. HUMPREY DANSO",
+          "DANSO",
+          "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+          "DCWTE",
+          "CONSTRUCTION",
+          "WOOD TECHNOLOGY"
+        ]
+      },
+      {
+        "number": "Office Rm 1",
+        "room": "Rm 1",
+        "floor": "Ground",
+        "description": "Staff Office – Prince Gyimah (PhD, FChPA) (Department of Accounting Education)",
+        "staff": [
+          "Prince Gyimah (PhD, FChPA)"
+        ],
+        "keywords": [
+          "PRINCE GYIMAH (PHD, FCHPA)",
+          "FCHPA)",
+          "ROB OFFICE RM 1",
+          "ROB RM 1",
+          "ROB ROOM RM 1",
+          "ROOM RM 1",
+          "OFFICE RM 1",
+          "RM 1",
+          "DEPARTMENT OF ACCOUNTING EDUCATION",
+          "ACCOUNTING",
+          "FINANCE",
+          "ROB GF",
+          "GROUND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 37",
+        "room": "37",
+        "floor": "2nd",
+        "description": "Staff Office – Prof. Dr. Masud Ibrahim (Department of Management Studies Education)",
+        "staff": [
+          "Prof. Dr. Masud Ibrahim"
+        ],
+        "keywords": [
+          "PROF. DR. MASUD IBRAHIM",
+          "IBRAHIM",
+          "ROB RM 37",
+          "ROB 37",
+          "ROB ROOM 37",
+          "ROOM 37",
+          "RM 37",
+          "37",
+          "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+          "MANAGEMENT",
+          "MANAGEMENT STUDIES",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 32",
+        "room": "32",
+        "floor": "2nd",
+        "description": "Staff Office – PROF. ISAAC ADDAI (Department of Interdisciplinary Studies)",
+        "staff": [
+          "PROF. ISAAC ADDAI"
+        ],
+        "keywords": [
+          "PROF. ISAAC ADDAI",
+          "ADDAI",
+          "ROB RM 32",
+          "ROB 32",
+          "ROB ROOM 32",
+          "ROOM 32",
+          "RM 32",
+          "32",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 42",
+        "room": "42",
+        "floor": "2nd",
+        "description": "Staff Office – Rabiatu Kamil (Ph.D. FCCA, ICAG) (Department of Accounting Education)",
+        "staff": [
+          "Rabiatu Kamil (Ph.D. FCCA, ICAG)"
+        ],
+        "keywords": [
+          "RABIATU KAMIL (PH.D. FCCA, ICAG)",
+          "ICAG)",
+          "ROB RM 42",
+          "ROB 42",
+          "ROB ROOM 42",
+          "ROOM 42",
+          "RM 42",
+          "42",
+          "DEPARTMENT OF ACCOUNTING EDUCATION",
+          "ACCOUNTING",
+          "FINANCE",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
+      },
+      {
+        "number": "Rm 27",
+        "room": "27",
+        "floor": "2nd",
+        "description": "Staff Office – Sr. Dr. Mary Assumpta Ayikue (Department of Educational Leadership)",
+        "staff": [
+          "Sr. Dr. Mary Assumpta Ayikue"
+        ],
+        "keywords": [
+          "SR. DR. MARY ASSUMPTA AYIKUE",
+          "AYIKUE",
+          "ROB RM 27",
+          "ROB 27",
+          "ROB ROOM 27",
+          "ROOM 27",
+          "RM 27",
+          "27",
+          "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+          "DEL",
+          "EDUCATIONAL LEADERSHIP",
+          "ROB SF",
+          "2ND FLOOR"
+        ]
       }
+    ],
+    "keywords": [
+      "ASSOC. PROF. DR. DR. FRANK YAO GBADAGO",
+      "GBADAGO",
+      "DEPARTMENT OF ACCOUNTING STUDIES EDUCATION",
+      "ACCOUNTING",
+      "FINANCE",
+      "ROB 045",
+      "ROB ROOM 045",
+      "ROOM 045",
+      "045",
+      "ROB SF",
+      "2ND FLOOR",
+      "DR (MRS) ELLEN ANIMAH AGYEI",
+      "AGYEI",
+      "DEPARTMENT OF ECONOMICS EDUCATION",
+      "ECONOMICS",
+      "ROB 057",
+      "ROB ROOM 057",
+      "ROOM 057",
+      "057",
+      "ROB 3F",
+      "3RD FLOOR",
+      "DR. (MRS) VERONICA ADU-BROBBEY",
+      "ADU-BROBBEY",
+      "DEPARTMENT OF MANAGEMENT STUDIES EDUCATION",
+      "MANAGEMENT",
+      "MANAGEMENT STUDIES",
+      "ROB RM 34",
+      "ROB 34",
+      "ROB ROOM 34",
+      "ROOM 34",
+      "RM 34",
+      "34",
+      "DR. JAMES NSOH ADOGPA",
+      "ADOGPA",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DIS",
+      "INTERDISCIPLINARY",
+      "IDS",
+      "ROB 005",
+      "ROB ROOM 005",
+      "ROOM 005",
+      "005",
+      "ROB GF",
+      "GROUND FLOOR",
+      "DR. JONATHAN ESSUMAN",
+      "ESSUMAN",
+      "DEPARTMENT OF LANGUAGES EDUCATION",
+      "LANGUAGES",
+      "ENGLISH",
+      "LINGUISTICS",
+      "ROB RM 3",
+      "ROB 3",
+      "ROB ROOM 3",
+      "ROOM 3",
+      "RM 3",
+      "3",
+      "DR. KOTOR ASARE",
+      "ASARE",
+      "ROB 018",
+      "ROB ROOM 018",
+      "ROOM 018",
+      "018",
+      "ROB FF",
+      "1ST FLOOR",
+      "DR. KWADWO ARHIN",
+      "ARHIN",
+      "ROB 021",
+      "ROB ROOM 021",
+      "ROOM 021",
+      "021",
+      "DR. KWAME ACHEAMPONG",
+      "ACHEAMPONG",
+      "DR. LAWYER MRS. OHENEWAA BOATENG NEWMAN",
+      "NEWMAN",
+      "ROB 037",
+      "ROB ROOM 037",
+      "ROOM 037",
+      "037",
+      "ROB RM 30",
+      "ROB 30",
+      "ROB ROOM 30",
+      "ROOM 30",
+      "RM 30",
+      "30",
+      "FRANCIS OPUNI KESSEH, ESQ.",
+      "ESQ.",
+      "ROB RM 54",
+      "ROB 54",
+      "ROB ROOM 54",
+      "ROOM 54",
+      "RM 54",
+      "54",
+      "MR. ERIC EFFAH SARKODIE",
+      "SARKODIE",
+      "ROB 008",
+      "ROB ROOM 008",
+      "ROOM 008",
+      "008",
+      "MR. FICUS GYASI",
+      "GYASI",
+      "ROB RM 26",
+      "ROB 26",
+      "ROB ROOM 26",
+      "ROOM 26",
+      "RM 26",
+      "26",
+      "MR. FRANKLIN BENJAMIN APPIAH",
+      "APPIAH",
+      "ROB RM 16",
+      "ROB 16",
+      "ROB ROOM 16",
+      "ROOM 16",
+      "RM 16",
+      "16",
+      "MR. PHILIP BOATENG",
+      "BOATENG",
+      "ROB OFFICE NO. 19",
+      "ROB NO. 19",
+      "ROB ROOM NO. 19",
+      "ROOM NO. 19",
+      "OFFICE NO. 19",
+      "NO. 19",
+      "MR. SYLVANUS KOFIE",
+      "KOFIE",
+      "ROB RM 25",
+      "ROB 25",
+      "ROB ROOM 25",
+      "ROOM 25",
+      "RM 25",
+      "25",
+      "MR. WILLIAMS KWASI BOACHIE",
+      "BOACHIE",
+      "ROB 044",
+      "ROB ROOM 044",
+      "ROOM 044",
+      "044",
+      "MRS. EMMA MAAME AFUA DARKOA DOUGLAS ANYAN",
+      "ANYAN",
+      "SCHOOL OF GRADUATE STUDIES",
+      "SGS",
+      "GRADUATE STUDIES",
+      "ROB SCHOOL OF GRADUATE STUDIES",
+      "ROB ROOM SCHOOL OF GRADUATE STUDIES",
+      "ROOM SCHOOL OF GRADUATE STUDIES",
+      "MRS. GERTRUDE EFFEH BREW",
+      "BREW",
+      "GUIDANCE AND COUNSELLING CENTRE",
+      "PRINCE GYIMAH (PHD, FCHPA)",
+      "FCHPA)",
+      "DEPARTMENT OF ACCOUNTING EDUCATION",
+      "ROB OFFICE RM 1",
+      "ROB RM 1",
+      "ROB ROOM RM 1",
+      "ROOM RM 1",
+      "OFFICE RM 1",
+      "RM 1",
+      "PROF. DR. MASUD IBRAHIM",
+      "IBRAHIM",
+      "ROB RM 37",
+      "ROB 37",
+      "ROB ROOM 37",
+      "ROOM 37",
+      "RM 37",
+      "37",
+      "PROF. HUMPREY DANSO",
+      "DANSO",
+      "DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION",
+      "DCWTE",
+      "CONSTRUCTION",
+      "WOOD TECHNOLOGY",
+      "PROF. ISAAC ADDAI",
+      "ADDAI",
+      "ROB RM 32",
+      "ROB 32",
+      "ROB ROOM 32",
+      "ROOM 32",
+      "RM 32",
+      "32",
+      "PROF. JOSEPH ANTWI BAAFI",
+      "BAAFI",
+      "RABIATU KAMIL (PH.D. FCCA, ICAG)",
+      "ICAG)",
+      "ROB RM 42",
+      "ROB 42",
+      "ROB ROOM 42",
+      "ROOM 42",
+      "RM 42",
+      "42",
+      "SR. DR. MARY ASSUMPTA AYIKUE",
+      "AYIKUE",
+      "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+      "DEL",
+      "EDUCATIONAL LEADERSHIP",
+      "ROB RM 27",
+      "ROB 27",
+      "ROB ROOM 27",
+      "ROOM 27",
+      "RM 27",
+      "27"
     ]
   },
   {
     "id": 26,
-    "name": "Administration Block",
-    "shortName": "Admin Block",
+    "name": "Main Administration Block",
+    "shortName": "Main Admin",
     "type": "administration",
     "lat": 6.696903,
     "lng": -1.681367,
     "description": "Main university administration building housing the Vice-Chancellor's office, registry and key admin units.",
     "contact": "admin@aamusted.edu.gh",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "services": [
       {
         "name": "Cash Office",
@@ -810,7 +1882,7 @@
           "FORMS"
         ],
         "description": "Purchase of admission forms and related payments",
-        "hours": "8:00 AM \u2013 4:00 PM"
+        "hours": "8:00 AM – 4:00 PM"
       },
       {
         "name": "IT Consult",
@@ -826,16 +1898,94 @@
           "ADMIN BLOCK FF"
         ],
         "description": "Support for student portal and LMS issues",
-        "hours": "8:00 AM \u2013 5:00 PM"
+        "hours": "8:00 AM – 5:00 PM"
       },
       {
         "name": "Administration Services",
         "category": "Administration",
         "description": "General administration and inquiries",
         "requirements": "Valid ID",
-        "hours": "8:00 AM \u2013 5:00 PM",
+        "hours": "8:00 AM – 5:00 PM",
         "keywords": [
           "ADMIN BLOCK ADMINISTRATION SERVICES"
+        ]
+      }
+    ],
+    "keywords": [
+      "DR. THERESA DEDE LAWER",
+      "LAWER",
+      "CAREER DEVELOPMENT AND COUNSELLING CENTRE",
+      "CDSC",
+      "COUNSELLING CENTRE",
+      "DIS",
+      "INTERDISCIPLINARY STUDIES",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DONALD YEBOAH",
+      "YEBOAH",
+      "DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION",
+      "IT",
+      "ICT",
+      "INFORMATION TECHNOLOGY",
+      "ADMIN BLOCK DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+      "ADMIN BLOCK ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+      "ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+      "DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+      "NICHOLAS DONKOR",
+      "DONKOR",
+      "DIRECTORATE OF IT SERVICES",
+      "ADMIN BLOCK MAIN ADMIN. BLOCK",
+      "ADMIN BLOCK ROOM MAIN ADMIN. BLOCK",
+      "ROOM MAIN ADMIN. BLOCK",
+      "MAIN ADMIN. BLOCK",
+      "ADMIN BLOCK FL",
+      "TOP FLOOR",
+      "ITE",
+      "INFORMATION TECHNOLOGY EDUCATION",
+      "FASME"
+    ],
+    "rooms": [
+      {
+        "number": "Room Dept. Doc. & Web Mgt. - Main Adm. Blk.",
+        "room": "Dept. Doc. & Web Mgt. - Main Adm. Blk.",
+        "floor": "",
+        "description": "Staff Office – Donald Yeboah (Department of Information Technology Education)",
+        "staff": [
+          "Donald Yeboah"
+        ],
+        "keywords": [
+          "DONALD YEBOAH",
+          "YEBOAH",
+          "ADMIN BLOCK DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+          "ADMIN BLOCK ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+          "ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+          "DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.",
+          "DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION",
+          "IT",
+          "ICT",
+          "INFORMATION TECHNOLOGY",
+          "ITE",
+          "INFORMATION TECHNOLOGY EDUCATION",
+          "FASME"
+        ]
+      },
+      {
+        "number": "Room Main Admin. Block",
+        "room": "Main Admin. Block",
+        "floor": "Top",
+        "description": "Staff Office – Nicholas Donkor (Directorate of IT Services)",
+        "staff": [
+          "Nicholas Donkor"
+        ],
+        "keywords": [
+          "NICHOLAS DONKOR",
+          "DONKOR",
+          "ADMIN BLOCK MAIN ADMIN. BLOCK",
+          "ADMIN BLOCK ROOM MAIN ADMIN. BLOCK",
+          "ROOM MAIN ADMIN. BLOCK",
+          "MAIN ADMIN. BLOCK",
+          "DIRECTORATE OF IT SERVICES",
+          "ADMIN BLOCK FL",
+          "TOP FLOOR"
         ]
       }
     ]
@@ -848,7 +1998,7 @@
     "lat": 6.697921,
     "lng": -1.68156,
     "description": "Computer and ICT laboratory providing computing resources, internet access and digital training for students.",
-    "hours": "8:00 AM \u2013 6:00 PM",
+    "hours": "8:00 AM – 6:00 PM",
     "rooms": [
       {
         "number": "Lab 1",
@@ -881,9 +2031,9 @@
     "type": "faculty",
     "lat": 6.698066,
     "lng": -1.680635,
-    "description": "Faculty of Applied Science and Mathematics Education \u2014 science, maths and ICT education programmes.",
+    "description": "Faculty of Applied Science and Mathematics Education — science, maths and ICT education programmes.",
     "contact": "fasme@aamusted.edu.gh",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "101",
@@ -894,7 +2044,50 @@
           "FASME FF",
           "FASME 101"
         ]
+      },
+      {
+        "number": "Room 10",
+        "room": "10",
+        "floor": "1st",
+        "description": "Staff Office – Dr. Adasa Nkrumah Kofi Frimpong (Department of Information Technology Education)",
+        "staff": [
+          "Dr. Adasa Nkrumah Kofi Frimpong"
+        ],
+        "keywords": [
+          "DR. ADASA NKRUMAH KOFI FRIMPONG",
+          "FRIMPONG",
+          "FASME 10",
+          "FASME ROOM 10",
+          "ROOM 10",
+          "10",
+          "DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION",
+          "IT",
+          "ICT",
+          "INFORMATION TECHNOLOGY",
+          "FASME FF",
+          "1ST FLOOR",
+          "ITE",
+          "INFORMATION TECHNOLOGY EDUCATION",
+          "FASME"
+        ]
       }
+    ],
+    "keywords": [
+      "DR. ADASA NKRUMAH KOFI FRIMPONG",
+      "FRIMPONG",
+      "DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION",
+      "IT",
+      "ICT",
+      "INFORMATION TECHNOLOGY",
+      "FASME 10",
+      "FASME ROOM 10",
+      "ROOM 10",
+      "10",
+      "FASME FF",
+      "1ST FLOOR",
+      "ITE",
+      "INFORMATION TECHNOLOGY EDUCATION",
+      "FASME"
     ]
   },
   {
@@ -905,7 +2098,7 @@
     "lat": 6.697252,
     "lng": -1.680922,
     "description": "Building dedicated to postgraduate students and the graduate school administration.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
         "number": "201",
@@ -921,21 +2114,80 @@
   },
   {
     "id": 30,
-    "name": "Dean's Office",
-    "shortName": "Dean's Office",
+    "name": "Dean's Office (ODSA)",
+    "shortName": "ODSA",
     "type": "administration",
     "lat": 6.697846,
     "lng": -1.681037,
-    "description": "Office of the Dean of Students handling student welfare, discipline and campus life affairs.",
-    "hours": "8:00 AM \u2013 5:00 PM",
+    "description": "Office of the Dean of Student Affairs (ODSA) handling student welfare, discipline, accommodation, and campus life affairs.",
+    "hours": "8:00 AM – 5:00 PM",
     "services": [
       {
         "name": "Student Affairs",
         "description": "Student welfare, discipline, and campus services",
         "requirements": "Student ID or appointment",
-        "hours": "8:00 AM \u2013 5:00 PM",
+        "hours": "8:00 AM – 5:00 PM",
         "keywords": [
           "DEAN'S OFFICE STUDENT AFFAIRS"
+        ]
+      }
+    ],
+    "keywords": [
+      "ODSA",
+      "ODSA LIB",
+      "DEAN OF STUDENTS",
+      "DEAN OF STUDENT AFFAIRS",
+      "OFFICE OF THE DEAN OF STUDENT AFFAIRS",
+      "STUDENT WELFARE",
+      "PROF. DR. PHILIP OTI-AGYEN",
+      "OTI-AGYEN",
+      "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+      "DEL",
+      "EDUCATIONAL LEADERSHIP",
+      "ODSA OFFICE OF THE DEAN OF STUDENT AFFAIRS",
+      "ODSA OF THE DEAN OF STUDENT AFFAIRS",
+      "ODSA ROOM OF THE DEAN OF STUDENT AFFAIRS",
+      "ROOM OF THE DEAN OF STUDENT AFFAIRS",
+      "OF THE DEAN OF STUDENT AFFAIRS",
+      "ODSA GF",
+      "GROUND FLOOR",
+      "PROF. STEPHEN BAFFOUR ADJEI",
+      "ADJEI",
+      "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+      "DIS",
+      "INTERDISCIPLINARY",
+      "IDS"
+    ],
+    "rooms": [
+      {
+        "number": "Office of the Dean of Student Affairs",
+        "room": "of the Dean of Student Affairs",
+        "floor": "Ground",
+        "description": "Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)",
+        "staff": [
+          "Prof. Dr. Philip Oti-Agyen",
+          "Prof. Stephen Baffour Adjei"
+        ],
+        "keywords": [
+          "PROF. DR. PHILIP OTI-AGYEN",
+          "OTI-AGYEN",
+          "ODSA OFFICE OF THE DEAN OF STUDENT AFFAIRS",
+          "ODSA OF THE DEAN OF STUDENT AFFAIRS",
+          "ODSA ROOM OF THE DEAN OF STUDENT AFFAIRS",
+          "ROOM OF THE DEAN OF STUDENT AFFAIRS",
+          "OFFICE OF THE DEAN OF STUDENT AFFAIRS",
+          "OF THE DEAN OF STUDENT AFFAIRS",
+          "DEPARTMENT OF EDUCATIONAL LEADERSHIP",
+          "DEL",
+          "EDUCATIONAL LEADERSHIP",
+          "ODSA GF",
+          "GROUND FLOOR",
+          "PROF. STEPHEN BAFFOUR ADJEI",
+          "ADJEI",
+          "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
+          "DIS",
+          "INTERDISCIPLINARY",
+          "IDS"
         ]
       }
     ]
@@ -948,7 +2200,7 @@
     "lat": 6.698624,
     "lng": -1.683424,
     "description": "Main campus canteen providing affordable meals, snacks and refreshments for students and staff.",
-    "hours": "7:00 AM \u2013 8:00 PM",
+    "hours": "7:00 AM – 8:00 PM",
     "services": [
       {
         "name": "Infotess Office",
@@ -962,14 +2214,14 @@
           "CANTEEN INFOTESS OFFICE"
         ],
         "description": "Official office for INFOTESS activities",
-        "hours": "8:00 AM \u2013 5:00 PM"
+        "hours": "8:00 AM – 5:00 PM"
       },
       {
         "name": "Food Services",
         "category": "Facility",
         "description": "Meals, snacks, and refreshments",
         "requirements": "Payment method",
-        "hours": "7:00 AM \u2013 8:00 PM",
+        "hours": "7:00 AM – 8:00 PM",
         "keywords": [
           "CANTEEN FOOD SERVICES"
         ]
@@ -1027,13 +2279,13 @@
     "lat": 6.698691,
     "lng": -1.682611,
     "description": "Campus food court area with multiple food vendors offering diverse meal options for students and staff.",
-    "hours": "7:00 AM \u2013 9:00 PM",
+    "hours": "7:00 AM – 9:00 PM",
     "services": [
       {
         "name": "Food Court Services",
         "description": "Multiple food vendors and dining options",
         "requirements": "Payment method",
-        "hours": "7:00 AM \u2013 9:00 PM",
+        "hours": "7:00 AM – 9:00 PM",
         "keywords": [
           "FOOD COURT FOOD COURT SERVICES"
         ]
@@ -1048,7 +2300,7 @@
     "lat": 6.696693,
     "lng": -1.679889,
     "description": "Dedicated handball court for recreational sports and competitive campus games.",
-    "hours": "6:00 AM \u2013 8:00 PM"
+    "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 37,
@@ -1058,13 +2310,13 @@
     "lat": 6.69702,
     "lng": -1.680857,
     "description": "Campus transport and logistics hub for university vehicles, staff buses and student transport services.",
-    "hours": "6:00 AM \u2013 6:00 PM",
+    "hours": "6:00 AM – 6:00 PM",
     "services": [
       {
         "name": "Transport Services",
         "description": "Campus transport and logistics",
         "requirements": "Valid transport pass or permission",
-        "hours": "6:00 AM \u2013 6:00 PM",
+        "hours": "6:00 AM – 6:00 PM",
         "keywords": [
           "TRANSPORT TRANSPORT SERVICES"
         ]
@@ -1079,13 +2331,13 @@
     "lat": 6.701576,
     "lng": -1.681984,
     "description": "Staff and student credit union offering savings, loans and financial support services on campus.",
-    "hours": "8:00 AM \u2013 4:30 PM",
+    "hours": "8:00 AM – 4:30 PM",
     "services": [
       {
         "name": "Financial Services",
         "description": "Savings, loans, and credit union services",
         "requirements": "Membership and valid ID",
-        "hours": "8:00 AM \u2013 4:30 PM",
+        "hours": "8:00 AM – 4:30 PM",
         "keywords": [
           "CREDIT UNION FINANCIAL SERVICES"
         ]
@@ -1110,7 +2362,7 @@
     "lat": 6.701751,
     "lng": -1.679033,
     "description": "Campus volleyball court for recreational play, inter-departmental tournaments and sports training.",
-    "hours": "6:00 AM \u2013 8:00 PM"
+    "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 41,
@@ -1120,7 +2372,7 @@
     "lat": 6.701757,
     "lng": -1.678843,
     "description": "Outdoor basketball court for recreational play and campus sports competitions.",
-    "hours": "6:00 AM \u2013 8:00 PM"
+    "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 42,
@@ -1152,29 +2404,29 @@
     "lat": 6.69734,
     "lng": -1.683376,
     "description": "United Bank for Africa (UBA) branch on campus offering banking services, ATM and mobile banking support.",
-    "hours": "8:30 AM \u2013 4:30 PM",
+    "hours": "8:30 AM – 4:30 PM",
     "services": [
       {
         "name": "Banking Services",
         "description": "Full banking services including ATM",
         "requirements": "Valid ID for transactions",
-        "hours": "8:30 AM \u2013 4:30 PM",
+        "hours": "8:30 AM – 4:30 PM",
         "keywords": [
           "UBA BANKING SERVICES"
         ]
       },
       {
-          "name": "Fees Payment",
-          "description": "Tuition, hall fees and other university fee payments",
-          "requirements": "Fee statement and student ID",
-          "hours": "8:30 AM \u2013 4:00 PM",
-          "keywords": [
-              "UBA FEES PAYMENT",
-              "SCHOOL FEES",
-              "HALL FEES",
-              "FEES PAYMENT",
-              "TUITION"
-          ]
+        "name": "Fees Payment",
+        "description": "Tuition, hall fees and other university fee payments",
+        "requirements": "Fee statement and student ID",
+        "hours": "8:30 AM – 4:00 PM",
+        "keywords": [
+          "UBA FEES PAYMENT",
+          "SCHOOL FEES",
+          "HALL FEES",
+          "FEES PAYMENT",
+          "TUITION"
+        ]
       }
     ]
   },
@@ -1186,7 +2438,7 @@
     "lat": 6.698302,
     "lng": -1.682416,
     "description": "On-campus shopping mall with retail shops, phone accessories, stationery and everyday essentials.",
-    "hours": "7:00 AM \u2013 9:00 PM"
+    "hours": "7:00 AM – 9:00 PM"
   },
   {
     "id": 45,
@@ -1196,7 +2448,7 @@
     "lat": 6.697564,
     "lng": -1.683349,
     "description": "Tennis court adjacent to Opoku Ware Hall for recreational and competitive tennis play.",
-    "hours": "6:00 AM \u2013 8:00 PM"
+    "hours": "6:00 AM – 8:00 PM"
   },
   {
     "id": 46,
@@ -1227,6 +2479,379 @@
     "lat": 6.698028,
     "lng": -1.680243,
     "description": "Newly constructed academic facility providing modern lecture halls and seminar rooms.",
-    "hours": "7:00 AM \u2013 6:00 PM"
+    "hours": "7:00 AM – 6:00 PM"
+  },
+  {
+    "id": 35,
+    "name": "CBT Building",
+    "shortName": "CBT",
+    "type": "academic",
+    "lat": 6.700221,
+    "lng": -1.680463,
+    "description": "Competency-Based Training Centre housing Faculty of Vocational Education departments including Fashion Design & Textiles Education and Hospitality & Tourism Education.",
+    "hours": "7:00 AM – 8:00 PM",
+    "keywords": [
+      "CBT",
+      "CBT BUILDING",
+      "CBT COMPLEX",
+      "VOCATIONAL EDUCATION",
+      "FVE",
+      "FASHION",
+      "TEXTILES",
+      "CATERING",
+      "HOSPITALITY",
+      "ABIGAIL NKANSAH",
+      "NKANSAH",
+      "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+      "DFDTE",
+      "CBT ROOM 20",
+      "CBT 20",
+      "ROOM 20",
+      "20",
+      "ANDREW ADU ASABERE",
+      "ASABERE",
+      "CBT 026",
+      "CBT ROOM 026",
+      "ROOM 026",
+      "026",
+      "CHARLOTTE CAITOE",
+      "CAITOE",
+      "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+      "DHTE",
+      "TOURISM",
+      "CBT 033",
+      "CBT ROOM 033",
+      "ROOM 033",
+      "033",
+      "CLAUDIA MIAKIMENI PUMPUNI",
+      "PUMPUNI",
+      "CBT 033 , CBT 13",
+      "CBT ROOM 033 , CBT 13",
+      "ROOM 033 , CBT 13",
+      "033 , CBT 13",
+      "DOREEN DEDO ADI",
+      "ADI",
+      "CBT ROOM 12",
+      "CBT 12",
+      "ROOM 12",
+      "12",
+      "DR DANIEL KWABENA DANSO",
+      "DANSO",
+      "CBT 007",
+      "CBT ROOM 007",
+      "ROOM 007",
+      "007",
+      "DR. HARUNA IBRAHIM",
+      "IBRAHIM",
+      "CBT ROOM 005",
+      "CBT 005",
+      "ROOM 005",
+      "005",
+      "DR. MRS. FLORENCE BRENYAH",
+      "BRENYAH",
+      "CBT 034",
+      "CBT ROOM 034",
+      "ROOM 034",
+      "034",
+      "DR. MRS. MERCY BOADI",
+      "BOADI",
+      "DR. NINETTE AFI APPIAH",
+      "APPIAH",
+      "CBT 006",
+      "CBT ROOM 006",
+      "ROOM 006",
+      "006",
+      "DR. PHYLLIS MENSAH",
+      "MENSAH",
+      "MISS NAFISATU SALAM",
+      "SALAM",
+      "MRS. ABENA SEKYERE",
+      "SEKYERE",
+      "CBT 032",
+      "CBT ROOM 032",
+      "ROOM 032",
+      "032",
+      "PROF. DR. ISAAC ABRAHAM",
+      "ABRAHAM",
+      "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION (DFDTE)",
+      "CBT R5",
+      "CBT ROOM R5",
+      "ROOM R5",
+      "R5",
+      "PROF. JOSEPHINE ABOAGYEWAA-NTIRI",
+      "ABOAGYEWAA-NTIRI",
+      "CBT 025",
+      "CBT ROOM 025",
+      "ROOM 025",
+      "025"
+    ],
+    "rooms": [
+      {
+        "number": "room 20",
+        "room": "20",
+        "floor": "",
+        "description": "Staff Office – Abigail Nkansah (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Abigail Nkansah",
+          "Dr. Phyllis Mensah"
+        ],
+        "keywords": [
+          "ABIGAIL NKANSAH",
+          "NKANSAH",
+          "CBT ROOM 20",
+          "CBT 20",
+          "ROOM 20",
+          "20",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES",
+          "DR. PHYLLIS MENSAH",
+          "MENSAH"
+        ]
+      },
+      {
+        "number": "Room 026",
+        "room": "026",
+        "floor": "",
+        "description": "Staff Office – Andrew Adu Asabere (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Andrew Adu Asabere"
+        ],
+        "keywords": [
+          "ANDREW ADU ASABERE",
+          "ASABERE",
+          "CBT 026",
+          "CBT ROOM 026",
+          "ROOM 026",
+          "026",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      },
+      {
+        "number": "Room 033",
+        "room": "033",
+        "floor": "",
+        "description": "Staff Office – Charlotte Caitoe (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Charlotte Caitoe",
+          "Dr. Mrs. Mercy Boadi"
+        ],
+        "keywords": [
+          "CHARLOTTE CAITOE",
+          "CAITOE",
+          "CBT 033",
+          "CBT ROOM 033",
+          "ROOM 033",
+          "033",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING",
+          "DR. MRS. MERCY BOADI",
+          "BOADI"
+        ]
+      },
+      {
+        "number": "Room 033 , CBT 13",
+        "room": "033 , CBT 13",
+        "floor": "",
+        "description": "Staff Office – Claudia Miakimeni Pumpuni (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Claudia Miakimeni Pumpuni"
+        ],
+        "keywords": [
+          "CLAUDIA MIAKIMENI PUMPUNI",
+          "PUMPUNI",
+          "CBT 033 , CBT 13",
+          "CBT ROOM 033 , CBT 13",
+          "ROOM 033 , CBT 13",
+          "033 , CBT 13",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING"
+        ]
+      },
+      {
+        "number": "Room 12",
+        "room": "12",
+        "floor": "",
+        "description": "Staff Office – Doreen Dedo Adi (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Doreen Dedo Adi"
+        ],
+        "keywords": [
+          "DOREEN DEDO ADI",
+          "ADI",
+          "CBT ROOM 12",
+          "CBT 12",
+          "ROOM 12",
+          "12",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING"
+        ]
+      },
+      {
+        "number": "Room 007",
+        "room": "007",
+        "floor": "",
+        "description": "Staff Office – Dr Daniel Kwabena Danso (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Dr Daniel Kwabena Danso"
+        ],
+        "keywords": [
+          "DR DANIEL KWABENA DANSO",
+          "DANSO",
+          "CBT 007",
+          "CBT ROOM 007",
+          "ROOM 007",
+          "007",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      },
+      {
+        "number": "Room 005",
+        "room": "005",
+        "floor": "",
+        "description": "Staff Office – Dr. Haruna Ibrahim (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Dr. Haruna Ibrahim"
+        ],
+        "keywords": [
+          "DR. HARUNA IBRAHIM",
+          "IBRAHIM",
+          "CBT ROOM 005",
+          "CBT 005",
+          "ROOM 005",
+          "005",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      },
+      {
+        "number": "Room 034",
+        "room": "034",
+        "floor": "",
+        "description": "Staff Office – Dr. Mrs. Florence Brenyah (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Dr. Mrs. Florence Brenyah",
+          "Miss Nafisatu Salam"
+        ],
+        "keywords": [
+          "DR. MRS. FLORENCE BRENYAH",
+          "BRENYAH",
+          "CBT 034",
+          "CBT ROOM 034",
+          "ROOM 034",
+          "034",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING",
+          "MISS NAFISATU SALAM",
+          "SALAM"
+        ]
+      },
+      {
+        "number": "Room 006",
+        "room": "006",
+        "floor": "",
+        "description": "Staff Office – Dr. Ninette Afi Appiah (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Dr. Ninette Afi Appiah"
+        ],
+        "keywords": [
+          "DR. NINETTE AFI APPIAH",
+          "APPIAH",
+          "CBT 006",
+          "CBT ROOM 006",
+          "ROOM 006",
+          "006",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      },
+      {
+        "number": "Room 032",
+        "room": "032",
+        "floor": "",
+        "description": "Staff Office – Mrs. Abena Sekyere (Department of Hospitality and Tourism Education)",
+        "staff": [
+          "Mrs. Abena Sekyere"
+        ],
+        "keywords": [
+          "MRS. ABENA SEKYERE",
+          "SEKYERE",
+          "CBT 032",
+          "CBT ROOM 032",
+          "ROOM 032",
+          "032",
+          "DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION",
+          "DHTE",
+          "HOSPITALITY",
+          "TOURISM",
+          "CATERING"
+        ]
+      },
+      {
+        "number": "Room R5",
+        "room": "R5",
+        "floor": "",
+        "description": "Staff Office – Prof. Dr. Isaac Abraham (Department of Fashion Design and Textiles Education (DFDTE))",
+        "staff": [
+          "Prof. Dr. Isaac Abraham"
+        ],
+        "keywords": [
+          "PROF. DR. ISAAC ABRAHAM",
+          "ABRAHAM",
+          "CBT R5",
+          "CBT ROOM R5",
+          "ROOM R5",
+          "R5",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION (DFDTE)",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      },
+      {
+        "number": "Room 025",
+        "room": "025",
+        "floor": "",
+        "description": "Staff Office – Prof. Josephine Aboagyewaa-Ntiri (Department of Fashion Design and Textiles Education)",
+        "staff": [
+          "Prof. Josephine Aboagyewaa-Ntiri"
+        ],
+        "keywords": [
+          "PROF. JOSEPHINE ABOAGYEWAA-NTIRI",
+          "ABOAGYEWAA-NTIRI",
+          "CBT 025",
+          "CBT ROOM 025",
+          "ROOM 025",
+          "025",
+          "DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION",
+          "DFDTE",
+          "FASHION",
+          "TEXTILES"
+        ]
+      }
+    ]
   }
 ]
