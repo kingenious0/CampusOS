@@ -8,6 +8,11 @@
   "lang": "en",
   "dir": "ltr",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
@@ -16,8 +21,44 @@
     "navigation"
   ],
   "prefer_related_applications": false,
+  "related_applications": [],
+  "handle_links": "preferred",
   "launch_handler": {
     "client_mode": "auto"
+  },
+  "scope_extensions": [
+    {
+      "origin": "https://www.ustednav.app"
+    },
+    {
+      "origin": "https://ustednav.app"
+    }
+  ],
+  "share_target": {
+    "action": "/map.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/map.html",
+      "name": "Campus Geographic Data",
+      "accept": {
+        "application/geo+json": [
+          ".geojson"
+        ],
+        "application/json": [
+          ".json"
+        ]
+      }
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 480
   },
   "icons": [
     {
