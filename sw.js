@@ -126,3 +126,55 @@ async function cacheTile(request) {
     // Return empty 204 or transparent fallback if tile cannot be fetched while offline
     return new Response('', { status: 204, statusText: 'No Content (Offline)' });
 }
+
+// ── BACKGROUND SYNC ──
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-campus-data') {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => cache.addAll([
+                './data/buildings.json',
+                './data/campus.geojson'
+            ])).catch(() => {})
+        );
+    }
+});
+
+// ── PERIODIC BACKGROUND SYNC ──
+self.addEventListener('periodicsync', event => {
+    if (event.tag === 'update-campus-cache') {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => cache.addAll([
+                './data/buildings.json',
+                './data/roads.geojson'
+            ])).catch(() => {})
+        );
+    }
+});
+
+// ── PUSH NOTIFICATIONS ──
+self.addEventListener('push', event => {
+    const title = 'USTED Nav';
+    const options = {
+        body: event.data ? event.data.text() : 'Campus updates and room navigation are ready.',
+        icon: '/icons/icon-192.png',
+        badge: '/icons/icon-192.png'
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then(clientList => {
+            for (const client of clientList) {
+                if (client.url.includes('map.html') && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow('/map.html');
+            }
+        })
+    );
+});
+
