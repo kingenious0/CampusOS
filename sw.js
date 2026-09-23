@@ -3,8 +3,8 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v4';
-const TILE_CACHE  = 'ustednav-tiles-v4';
+const CACHE_NAME  = 'ustednav-v1';
+const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install
 const APP_SHELL = [
@@ -12,6 +12,15 @@ const APP_SHELL = [
     './index.html',
     './logo.png',
     './manifest.json',
+    '/manifest.json',
+    './icons/icon-192.png',
+    '/icons/icon-192.png',
+    './icons/icon-192-maskable.png',
+    '/icons/icon-192-maskable.png',
+    './icons/icon-512.png',
+    '/icons/icon-512.png',
+    './icons/icon-512-maskable.png',
+    '/icons/icon-512-maskable.png',
     './data/buildings.json',
     './data/campus.geojson',
     './data/roads.geojson',
