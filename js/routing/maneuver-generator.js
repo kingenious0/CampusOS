@@ -27,6 +27,39 @@
     }
 
     /**
+     * Great-circle distance for landmark proximity
+     */
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+        if (lat1 === lat2 && lon1 === lon2) return 0;
+        const R = 6371000;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    /**
+     * Locate closest landmark building within threshold
+     */
+    function findNearbyLandmark(lat, lng, buildings, maxDistanceMeters = 45) {
+        if (!buildings || !Array.isArray(buildings) || buildings.length === 0) return null;
+        let closest = null;
+        let minDist = maxDistanceMeters;
+        for (let i = 0; i < buildings.length; i++) {
+            const b = buildings[i];
+            if (!b.lat || !b.lng) continue;
+            const d = haversineDistance(lat, lng, b.lat, b.lng);
+            if (d < minDist) {
+                minDist = d;
+                closest = b;
+            }
+        }
+        return closest ? (closest.shortName || closest.name) : null;
+    }
+
+    /**
      * Determine turn direction based on angular bearing difference
      */
     function classifyTurn(bearingDiff) {
@@ -50,7 +83,7 @@
      * @param {Object} graph Prepared graph containing nodeMap
      * @param {Array<string>} pathNodeIds Sequence of node IDs along path
      * @param {Array<Object>} pathEdges Sequence of edge objects traversed
-     * @param {Object} [options]
+     * @param {Object} [options] { startName, destName, buildings }
      * @returns {Array<Object>} Array of Mapbox/CampusOS-compatible step objects
      */
     function generateManeuvers(graph, pathNodeIds, pathEdges, options = {}) {
@@ -58,6 +91,8 @@
 
         const nodeMap = graph.nodeMap || new Map();
         const steps = [];
+        const buildings = options.buildings || [];
+        const destName = options.destName || 'Destination';
 
         // 1. Depart maneuver
         const firstNode = nodeMap.get(pathNodeIds[0]);
@@ -78,7 +113,7 @@
             // Already at destination
             steps.push({
                 maneuver: { type: 'arrive', modifier: '', location: steps[0].maneuver.location },
-                name: 'You are at your destination',
+                name: `You have arrived at ${destName}`,
                 distance: 0,
                 duration: 0,
                 intersections: steps[0].intersections
@@ -102,8 +137,18 @@
                 nextBearing = computeBearing(uNode.lat, uNode.lng, vNode.lat, vNode.lng);
             }
 
+            const landmark = hasCoords ? findNearbyLandmark(uNode.lat, uNode.lng, buildings) : null;
+
             // Detect special structural transitions
-            if (edge.type === 'stairs') {
+            if (edge.type === 'connector' || edge.type === 'virtual_connector') {
+                steps.push({
+                    maneuver: { type: 'continue', modifier: 'straight' },
+                    name: `Walk to entrance of ${destName}`,
+                    distance: edge.distanceMeters,
+                    duration: edge.distanceMeters / 1.2,
+                    intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
+                });
+            } else if (edge.type === 'stairs') {
                 steps.push({
                     maneuver: { type: 'take_stairs', modifier: edge.floorChange > 0 ? 'up' : 'down' },
                     name: edge.floorChange > 0 ? 'Take stairs up' : 'Take stairs down',
@@ -120,10 +165,10 @@
                     intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
                 });
             } else if (edge.type === 'entrance') {
-                const bName = vNode && vNode.buildingId ? ` ${vNode.buildingId}` : '';
+                const bName = vNode && vNode.buildingId ? ` ${vNode.buildingId}` : (destName ? ` ${destName}` : '');
                 steps.push({
                     maneuver: { type: 'enter_building', modifier: '' },
-                    name: `Enter building${bName}`,
+                    name: `Enter${bName}`,
                     distance: edge.distanceMeters,
                     duration: edge.distanceMeters / 1.35,
                     intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
@@ -140,27 +185,34 @@
                 // Check if turn is needed
                 const turn = classifyTurn(nextBearing - currentBearing);
                 if (turn.type === 'turn') {
+                    const turnText = landmark
+                        ? `Turn ${turn.modifier} past ${landmark}`
+                        : `Turn ${turn.modifier}`;
                     steps.push({
                         maneuver: { type: 'turn', modifier: turn.modifier },
-                        name: `Turn ${turn.modifier}`,
+                        name: turnText,
                         distance: edge.distanceMeters,
                         duration: edge.distanceMeters / 1.35,
                         intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
                     });
                 } else {
                     // Continue along path
+                    const contText = (i === pathEdges.length - 1 && destName)
+                        ? `Continue straight towards ${destName}`
+                        : (landmark ? `Continue straight past ${landmark}` : 'Continue straight along the campus path');
                     steps.push({
                         maneuver: { type: 'continue', modifier: 'straight' },
-                        name: 'Continue along path',
+                        name: contText,
                         distance: edge.distanceMeters,
                         duration: edge.distanceMeters / 1.35,
                         intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
                     });
                 }
             } else {
+                const followText = landmark ? `Follow path past ${landmark}` : 'Follow campus path';
                 steps.push({
                     maneuver: { type: 'continue', modifier: 'straight' },
-                    name: 'Follow campus path',
+                    name: followText,
                     distance: edge.distanceMeters,
                     duration: edge.distanceMeters / 1.35,
                     intersections: hasCoords ? [{ location: [uNode.lng, uNode.lat] }] : []
@@ -174,7 +226,7 @@
 
         // 3. Arrive maneuver
         const lastNode = nodeMap.get(pathNodeIds[pathNodeIds.length - 1]);
-        const destName = options.destName || (lastNode && lastNode.name) || 'Destination';
+        const finalDestName = options.destName || (lastNode && lastNode.name) || destName;
         steps.push({
             maneuver: {
                 type: 'arrive',

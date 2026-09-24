@@ -1070,55 +1070,71 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── LIVE NAVIGATION HUD ──────────────── */
+        /* ── LIVE NAVIGATION HUD (TOP BANNER) ── */
         .nav-hud {
             position: fixed;
             top: 0; left: 0; right: 0;
-            z-index: 2500;
-            transform: translateY(-100%);
+            z-index: 2600;
+            transform: translateY(-120%);
             transition: transform .4s cubic-bezier(.4,0,.2,1);
             pointer-events: none;
         }
-        .nav-hud.active {
+        .nav-hud.active,
+        body.state-navigating .nav-hud {
             transform: translateY(0);
             pointer-events: auto;
         }
         .nav-hud-inner {
-            background: var(--primary);
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            box-shadow: 0 4px 24px rgba(67,56,202,.45);
+            gap: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
         }
         .nav-turn-icon {
-            width: 44px; height: 44px;
-            background: rgba(255,255,255,.18);
+            width: 48px; height: 48px;
+            background: #10b981;
+            color: #fff;
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            font-size: 22px;
             flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
         }
         .nav-turn-text {
             flex: 1;
             min-width: 0;
         }
-        .nav-turn-text .nav-instruction {
+        .nav-dist-header {
+            font-size: 17px;
+            font-weight: 800;
+            color: #38bdf8;
+            line-height: 1.15;
+            letter-spacing: -0.2px;
+        }
+        .nav-instruction {
             font-size: 14px;
-            font-weight: 700;
-            line-height: 1.2;
+            font-weight: 600;
+            color: #f8fafc;
+            line-height: 1.25;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .nav-turn-text .nav-sub {
+        .nav-sub {
             font-size: 11.5px;
-            opacity: .8;
+            color: #94a3b8;
             margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .nav-dist-badge {
-            background: rgba(255,255,255,.2);
+            background: rgba(255,255,255,.15);
             border-radius: 10px;
             padding: 6px 10px;
             text-align: center;
@@ -1127,31 +1143,169 @@
         .nav-dist-badge .dval { font-size: 15px; font-weight: 800; display: block; line-height: 1; }
         .nav-dist-badge .dlbl { font-size: 9.5px; opacity: .75; margin-top: 1px; }
         .nav-stop-btn {
-            background: rgba(255,255,255,.2);
+            background: rgba(255,255,255,.15);
             border: none;
             color: #fff;
-            padding: 6px 12px;
-            border-radius: 50px;
-            font-size: 12.5px;
-            font-weight: 700;
+            width: 36px; height: 36px;
+            border-radius: 50%;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            gap: 4px;
+            font-size: 15px;
             flex-shrink: 0;
+            transition: background 0.2s;
             -webkit-tap-highlight-color: transparent;
         }
-        .nav-stop-btn:active { background: rgba(255,255,255,.35); }
+        .nav-stop-btn:hover { background: rgba(255,255,255,.25); }
+        .nav-stop-btn:active { background: rgba(255,255,255,.35); transform: scale(0.95); }
 
         /* ── PROGRESS BAR UNDER HUD ──────────── */
         .nav-progress-bar {
             height: 4px;
-            background: rgba(255,255,255,.25);
+            background: rgba(255,255,255,.2);
         }
         .nav-progress-fill {
             height: 100%;
-            background: #fff;
+            background: #10b981;
             transition: width .6s ease;
             width: 0%;
+        }
+
+        /* ── MINIMAL BOTTOM LIVE BAR (NAVIGATING STATE) ── */
+        .live-nav-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+            padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 2600;
+            transform: translateY(120%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+        body.state-navigating .live-nav-bottom-bar {
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .live-nav-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+        .live-nav-stat-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .live-nav-time {
+            font-size: 19px;
+            font-weight: 800;
+            color: #10b981;
+            letter-spacing: -0.3px;
+        }
+        .live-nav-dot {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .live-nav-dist {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        .live-nav-dest {
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+        }
+        .live-nav-exit-btn {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 24px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            transition: background 0.2s, transform 0.15s;
+        }
+        .live-nav-exit-btn:hover {
+            background: #dc2626;
+        }
+        .live-nav-exit-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ── UI STATE TRANSITIONS & COLLISION RESOLUTIONS ── */
+        body.state-route-preview .filter-chips {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: translateY(-40px) !important;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        @media (max-width: 767px) {
+            body.state-route-preview .fabs {
+                bottom: calc(40dvh + 16px) !important;
+                z-index: 1005 !important;
+                transition: bottom 0.35s cubic-bezier(.4,0,.2,1);
+            }
+            body.state-route-preview .fab-layers-container {
+                bottom: calc(40dvh + 16px) !important;
+                z-index: 1005 !important;
+                transform: none !important;
+                transition: bottom 0.35s cubic-bezier(.4,0,.2,1);
+            }
+            body.state-route-preview.sheet-expanded .fabs,
+            body.sheet-expanded .fabs {
+                opacity: 0.15;
+                pointer-events: none;
+            }
+        }
+        body.state-navigating .top-bar {
+            transform: translateY(-200%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+        }
+        body.state-navigating .filter-chips {
+            transform: translateY(-200%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+        }
+        body.state-navigating .sheet {
+            transform: translateY(110%) !important;
+            pointer-events: none !important;
+        }
+        body.state-navigating .side-panel {
+            display: none !important;
+        }
+        body.state-navigating .fabs {
+            bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+            z-index: 2400 !important;
+            transition: bottom 0.35s ease;
+        }
+        body.state-navigating .fab-layers-container {
+            bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+            z-index: 2400 !important;
+            transition: bottom 0.35s ease;
         }
 
         /* ── STEP PANEL IN SHEET ─────────────── */
@@ -1328,23 +1482,39 @@
         /* ── TOAST ────────────────────────────── */
         .toast {
             position: fixed;
-            bottom: 32px;
-            left: 50%; transform: translateX(-50%);
-            background: rgba(15,23,42,0.95);
-            backdrop-filter: blur(8px);
+            bottom: 84px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 50px;
             font-size: 13px;
             font-weight: 600;
-            z-index: 5000;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            z-index: 9999;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1), bottom 0.3s;
             pointer-events: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.36);
             white-space: nowrap;
+            max-width: 90vw;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
-        .toast.show { opacity: 1; }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        body.sheet-active .toast,
+        body.state-route-preview .toast {
+            bottom: calc(40dvh + 20px) !important;
+        }
+        body.state-navigating .toast {
+            bottom: 96px !important;
+        }
 
         .filter-chips {
             position: fixed;
@@ -1496,12 +1666,13 @@
                 width: 440px;
                 left: 50%;
                 right: auto;
-                transform: translateX(-50%) translateY(-100%);
+                transform: translateX(-50%) translateY(-120%);
                 border-radius: 0 0 var(--radius) var(--radius);
                 box-shadow: 0 12px 48px rgba(0,0,0,0.3);
             }
-            .nav-hud.active {
-                transform: translateX(-50%) translateY(0);
+            .nav-hud.active,
+            body.state-navigating .nav-hud {
+                transform: translateX(-50%) translateY(0) !important;
             }
 
             /* Attribution stays cleanly at bottom */
@@ -1530,23 +1701,39 @@
     <!-- Offline Banner -->
     <div class="offline-banner"><i class="fas fa-wifi-slash"></i> You're offline — cached map available</div>
 
-    <!-- LIVE NAV HUD -->
+    <!-- LIVE NAV HUD (TOP BANNER) -->
     <div class="nav-hud" id="navHud">
         <div class="nav-hud-inner">
             <div class="nav-turn-icon" id="navTurnIcon"><i class="fas fa-arrow-up" id="navTurnIco"></i></div>
             <div class="nav-turn-text">
+                <div class="nav-dist-header" id="navDistHeader">In -- m</div>
                 <div class="nav-instruction" id="navInstruction">Head towards destination</div>
                 <div class="nav-sub" id="navSub">Follow the blue route</div>
             </div>
-            <div class="nav-dist-badge">
+            <div class="nav-dist-badge" id="navDistBadge" style="display:none">
                 <span class="dval" id="navDistVal">–</span>
                 <span class="dlbl" id="navDistLbl">away</span>
             </div>
-            <button class="nav-stop-btn" id="navStopBtn" title="Stop navigation" onclick="stopNavigation()">
-                <i class="fas fa-xmark"></i> Stop
+            <button class="nav-stop-btn" id="navStopBtn" title="Stop navigation" onclick="stopNavigation()" aria-label="Stop navigation">
+                <i class="fas fa-xmark"></i>
             </button>
         </div>
         <div class="nav-progress-bar"><div class="nav-progress-fill" id="navProgressFill"></div></div>
+    </div>
+
+    <!-- MINIMAL BOTTOM LIVE BAR (NAVIGATING STATE) -->
+    <div class="live-nav-bottom-bar" id="liveNavBottomBar">
+        <div class="live-nav-stats">
+            <div class="live-nav-stat-group">
+                <span class="live-nav-time" id="liveNavTimeVal">-- min</span>
+                <span class="live-nav-dot">•</span>
+                <span class="live-nav-dist" id="liveNavDistRemaining">-- m</span>
+            </div>
+            <div class="live-nav-dest" id="liveNavDestTitle">Destination</div>
+        </div>
+        <button class="live-nav-exit-btn" id="liveNavExitBtn" onclick="stopNavigation()" aria-label="Exit Navigation">
+            <i class="fas fa-xmark"></i> Exit
+        </button>
     </div>
 
     <!-- Re-route indicator -->
@@ -1698,6 +1885,28 @@
     // Stores the pending route so Start Navigation works after manual GPS set
     const _route = { steps: [], destLat: 0, destLng: 0, destName: '' };
     window._route = _route;
+
+    // ── EXPLICIT UI STATES (Mobile Collision Cleanup) ──
+    const UI_STATE = {
+        IDLE: 'IDLE',
+        ROUTE_PREVIEW: 'ROUTE_PREVIEW',
+        NAVIGATING: 'NAVIGATING'
+    };
+    let currentUIState = UI_STATE.IDLE;
+
+    function setUIState(newState) {
+        currentUIState = newState;
+        document.body.classList.remove('state-idle', 'state-route-preview', 'state-navigating');
+        if (newState === UI_STATE.IDLE) {
+            document.body.classList.add('state-idle');
+        } else if (newState === UI_STATE.ROUTE_PREVIEW) {
+            document.body.classList.add('state-route-preview');
+        } else if (newState === UI_STATE.NAVIGATING) {
+            document.body.classList.add('state-navigating');
+        }
+    }
+    // Initialize default state
+    document.body.classList.add('state-idle');
 
     // ══════════════════════════════════════════
     //  UTILS
@@ -2914,12 +3123,18 @@
         sheet.classList.remove('open');
         sheet.classList.remove('expanded');
         document.body.classList.remove('sheet-active');
+        document.body.classList.remove('sheet-expanded');
         sidePanel.style.opacity = '0';
         setTimeout(() => { if (sidePanel.style.opacity === '0') sidePanel.style.display = 'none'; }, 300);
         
         // Deselect marker
         document.querySelectorAll('.pin.selected').forEach(el => el.classList.remove('selected'));
         selectedId = null;
+
+        if (currentUIState === UI_STATE.ROUTE_PREVIEW) {
+            setUIState(UI_STATE.IDLE);
+            clearRouteLines();
+        }
     }
 
     // Tap handle to expand/collapse; swipe down to close
@@ -2929,6 +3144,7 @@
         if (handle) {
             handle.addEventListener('click', () => {
                 sheet.classList.toggle('expanded');
+                document.body.classList.toggle('sheet-expanded', sheet.classList.contains('expanded'));
             });
         }
     }, 100);
@@ -2939,11 +3155,13 @@
         if (delta > 60) {
             if (sheet.classList.contains('expanded')) {
                 sheet.classList.remove('expanded'); // collapse first
+                document.body.classList.remove('sheet-expanded');
             } else {
                 closeSheet();
             }
         } else if (delta < -40) {
             sheet.classList.add('expanded'); // swipe up = expand
+            document.body.classList.add('sheet-expanded');
         }
     }, { passive: true });
     // ══════════════════════════════════════════
@@ -3404,187 +3622,195 @@
         const hasGPS = !!userLatLng;
         const origin = userLatLng || { lat: CAMPUS.lat, lng: CAMPUS.lng };
         const modeLabel = travelMode === 'driving' ? 'driving' : 'walking';
-        const originLabel = hasGPS ? '' : '<p style="color:var(--amber);font-size:12px;margin-top:-6px;display:flex;align-items:center;gap:6px"><i class="fas fa-exclamation-triangle"></i> GPS not set — estimating from Campus Center</p>';
         
         openSheet(`<div class="loading-state"><div class="spin"></div><p>Finding shortest ${modeLabel} route to <strong>${destName}</strong>…</p></div>`);
 
-        try {
-            const profile = travelMode === 'driving' ? 'driving' : 'walking';
-            const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/` +
-                `${origin.lng},${origin.lat};${destLng},${destLat}` +
-                `?overview=full&geometries=geojson&steps=true&alternatives=false&access_token=${TOKEN}`;
-            const res  = await fetch(url);
-            const data = await res.json();
+        // Check if destination matches a known building for entrance & landmark anchoring
+        const destBuilding = buildingsData.find(b =>
+            (b.name && b.name.toLowerCase() === destName?.toLowerCase()) ||
+            (b.shortName && destName?.toLowerCase().includes(b.shortName.toLowerCase())) ||
+            (Math.abs(b.lat - destLat) < 0.0005 && Math.abs(b.lng - destLng) < 0.0005)
+        );
+        const computeOptions = {
+            buildings: buildingsData,
+            entrance: destBuilding?.entrance,
+            destName: destName || destBuilding?.name
+        };
 
-            if (data.code !== 'Ok') throw new Error(data.message || 'No route');
+        let routeData = null;
 
-            const route    = data.routes[0];
-            const distance = route.distance;
-            const duration = route.duration;
-            const coords   = route.geometry.coordinates; // MapLibre wants [lng, lat]
-            const rawSteps = route.legs[0].steps;
-
-            _route.steps = rawSteps;
-            _route.geometry = route.geometry;
-
-            // 3D Cesium Bridge: render active navigation route on 3D terrain
-            if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
-                window.CesiumViewerModule?.renderRoute(coords);
+        // For walking routes, prioritize the high-precision offline campus walkway network
+        if (travelMode === 'foot') {
+            try {
+                const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng, computeOptions);
+                if (offline && offline.geometry) {
+                    routeData = {
+                        distance: offline.distance,
+                        duration: offline.duration,
+                        geometry: offline.geometry,
+                        steps: offline.steps,
+                        isOffline: true
+                    };
+                }
+            } catch (err) {
+                console.warn('Campus walking router error:', err);
             }
-
-            // Route Data Source
-            if (map.getSource('route')) {
-                map.getSource('route').setData(route.geometry);
-            } else {
-                map.addSource('route', { type: 'geojson', data: route.geometry });
-            }
-
-            // Route Layers
-            const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
-            if (!map.getLayer('route-line')) {
-                map.addLayer({
-                    id: 'route-line',
-                    type: 'line',
-                    source: 'route',
-                    layout: { 'line-join': 'round', 'line-cap': 'round' },
-                    paint: { 'line-color': routeColor, 'line-width': 6, 'line-opacity': 0.8 }
-                });
-                map.addLayer({
-                    id: 'route-dash',
-                    type: 'line',
-                    source: 'route',
-                    paint: { 'line-color': '#fff', 'line-width': 2, 'line-dasharray': [2, 4], 'line-opacity': 0.5 }
-                });
-            } else {
-                map.setPaintProperty('route-line', 'line-color', routeColor);
-            }
-
-            // Destination Marker
-            const destEl = document.createElement('div');
-            destEl.className = 'dest-pin';
-            if (markers['dest']) markers['dest'].marker.remove();
-            
-            const destMarker = new mapboxgl.Marker({ element: destEl })
-                .setLngLat([destLng, destLat])
-                .addTo(map);
-            markers['dest'] = { marker: destMarker };
-
-            // Zoom to route
-            const bounds = coords.reduce((acc, coord) => acc.extend(coord), new mapboxgl.LngLatBounds(coords[0], coords[0]));
-            map.fitBounds(bounds, { padding: 80 });
-
-            // ALL steps shown (not just 10)
-            const stepsHtml = rawSteps.map((s, i) => {
-                const manIcon = getManeuverIcon(s.maneuver.type, s.maneuver.modifier);
-                const dist    = s.distance > 0 ? `<span style="color:var(--muted);margin-left:auto;font-size:11px">${formatDist(s.distance)}</span>` : '';
-                const name    = s.name || stepLabel(s.maneuver.type, s.maneuver.modifier);
-                return `<div class="step-item" id="step-${i}"><i class="fas ${manIcon}"></i><span>${name}</span>${dist}</div>`;
-            }).join('');
-
-            const modeIcon = travelMode === 'driving' ? 'fa-car' : 'fa-person-walking';
-            const timeLabel = travelMode === 'driving' ? 'Drive time' : 'Walk time';
-
-            // NOTE: beginLiveNav() is called with NO args — it reads from the global _route object
-            openSheet(`
-                <div class="route-info">
-                    <div class="route-dest-header">
-                        <div style="font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">
-                            <i class="fas fa-location-dot" style="margin-right:4px"></i> Destination & Indoor Breadcrumbs
-                        </div>
-                        <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-top:3px">${destName}</div>
-                    </div>
-                    <div class="route-cards">
-                        <div class="route-card">
-                            <span class="val">${formatDist(distance)}</span>
-                            <span class="lbl">Distance</span>
-                        </div>
-                        <div class="route-card">
-                            <span class="val">${Math.ceil(duration/60)} min</span>
-                            <span class="lbl">${timeLabel}</span>
-                        </div>
-                    </div>
-                    ${rawSteps.length ? `<div class="steps-list" id="stepsList" style="max-height: 200px; overflow-y: auto;">${stepsHtml}</div>` : ''}
-                    <div class="sheet-actions">
-                        <button class="action-btn btn-nav-live" onclick="beginLiveNav()">
-                            <i class="fas fa-location-arrow"></i> Go
-                        </button>
-                        <button class="action-btn btn-share" onclick="clearRoute()">
-                            <i class="fas fa-xmark"></i> Clear
-                        </button>
-                    </div>
-                </div>
-            `);
-
-        } catch(e) {
-            console.log('Falling back to Offline Router...', e);
-            const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng);
-            
-            if (!offline) {
-                showToast('Unable to find a connected walking route on the campus network.');
-                closeSheet();
-                return;
-            }
-
-            // SUCCESS: Offline graph route found!
-            const { distance, duration, geometry, steps } = offline;
-            _route.steps = steps;
-            _route.geometry = geometry;
-
-            // 3D Cesium Bridge: render active navigation route on 3D terrain
-            if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
-                window.CesiumViewerModule?.renderRoute(geometry.coordinates);
-            }
-
-            if (map.getSource('route')) map.getSource('route').setData(geometry);
-            else map.addSource('route', { type: 'geojson', data: geometry });
-
-            if (!map.getLayer('route-line')) {
-                map.addLayer({ id: 'route-line', type: 'line', source: 'route', paint: { 'line-color': '#4338ca', 'line-width': 6, 'line-opacity': 0.8 } });
-            }
-            
-            const bounds = geometry.coordinates.reduce((acc, coord) => acc.extend(coord), new mapboxgl.LngLatBounds(geometry.coordinates[0], geometry.coordinates[0]));
-            map.fitBounds(bounds, { padding: 80 });
-
-            const stepsHtml = steps.map((s, i) => {
-                const manIcon = getManeuverIcon(s.maneuver.type, s.maneuver.modifier);
-                const distStr = s.distance > 0 ? `<span style="color:var(--muted);margin-left:auto;font-size:11px">${formatDist(s.distance)}</span>` : '';
-                return `<div class="step-item" id="step-${i}"><i class="fas ${manIcon}"></i><span>${s.name}</span>${distStr}</div>`;
-            }).join('');
-
-            openSheet(`
-                <div class="route-info">
-                    <div class="route-dest-header">
-                        <div style="font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">
-                            <i class="fas fa-location-dot" style="margin-right:4px"></i> Destination & Indoor Breadcrumbs
-                        </div>
-                        <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-top:3px">${destName}</div>
-                    </div>
-                    <p style="background:#eef2ff; color:#4338ca; padding:8px; border-radius:8px; font-size:12px; margin-bottom:12px; border:1px solid #c7d2fe">
-                        <i class="fas fa-wifi-slash"></i> <strong>Offline Mode:</strong> Using campus path network
-                    </p>
-                    <div class="route-cards">
-                        <div class="route-card"><span class="val">${formatDist(distance)}</span><span class="lbl">Distance</span></div>
-                        <div class="route-card"><span class="val">${Math.ceil(duration/60)} min</span><span class="lbl">Walk time</span></div>
-                    </div>
-                    <div class="steps-list" style="max-height: 180px; overflow-y: auto;">${stepsHtml}</div>
-                    <div class="sheet-actions">
-                        <button class="action-btn btn-nav-live" onclick="beginLiveNav()"><i class="fas fa-location-arrow"></i> Go</button>
-                        <button class="action-btn btn-share" onclick="clearRoute()"><i class="fas fa-xmark"></i> Clear</button>
-                    </div>
-                </div>
-            `);
         }
+
+        // If driving or offline walking didn't return, query Mapbox Directions API
+        if (!routeData) {
+            try {
+                const profile = travelMode === 'driving' ? 'driving' : 'walking';
+                const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/` +
+                    `${origin.lng},${origin.lat};${destLng},${destLat}` +
+                    `?overview=full&geometries=geojson&steps=true&alternatives=false&access_token=${TOKEN}`;
+                const res  = await fetch(url);
+                const data = await res.json();
+                if (data.code === 'Ok' && data.routes?.length) {
+                    const route = data.routes[0];
+                    routeData = {
+                        distance: route.distance,
+                        duration: route.duration,
+                        geometry: route.geometry,
+                        steps: route.legs[0].steps,
+                        isOffline: false
+                    };
+                }
+            } catch (err) {
+                console.warn('Mapbox directions API notice:', err);
+            }
+        }
+
+        // Final fallback: invoke OfflineRouter with virtual snapping & connector fallback
+        if (!routeData) {
+            try {
+                const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng, computeOptions);
+                if (offline && offline.geometry) {
+                    routeData = {
+                        distance: offline.distance,
+                        duration: offline.duration,
+                        geometry: offline.geometry,
+                        steps: offline.steps,
+                        isOffline: true
+                    };
+                }
+            } catch (err) {
+                console.warn('Fallback offline router error:', err);
+            }
+        }
+
+        if (!routeData) {
+            showToast('Unable to find a connected walking route on the campus network.');
+            closeSheet();
+            setUIState(UI_STATE.IDLE);
+            return;
+        }
+
+        // SUCCESS: Route found
+        const { distance, duration, geometry, steps, isOffline } = routeData;
+        _route.steps = steps;
+        _route.geometry = geometry;
+
+        // 3D Cesium Bridge: render active navigation route on 3D terrain
+        if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
+            window.CesiumViewerModule?.renderRoute(geometry.coordinates);
+        }
+
+        // Route Data Source
+        if (map.getSource('route')) {
+            map.getSource('route').setData(geometry);
+        } else {
+            map.addSource('route', { type: 'geojson', data: geometry });
+        }
+
+        // Route Layers
+        const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
+        if (!map.getLayer('route-line')) {
+            map.addLayer({
+                id: 'route-line',
+                type: 'line',
+                source: 'route',
+                layout: { 'line-join': 'round', 'line-cap': 'round' },
+                paint: { 'line-color': routeColor, 'line-width': 6, 'line-opacity': 0.85 }
+            });
+            map.addLayer({
+                id: 'route-dash',
+                type: 'line',
+                source: 'route',
+                paint: { 'line-color': '#fff', 'line-width': 2, 'line-dasharray': [2, 4], 'line-opacity': 0.5 }
+            });
+        } else {
+            map.setPaintProperty('route-line', 'line-color', routeColor);
+        }
+
+        // Destination Marker
+        const destEl = document.createElement('div');
+        destEl.className = 'dest-pin';
+        if (markers['dest']) markers['dest'].marker.remove();
+        
+        const destMarker = new mapboxgl.Marker({ element: destEl })
+            .setLngLat([destLng, destLat])
+            .addTo(map);
+        markers['dest'] = { marker: destMarker };
+
+        // Zoom to route
+        const bounds = geometry.coordinates.reduce((acc, coord) => acc.extend(coord), new mapboxgl.LngLatBounds(geometry.coordinates[0], geometry.coordinates[0]));
+        map.fitBounds(bounds, { padding: 80 });
+
+        const stepsHtml = steps.map((s, i) => {
+            const manIcon = getManeuverIcon(s.maneuver.type, s.maneuver.modifier);
+            const dist = s.distance > 0 ? `<span style="color:var(--muted);margin-left:auto;font-size:11px">${formatDist(s.distance)}</span>` : '';
+            const name = s.name || stepLabel(s.maneuver.type, s.maneuver.modifier);
+            return `<div class="step-item" id="step-${i}"><i class="fas ${manIcon}"></i><span>${name}</span>${dist}</div>`;
+        }).join('');
+
+        const timeLabel = travelMode === 'driving' ? 'Drive time' : 'Walk time';
+
+        openSheet(`
+            <div class="route-info">
+                <div class="route-dest-header">
+                    <div style="font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">
+                        <i class="fas fa-location-dot" style="margin-right:4px"></i> Destination & Indoor Breadcrumbs
+                    </div>
+                    <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-top:3px">${destName}</div>
+                </div>
+                ${isOffline ? `
+                <p style="background:#eef2ff; color:#4338ca; padding:8px 10px; border-radius:8px; font-size:12px; margin-bottom:10px; border:1px solid #c7d2fe; display:flex; align-items:center; gap:6px">
+                    <i class="fas fa-person-walking-arrow-right"></i> <strong>Campus Walkway:</strong> Direct to entrance
+                </p>` : ''}
+                <div class="route-cards">
+                    <div class="route-card">
+                        <span class="val">${formatDist(distance)}</span>
+                        <span class="lbl">Distance</span>
+                    </div>
+                    <div class="route-card">
+                        <span class="val">${Math.ceil(duration/60)} min</span>
+                        <span class="lbl">${timeLabel}</span>
+                    </div>
+                </div>
+                ${steps.length ? `<div class="steps-list" id="stepsList" style="max-height: 180px; overflow-y: auto;">${stepsHtml}</div>` : ''}
+                <div class="sheet-actions">
+                    <button class="action-btn btn-nav-live" onclick="beginLiveNav()">
+                        <i class="fas fa-location-arrow"></i> Go
+                    </button>
+                    <button class="action-btn btn-share" onclick="clearRoute()">
+                        <i class="fas fa-xmark"></i> Clear
+                    </button>
+                </div>
+            </div>
+        `);
+
+        // Enter ROUTE_PREVIEW state (hides category pills, elevates floating controls)
+        setUIState(UI_STATE.ROUTE_PREVIEW);
     }
 
     // ── LIVE NAVIGATION ENGINE ─────────────────
-    // Called with NO arguments — reads state from global _route object
     function beginLiveNav() {
         const { steps, destLat, destLng, destName } = _route;
         if (!steps || steps.length === 0) {
             showToast('Get directions first'); return;
         }
         if (!userLatLng) {
-            // GPS not yet set — prompt for manual location; will auto-resume after
             openSheet(`
                 <div style="padding:16px 0;text-align:center">
                     <div style="font-size:36px;margin-bottom:8px">📍</div>
@@ -3605,19 +3831,47 @@
             `);
             return;
         }
+
+        // Transition to NAVIGATING state (hides search, category pills & bottom drawer)
+        setUIState(UI_STATE.NAVIGATING);
         navState.active     = true;
         navState.steps      = steps;
         navState.currentStep = 0;
         navState.destLat    = destLat;
         navState.destLng    = destLng;
         navState.destName   = destName;
-        navState.totalDist  = steps.reduce((sum, s) => sum + s.distance, 0);
+        navState.totalDist  = steps.reduce((sum, s) => sum + (s.distance || 0), 0);
 
         closeSheet();
-        showNavHUD();
         updateNavStep(0);
-        // Pan to user with navigation zoom
-        map.flyTo({ center: [userLatLng.lng, userLatLng.lat], zoom: 18, duration: 1000 });
+
+        // Update Bottom Live Bar stats
+        const estMins = Math.max(1, Math.ceil(navState.totalDist / (1.35 * 60)));
+        const timeValEl = document.getElementById('liveNavTimeVal');
+        const distRemEl = document.getElementById('liveNavDistRemaining');
+        const destTitleEl = document.getElementById('liveNavDestTitle');
+        if (timeValEl) timeValEl.textContent = `${estMins} min`;
+        if (distRemEl) distRemEl.textContent = formatDist(navState.totalDist);
+        if (destTitleEl) destTitleEl.textContent = destName || 'Destination';
+
+        // Camera follow
+        map.flyTo({ center: [userLatLng.lng, userLatLng.lat], zoom: 18, pitch: 45, duration: 1000 });
+
+        // Start High Accuracy Tracking via watchPosition
+        if (navigator.geolocation) {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            watchId = navigator.geolocation.watchPosition(
+                pos => {
+                    const { latitude: lat, longitude: lng, heading } = pos.coords;
+                    userLatLng = { lat, lng };
+                    placeUserMarker(lat, lng, heading);
+                    liveNavUpdate(lat, lng);
+                },
+                err => console.warn('watchPosition notice:', err),
+                { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+            );
+        }
+
         showToast('Navigation started!');
     }
 
@@ -3628,23 +3882,46 @@
         if (!step) { arriveAtDestination(); return; }
 
         // Distance to step endpoint
-        const inter = step.intersections?.at(-1);
-        if (!inter) return;
-        const [sLng, sLat] = inter.location;
-        const dToStep = haversine(lat, lng, sLat, sLng);
+        let dToStep = 0;
+        if (step.intersections?.length) {
+            const [sLng, sLat] = step.intersections[step.intersections.length - 1].location;
+            dToStep = haversine(lat, lng, sLat, sLng);
+        } else {
+            dToStep = step.distance || 0;
+        }
 
         // Distance to destination
         const dToDest = haversine(lat, lng, navState.destLat, navState.destLng);
 
-        // Update HUD distance badge
-        document.getElementById('navDistVal').textContent = formatDist(dToStep);
+        // Calculate remaining distance and time
+        const remainingSteps = navState.steps.slice(navState.currentStep);
+        let remainingDist = dToStep;
+        for (let i = 1; i < remainingSteps.length; i++) {
+            remainingDist += (remainingSteps[i].distance || 0);
+        }
+        const remainingMins = Math.max(1, Math.ceil(remainingDist / (1.35 * 60)));
+
+        // Update Bottom Live Bar
+        const timeValEl = document.getElementById('liveNavTimeVal');
+        const distRemEl = document.getElementById('liveNavDistRemaining');
+        const destTitleEl = document.getElementById('liveNavDestTitle');
+        if (timeValEl) timeValEl.textContent = `${remainingMins} min`;
+        if (distRemEl) distRemEl.textContent = formatDist(remainingDist);
+        if (destTitleEl) destTitleEl.textContent = navState.destName || 'Destination';
+
+        // Update Top HUD
+        const distHeaderEl = document.getElementById('navDistHeader');
+        if (distHeaderEl) distHeaderEl.textContent = dToStep > 0 ? `In ${formatDist(dToStep)}` : 'Now';
+        const distValEl = document.getElementById('navDistVal');
+        if (distValEl) distValEl.textContent = formatDist(dToStep);
 
         // Progress bar
-        const walked = navState.totalDist - navState.steps.slice(navState.currentStep).reduce((s,x)=>s+x.distance,0);
-        const pct = Math.min(100, (walked / navState.totalDist) * 100);
-        document.getElementById('navProgressFill').style.width = pct + '%';
+        const walked = Math.max(0, navState.totalDist - remainingDist);
+        const pct = Math.min(100, (walked / (navState.totalDist || 1)) * 100);
+        const fillEl = document.getElementById('navProgressFill');
+        if (fillEl) fillEl.style.width = pct + '%';
 
-        // Detect off-route (> 35 m from step end)
+        // Detect off-route (> 35 m from route)
         const distToRoute = pointToRouteDistance(lat, lng, step);
         if (distToRoute > 35) {
             showRerouteBar();
@@ -3653,8 +3930,8 @@
             return;
         }
 
-        // Advance step when within 12 m of step endpoint
-        if (dToStep < 12) {
+        // Advance to next instruction automatically when within 10 meters of waypoint
+        if (dToStep < 10) {
             const next = navState.currentStep + 1;
             if (next >= navState.steps.length || dToDest < 10) {
                 arriveAtDestination();
@@ -3664,12 +3941,10 @@
             }
         }
 
-        // Highlight current step in sheet
-        document.querySelectorAll('.step-item').forEach((el, i) => {
-            el.classList.toggle('active-step', i === navState.currentStep);
-        });
-        // Scroll step into view
-        document.getElementById(`step-${navState.currentStep}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Smooth camera follow
+        if (map) {
+            map.panTo([lng, lat], { duration: 800 });
+        }
     }
 
     function updateNavStep(idx) {
@@ -3680,22 +3955,32 @@
         const ico      = getManeuverIcon(type, modifier);
         const label    = step.name || stepLabel(type, modifier);
         const nextStep = navState.steps[idx + 1];
-        const nextText = nextStep ? `Then: ${nextStep.name || stepLabel(nextStep.maneuver.type, nextStep.maneuver.modifier)}` : 'Arriving at entrance';
+        const nextText = nextStep ? `Then: ${nextStep.name || stepLabel(nextStep.maneuver.type, nextStep.maneuver.modifier)}` : `Arriving at ${navState.destName || 'destination'}`;
 
         document.getElementById('navTurnIco').className = `fas ${ico}`;
         document.getElementById('navInstruction').textContent = label;
-        // Keep indoor breadcrumbs visible in the HUD banner so freshers always know where to head once inside
-        document.getElementById('navSub').textContent = navState.destName ? `📍 ${navState.destName}` : nextText;
-        document.getElementById('navDistVal').textContent = formatDist(step.distance);
+        document.getElementById('navSub').textContent = nextText;
+        const distHeaderEl = document.getElementById('navDistHeader');
+        if (distHeaderEl) distHeaderEl.textContent = step.distance > 0 ? `In ${formatDist(step.distance)}` : 'Now';
+        const distValEl = document.getElementById('navDistVal');
+        if (distValEl) distValEl.textContent = formatDist(step.distance);
     }
 
     function arriveAtDestination() {
         showToast('🎉 Arrived at ' + (navState.destName || 'building entrance'));
+        const distHeaderEl = document.getElementById('navDistHeader');
+        if (distHeaderEl) distHeaderEl.textContent = 'Arrived!';
         document.getElementById('navInstruction').textContent = 'Arrived at building entrance!';
         document.getElementById('navSub').textContent = navState.destName ? `📍 ${navState.destName}` : 'You have arrived!';
         document.getElementById('navTurnIco').className = 'fas fa-flag-checkered';
-        document.getElementById('navDistVal').textContent = '0 m';
-        document.getElementById('navProgressFill').style.width = '100%';
+        const distValEl = document.getElementById('navDistVal');
+        if (distValEl) distValEl.textContent = '0 m';
+        const fillEl = document.getElementById('navProgressFill');
+        if (fillEl) fillEl.style.width = '100%';
+        const timeValEl = document.getElementById('liveNavTimeVal');
+        if (timeValEl) timeValEl.textContent = '0 min';
+        const distRemEl = document.getElementById('liveNavDistRemaining');
+        if (distRemEl) distRemEl.textContent = '0 m';
         setTimeout(() => stopNavigation(), 3500);
     }
 
@@ -3704,19 +3989,17 @@
         if (navState.destName) {
             document.getElementById('navSub').textContent = `📍 ${navState.destName}`;
         }
-        // Mobile-first: slide the search bar and filter chips up fully out of the way for a 100% distraction-free nav map
-        if (window.innerWidth < 768) {
-            document.querySelector('.top-bar').style.transform = 'translateY(-150%)';
-            document.querySelector('.filter-chips').style.transform = 'translateY(-150%)';
-        }
     }
 
     function stopLiveNav() {
         navState.active = false;
+        if (watchId !== null) {
+            navigator.geolocation?.clearWatch(watchId);
+            watchId = null;
+        }
         document.getElementById('navHud').classList.remove('active');
-        document.querySelector('.top-bar').style.transform = '';
-        document.querySelector('.filter-chips').style.transform = '';
         document.getElementById('navProgressFill').style.width = '0%';
+        setUIState(UI_STATE.IDLE);
     }
 
     // Single entry-point for stopping navigation from ANY control

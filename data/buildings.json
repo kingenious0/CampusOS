@@ -709,6 +709,7 @@
     "type": "academic",
     "lat": 6.701263320240392,
     "lng": -1.6831062195613589,
+    "entrance": [-1.683106, 6.702000],
     "description": "Lecture Block housing lecture auditoriums and faculty offices.",
     "hours": "8:00 AM – 5:00 PM",
     "rooms": [

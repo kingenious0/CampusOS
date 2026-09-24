@@ -12,8 +12,8 @@
     }
 }(typeof self !== 'undefined' ? self : this, function () {
 
-    // Default maximum snapping distance: 60 meters for a walkable campus network
-    const DEFAULT_MAX_SNAP_METERS = 60.0;
+    // Default maximum snapping distance: 150 meters to cover campus edges, courts and auditoriums
+    const DEFAULT_MAX_SNAP_METERS = 150.0;
 
     /**
      * Great-circle distance between two coordinates in meters (Haversine formula)
@@ -88,6 +88,7 @@
                 if (dist <= maxSnapMeters) {
                     return {
                         success: true,
+                        isFallback: false,
                         nodeId: node.id,
                         snappedLat: node.lat,
                         snappedLng: node.lng,
@@ -157,6 +158,9 @@
                         bestCandidate = {
                             nodeId: anchorNodeId,
                             edgeId: edge.id,
+                            edgeFrom: edge.from,
+                            edgeTo: edge.to,
+                            edgeType: edge.type,
                             snappedLat: proj.lat,
                             snappedLng: proj.lng,
                             distanceMeters: proj.distanceMeters,
@@ -169,10 +173,10 @@
         }
 
         // 3. Evaluate candidate against maxSnapMeters threshold
-        if (!bestCandidate || minDistance > maxSnapMeters) {
+        if (!bestCandidate || (minDistance > maxSnapMeters && !options.fallbackToNearest)) {
             return {
                 success: false,
-                reason: 'out_of_bounds',
+                reason: bestCandidate ? 'out_of_bounds' : 'graph_empty',
                 distanceMeters: minDistance,
                 maxSnapDistanceMeters: maxSnapMeters,
                 originalLat: lat,
@@ -180,14 +184,21 @@
             };
         }
 
+        const isOutOfBounds = minDistance > maxSnapMeters;
+
         return {
             success: true,
+            isFallback: isOutOfBounds,
             nodeId: bestCandidate.nodeId,
             edgeId: bestCandidate.edgeId || null,
+            edgeFrom: bestCandidate.edgeFrom || null,
+            edgeTo: bestCandidate.edgeTo || null,
+            edgeType: bestCandidate.edgeType || null,
             snappedLat: bestCandidate.snappedLat,
             snappedLng: bestCandidate.snappedLng,
             distanceMeters: bestCandidate.distanceMeters,
             snapType: bestCandidate.snapType,
+            projectionT: bestCandidate.projectionT !== undefined ? bestCandidate.projectionT : null,
             originalLat: lat,
             originalLng: lng
         };
