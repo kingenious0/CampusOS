@@ -2,283 +2,736 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USTED NAV | Campus Navigation</title>
-    <meta name="description" content="Find buildings, get directions and navigate USTED Kumasi campus.">
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>USTED NAV | Spatial Campus Navigation</title>
+    <meta name="description" content="Offline 3D geospatial campus navigation, lecture hall finder, and smart search for USTED Kumasi campus.">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#090d16">
     <link rel="icon" type="image/png" href="/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="USTED Nav" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="USTED Nav">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         :root {
-            --bg: #080c18;
-            --primary: #33449b;
-            --accent: #f8b511;
-            --primary-glow: rgba(51, 68, 155, 0.28);
-            --accent-glow: rgba(248, 181, 17, 0.15);
+            --bg-color: #090d16;
+            --surface-card: rgba(15, 23, 42, 0.72);
+            --surface-card-border: rgba(51, 65, 85, 0.75);
+            --amber-primary: #f59e0b;
+            --amber-hover: #d97706;
+            --amber-glow: rgba(245, 158, 11, 0.22);
+            --blue-ambient: rgba(30, 58, 138, 0.28);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
-            --surface: rgba(255, 255, 255, 0.03);
+            --text-sub: #64748b;
         }
-        
+
         html, body {
-            height: 100%;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
             color: var(--text-main);
-            display: flex; align-items: center; justify-content: center;
-            text-align: center;
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Premium ambient background glow with USTED Royal Blue and Gold */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 540px;
-            height: 540px;
-            background: radial-gradient(circle, var(--primary-glow) 0%, var(--accent-glow) 40%, transparent 70%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .splash {
-            position: relative;
-            z-index: 1;
-            padding: 2.5rem;
-            max-width: 420px;
-            width: 100%;
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .brand-header {
-            margin-bottom: 2rem;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .logo-wrapper {
-            width: 76px;
-            height: 76px;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1.5px solid rgba(248, 181, 17, 0.3);
-            border-radius: 20px;
+        /* Subtle spatial grid background with high-altitude blue ambient glow */
+        .ambient-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-color: #090d16;
+            background-image: 
+                radial-gradient(ellipse 90% 60% at 50% -15%, var(--blue-ambient) 0%, transparent 72%),
+                radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px;
+        }
+
+        /* Muted spatial telemetry crosshairs / coordinates */
+        .ambient-canvas::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(9, 13, 22, 0.8) 100%);
+        }
+
+        /* Main app shell container */
+        .app-shell {
+            position: relative;
+            z-index: 1;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 32px rgba(8, 12, 24, 0.6), 0 0 20px rgba(51, 68, 155, 0.3);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .logo-wrapper:hover {
-            transform: rotate(5deg) scale(1.05);
-            border-color: #f8b511;
-        }
-
-        .logo-wrapper img {
+            flex-direction: column;
+            min-height: 100vh;
+            min-height: 100dvh;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 16px;
+            padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
         }
 
-        .campus-name {
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            color: #f8b511;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 12px rgba(248, 181, 17, 0.3);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -.03em;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 60%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.75rem;
-            text-shadow: 0 4px 20px rgba(51, 68, 155, 0.35);
-        }
-
-        .sub {
-            font-size: 0.92rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 2.5rem;
-            font-weight: 400;
-        }
-
-        .open-btn {
+        /* Top Navigation Bar */
+        .top-navbar {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.25rem;
+            max-width: 1080px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
             gap: 0.75rem;
-            width: 100%;
-            padding: 1.1rem;
-            background: #f8b511;
-            color: #080c18;
             text-decoration: none;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 700;
-            box-shadow: 0 4px 22px rgba(248, 181, 17, 0.28);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid rgba(248, 181, 17, 0.4);
-        }
-        .open-btn:hover {
-            background: #ffc42e;
-            color: #080c18;
-            box-shadow: 0 8px 30px rgba(248, 181, 17, 0.45);
-            transform: translateY(-2px);
-        }
-        .open-btn:active {
-            transform: scale(0.98);
+            color: inherit;
         }
 
-        .pills {
-            display: flex;
-            gap: 0.55rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2.2rem;
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            object-fit: cover;
         }
 
-        .pill {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 12px;
-            padding: 0.42rem 0.85rem;
-            font-size: 0.73rem;
-            color: #e2e8f0;
+        .nav-brand-text {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.45rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-        .pill:hover {
-            color: #ffffff;
-            border-color: rgba(248, 181, 17, 0.35);
-            background: rgba(51, 68, 155, 0.3);
-            transform: translateY(-1px);
-        }
-        .pill i.gold-icon {
-            font-size: 0.78rem;
-            color: #f8b511;
-        }
-        .pill i.blue-icon {
-            font-size: 0.78rem;
-            color: #60a5fa;
         }
 
-        .install-prompt {
+        .nav-tag {
+            font-size: 10px;
+            font-weight: 600;
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            padding: 1px 7px;
+            border-radius: 9999px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 11px;
+            font-weight: 500;
+            color: #94a3b8;
+            backdrop-filter: blur(8px);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2.2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.85); }
+        }
+
+        .ghost-install-btn {
+            display: none;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ghost-install-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Center Content Wrapper */
+        .hero-viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem 0.75rem 2.5rem;
+        }
+
+        /* Centered Glassmorphic Spatial Card */
+        .hero-card {
+            max-width: 440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2.25rem 1.75rem;
+            border-radius: 28px;
+            background: var(--surface-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--surface-card-border);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            text-align: center;
+            animation: card-appear 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+            position: relative;
+        }
+
+        @media (max-width: 480px) {
+            .hero-card {
+                padding: 1.75rem 1.25rem;
+                border-radius: 24px;
+            }
+        }
+
+        @keyframes card-appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Clean Logo Crest */
+        .crest-wrapper {
+            margin: 0 auto 1.25rem;
+            width: 78px;
+            height: 78px;
+            border-radius: 22px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(15, 23, 42, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4));
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+        }
+        .crest-wrapper:hover {
+            transform: scale(1.04) rotate(2deg);
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        .crest-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 17px;
+        }
+
+        /* Campus Pill Badge */
+        .campus-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: rgba(245, 158, 11, 0.1);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            margin-bottom: 0.85rem;
+        }
+
+        /* Typography */
+        .hero-title {
+            font-size: 2.15rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 480px) {
+            .hero-title {
+                font-size: 2.45rem;
+            }
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 55%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            max-width: 320px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.55;
+            font-weight: 400;
+        }
+
+        /* Quick-Launch Search Utility */
+        .search-container {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .search-form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 46px 0 42px;
+            border-radius: 16px;
+            background: rgba(2, 6, 23, 0.55);
+            border: 1px solid rgba(71, 85, 105, 0.45);
+            color: #f8fafc;
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(2, 6, 23, 0.8);
+            border-color: rgba(245, 158, 11, 0.55);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12), 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+            font-size: 0.825rem;
+        }
+
+        .search-icon-left {
+            position: absolute;
+            left: 14px;
+            width: 16px;
+            height: 16px;
+            color: #94a3b8;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-submit-btn {
+            position: absolute;
+            right: 6px;
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .search-submit-btn:hover {
+            background: #f59e0b;
+            color: #090d16;
+        }
+        .search-submit-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Search Quick-Chips */
+        .quick-chips-row {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.65rem;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .quick-chips-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .quick-chip {
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 500;
+            color: #94a3b8;
+            background: rgba(30, 41, 59, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 3px 9px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .quick-chip:hover {
+            color: #fcd34d;
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        /* Action Buttons */
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .primary-launch-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 1rem;
+            background: linear-gradient(to right, #f59e0b, #d97706);
+            color: #090d16;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            box-shadow: 0 10px 24px -4px rgba(245, 158, 11, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+        }
+        .primary-launch-btn:hover {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px -4px rgba(245, 158, 11, 0.45);
+        }
+        .primary-launch-btn:active {
+            transform: scale(0.98);
+        }
+
+        .apk-download-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 1rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(51, 65, 85, 0.7);
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .apk-download-btn:hover {
+            background: rgba(30, 41, 59, 1);
+            color: #ffffff;
+            border-color: rgba(71, 85, 105, 0.9);
+        }
+        .apk-download-btn:active {
+            transform: scale(0.98);
+        }
+
+        .apk-size-pill {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(51, 65, 85, 0.6);
+            color: #94a3b8;
+            padding: 1px 7px;
+            border-radius: 9999px;
+            margin-left: 0.25rem;
+        }
+
+        /* Feature Chips Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            text-align: left;
+        }
+
+        .feature-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.65rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            font-weight: 500;
+            color: #cbd5e1;
+            transition: background 0.2s;
+        }
+        .feature-chip:hover {
+            background: rgba(30, 41, 59, 0.65);
+        }
+
+        .feature-icon-wrapper {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Floating PWA Install Notification Bar */
+        .install-prompt-banner {
             display: none;
             position: fixed;
-            bottom: 2rem;
+            bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 2rem);
-            max-width: 360px;
-            background: rgba(8, 12, 24, 0.85);
+            max-width: 420px;
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(248, 181, 17, 0.25);
-            color: var(--text-main);
-            padding: 0.85rem 1.1rem;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f8fafc;
+            padding: 0.75rem 1rem;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
             z-index: 1000;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            gap: 0.75rem;
+            animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        @keyframes slideUp {
-            from { transform: translate(-50%, 100px); opacity: 0; }
+
+        @keyframes slide-up {
+            from { transform: translate(-50%, 80px); opacity: 0; }
             to { transform: translate(-50%, 0); opacity: 1; }
         }
-        .install-btn {
-            background: #f8b511;
-            color: #080c18;
+
+        .install-prompt-text {
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.35;
+        }
+
+        .install-action-btn {
+            background: #f59e0b;
+            color: #090d16;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
+            padding: 0.45rem 0.85rem;
+            border-radius: 10px;
             font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 0.8rem;
             white-space: nowrap;
-            transition: all 0.2s ease;
+            transition: background 0.2s;
         }
-        .install-btn:hover {
-            background: #ffc42e;
+        .install-action-btn:hover {
+            background: #fbbf24;
         }
-        .install-text {
-            font-size: 0.8rem;
-            text-align: left;
-            opacity: 0.85;
-            line-height: 1.4;
-            color: var(--text-muted);
+
+        /* Bottom Footer Note */
+        .bottom-footer {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            font-size: 11px;
+            color: #64748b;
         }
 
         @media all and (display-mode: standalone), (display-mode: fullscreen) {
-            #installPrompt,
-            .install-prompt {
+            #installPromptBanner,
+            .ghost-install-btn {
                 display: none !important;
             }
         }
     </style>
 </head>
 <body>
-    <div class="splash">
-        <div class="brand-header">
-            <div class="logo-wrapper">
-                <img src="logo.png" alt="USTED NAV Logo">
+    <!-- Ambient spatial background with radial top glow and telemetry grid -->
+    <div class="ambient-canvas"></div>
+
+    <div class="app-shell">
+        <!-- Top Navigation Bar -->
+        <header class="top-navbar">
+            <a href="/index.html" class="brand-link" aria-label="USTED NAV Home">
+                <img src="/logo.png" alt="USTED Crest" class="nav-logo-icon">
+                <span class="nav-brand-text">
+                    USTED NAV
+                    <span class="nav-tag">Kumasi</span>
+                </span>
+            </a>
+            <div class="nav-actions">
+                <div class="status-badge" title="Offline vector data cached and ready">
+                    <span class="status-dot"></span>
+                    <span>Offline Ready</span>
+                </div>
+                <button id="navInstallBtn" class="ghost-install-btn" aria-label="Install USTED NAV PWA">
+                    <i class="fas fa-download"></i>
+                    <span>Install</span>
+                </button>
             </div>
-            <p class="campus-name">USTED · KUMASI CAMPUS</p>
-            <h1>USTED NAV</h1>
-        </div>
-        <p class="sub">Search, find and get directions across campus — works offline.</p>
-        <a href="map.html" class="open-btn">
-            <i class="fas fa-compass"></i> Open Navigation
-        </a>
-        <div class="pills">
-            <span class="pill"><i class="fas fa-magnifying-glass gold-icon"></i> Smart Search</span>
-            <span class="pill"><i class="fas fa-route blue-icon"></i> Walking Routes</span>
-            <span class="pill"><i class="fas fa-wifi-slash gold-icon"></i> Offline Ready</span>
-            <span class="pill"><i class="fas fa-location-dot blue-icon"></i> GPS Locate</span>
-        </div>
+        </header>
+
+        <!-- Main Hero Spatial Viewport -->
+        <main class="hero-viewport">
+            <div class="hero-card">
+                <!-- University Crest Display -->
+                <div class="crest-wrapper">
+                    <img src="/logo.png" alt="USTED University Crest">
+                </div>
+
+                <!-- Top Pill Badge -->
+                <span class="campus-pill-badge">
+                    <i class="fas fa-location-dot"></i>
+                    USTED Kumasi Campus
+                </span>
+
+                <!-- Title & Spatial Subtitle -->
+                <h1 class="hero-title">
+                    USTED <span class="title-gradient">NAV</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Offline 3D geospatial campus navigation and lecture hall finder.
+                </p>
+
+                <!-- Immediate Utility: Quick-Launch Search Bar -->
+                <div class="search-container">
+                    <form action="map.html" method="GET" class="search-form">
+                        <span class="search-icon-left">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            name="q" 
+                            id="landingQuickSearch"
+                            placeholder="Search lecture hall, block, office..." 
+                            autocomplete="off"
+                            class="search-input"
+                            aria-label="Search campus location or hall"
+                        >
+                        <button type="submit" class="search-submit-btn" aria-label="Launch search">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </form>
+                    <div class="quick-chips-row">
+                        <a href="map.html?q=Lecture%20Hall" class="quick-chip">Lecture Halls</a>
+                        <a href="map.html?q=Hall" class="quick-chip">Halls & Hostels</a>
+                        <a href="map.html?q=Library" class="quick-chip">Library</a>
+                        <a href="map.html?q=ROB" class="quick-chip">ROB Block</a>
+                        <a href="map.html?q=Clinic" class="quick-chip">Clinic</a>
+                    </div>
+                </div>
+
+                <!-- Primary & Secondary Action Stack -->
+                <div class="btn-stack">
+                    <a href="/map.html" class="primary-launch-btn">
+                        <svg class="w-4 h-4 fill-current" style="width:16px;height:16px;" viewBox="0 0 24 24">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                        </svg>
+                        Launch Campus Map
+                    </a>
+                    
+                    <a href="/download/ustednav.apk" download class="apk-download-btn">
+                        <svg style="width:15px;height:15px;color:#34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <span>Download Android App (.apk)</span>
+                        <span class="apk-size-pill">2.6 MB</span>
+                    </a>
+                </div>
+
+                <!-- Feature Value-Prop Grid -->
+                <div class="feature-grid">
+                    <div class="feature-chip">
+                        <div class="feature-icon-wrapper" style="background:rgba(245,158,11,0.15);color:#fbbf24;">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <span>3D Spatial Map</span>
+                    </div>
+                    <div class="feature-chip">
+                        <div class="feature-icon-wrapper" style="background:rgba(59,130,246,0.15);color:#60a5fa;">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <span>Walking Routes</span>
+                    </div>
+                    <div class="feature-chip">
+                        <div class="feature-icon-wrapper" style="background:rgba(16,185,129,0.15);color:#34d399;">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <span>Hall & Room Finder</span>
+                    </div>
+                    <div class="feature-chip">
+                        <div class="feature-icon-wrapper" style="background:rgba(245,158,11,0.15);color:#fbbf24;">
+                            <i class="fas fa-wifi-slash"></i>
+                        </div>
+                        <span>100% Offline Ready</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bottom-footer">
+            <span>USTED NAV • Smart Campus Spatial Navigation System</span>
+        </footer>
     </div>
 
-    <div id="installPrompt" class="install-prompt">
-        <div class="install-text">Install USTED NAV on your home screen for fast access.</div>
-        <button id="installBtn" class="install-btn">Install App</button>
+    <!-- Floating PWA Install Prompt Banner -->
+    <div id="installPromptBanner" class="install-prompt-banner">
+        <div class="install-prompt-text">
+            <strong>Install USTED NAV</strong>
+            <div style="font-size:11px;color:#94a3b8;">Add to home screen for 1-tap offline map launch.</div>
+        </div>
+        <button id="bannerInstallBtn" class="install-action-btn">Install App</button>
     </div>
 
     <script>
@@ -286,24 +739,18 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    // Check for updates periodically
                     reg.update();
-
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
-                                    // New content is available; force refresh to activate
-                                    console.log('New content detected. Reloading...');
-                                }
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('New content available; reloading...');
                             }
                         };
                     };
                 }).catch(err => console.log('SW registration failed:', err));
             });
 
-            // Handle controller change (occurs when a new SW takes control)
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
@@ -313,49 +760,44 @@
             });
         }
 
-        // --- 2. PWA INSTALL PROMPT ---
-        const installPrompt = document.getElementById('installPrompt');
-        const installBtn = document.getElementById('installBtn');
+        // --- 2. PWA INSTALL PROMPT MANAGEMENT ---
+        const banner = document.getElementById('installPromptBanner');
+        const bannerBtn = document.getElementById('bannerInstallBtn');
+        const navBtn = document.getElementById('navInstallBtn');
 
-        const isInstalledApp =
+        const isStandalone =
             window.matchMedia('(display-mode: standalone)').matches ||
             window.navigator.standalone === true ||
             (document.referrer && document.referrer.startsWith('android-app://'));
 
-        if (isInstalledApp) {
-            if (installPrompt) {
-                installPrompt.style.setProperty('display', 'none', 'important');
-            }
-        } else {
+        if (!isStandalone) {
             let deferredPrompt;
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                if (installPrompt) {
-                    installPrompt.style.display = 'flex';
-                }
+                if (banner) banner.style.display = 'flex';
+                if (navBtn) navBtn.style.display = 'inline-flex';
             });
 
-            if (installBtn) {
-                installBtn.addEventListener('click', async () => {
-                    if (!deferredPrompt) return;
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`User response to install prompt: ${outcome}`);
-                    deferredPrompt = null;
-                    if (installPrompt) {
-                        installPrompt.style.display = 'none';
-                    }
-                });
-            }
+            const triggerPrompt = async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`PWA Prompt Outcome: ${outcome}`);
+                deferredPrompt = null;
+                if (banner) banner.style.display = 'none';
+                if (navBtn) navBtn.style.display = 'none';
+            };
+
+            if (bannerBtn) bannerBtn.addEventListener('click', triggerPrompt);
+            if (navBtn) navBtn.addEventListener('click', triggerPrompt);
 
             window.addEventListener('appinstalled', () => {
-                if (installPrompt) {
-                    installPrompt.style.display = 'none';
-                }
+                if (banner) banner.style.display = 'none';
+                if (navBtn) navBtn.style.display = 'none';
                 deferredPrompt = null;
-                console.log('PWA was installed');
+                console.log('USTED NAV PWA was installed');
             });
         }
     </script>

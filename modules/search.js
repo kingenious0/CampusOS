@@ -126,6 +126,18 @@ const SearchModule = (() => {
                 clearSearch();
             }
         });
+
+        // Trigger search if URL has query parameter (e.g., from landing page quick-search)
+        if (typeof window !== 'undefined' && window.location) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = urlParams.get('q') || urlParams.get('search');
+            if (initialQuery && searchInput) {
+                searchInput.value = initialQuery;
+                setTimeout(() => {
+                    handleSearch(initialQuery);
+                }, 100);
+            }
+        }
     };
 
     const CODE_TO_BUILDING_ID = {
