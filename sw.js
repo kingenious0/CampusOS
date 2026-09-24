@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v2';
+const CACHE_NAME  = 'ustednav-v1.0.1';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install (Deduplicated clean paths)
@@ -40,8 +40,9 @@ const APP_SHELL = [
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
 
-// ── INSTALL: cache app shell safely with deduplication ──
+// ── INSTALL: cache app shell safely with deduplication & skipWaiting ──
 self.addEventListener('install', e => {
+    self.skipWaiting();
     e.waitUntil(
         caches.open(CACHE_NAME).then(async cache => {
             // Deduplicate resolved URLs
@@ -61,11 +62,11 @@ self.addEventListener('install', e => {
                     })
                 )
             );
-        }).then(() => self.skipWaiting())
+        })
     );
 });
 
-// ── ACTIVATE: clean up old caches ──
+// ── ACTIVATE: clean up old caches & claim clients immediately ──
 self.addEventListener('activate', e => {
     e.waitUntil(
         caches.keys().then(keys =>
@@ -77,7 +78,7 @@ self.addEventListener('activate', e => {
     );
 });
 
-// ── FETCH: serve from cache, fallback to network ──
+// ── FETCH: Stale-While-Revalidate for HTML, JS, CSS, JSON & Assets ──
 self.addEventListener('fetch', e => {
     // Only handle GET requests
     if (e.request.method !== 'GET') return;
@@ -88,7 +89,7 @@ self.addEventListener('fetch', e => {
     // Skip Mapbox events/telemetry
     if (url.hostname.includes('events.mapbox.com')) return;
 
-    // Cache map tiles & Mapbox API
+    // Cache map tiles & Mapbox API with tile cache
     if (url.hostname.includes('tile.openstreetmap.org') ||
         url.hostname.includes('arcgisonline.com') ||
         url.hostname.includes('tiles.mapbox.com') ||
@@ -97,18 +98,38 @@ self.addEventListener('fetch', e => {
         return;
     }
 
+    // Stale-While-Revalidate strategy for app shell, data, and styles
     e.respondWith(
-        caches.match(e.request).then(cached => {
-            if (cached) return cached;
-            return fetch(e.request).then(resp => {
-                if (!resp || resp.status !== 200 || resp.type === 'opaque') return resp;
-                const clone = resp.clone();
-                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                return resp;
-            }).catch(() => {
-                if (e.request.destination === 'document') {
-                    return caches.match('./map.html');
+        caches.open(CACHE_NAME).then(async cache => {
+            const cachedResponse = await cache.match(e.request);
+
+            // Revalidate in background from network
+            const networkFetch = fetch(e.request).then(networkResponse => {
+                if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+                    cache.put(e.request, networkResponse.clone());
                 }
+                return networkResponse;
+            }).catch(() => null);
+
+            // Return cached version immediately if available
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+
+            // Otherwise wait for network response
+            const netResp = await networkFetch;
+            if (netResp) return netResp;
+
+            // Offline document fallback
+            if (e.request.destination === 'document' || e.request.mode === 'navigate') {
+                const fallback = await cache.match('./map.html') || await cache.match('/map.html') || await cache.match('./index.html');
+                if (fallback) return fallback;
+            }
+
+            return new Response('Offline: Content not available in cache.', {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: { 'Content-Type': 'text/plain' }
             });
         })
     );

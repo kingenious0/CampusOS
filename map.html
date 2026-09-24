@@ -3953,25 +3953,20 @@
     };
 
     // Register Service Worker for offline with auto-refresh on update
+    let refreshing = false;
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(reg => {
-            reg.update();
-            reg.onupdatefound = () => {
-                const installingWorker = reg.installing;
-                installingWorker.onstatechange = () => {
-                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Background update finished, new content ready
-                    }
-                };
-            };
-        }).catch(() => {});
-
-        let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
-                window.location.reload();
                 refreshing = true;
+                window.location.reload();
             }
+        });
+
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                // Check for background worker update on every page load
+                reg.update();
+            }).catch(() => {});
         });
     }
     </script>
