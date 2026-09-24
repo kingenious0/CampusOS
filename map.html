@@ -3638,11 +3638,61 @@
         };
 
         let routeData = null;
+        const targetLng = (destBuilding?.entrance && destBuilding.entrance.length >= 2) ? destBuilding.entrance[0] : destLng;
+        const targetLat = (destBuilding?.entrance && destBuilding.entrance.length >= 2) ? destBuilding.entrance[1] : destLat;
 
-        // For walking routes, prioritize the high-precision offline campus walkway network
-        if (travelMode === 'foot') {
+        // 1. When online, ALWAYS query Mapbox Directions API first for real-world surveyed walkways and roads
+        const isOnline = navigator.onLine !== false;
+        if (isOnline) {
             try {
-                const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng, computeOptions);
+                const profile = travelMode === 'driving' ? 'driving' : 'walking';
+                const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/` +
+                    `${origin.lng},${origin.lat};${targetLng},${targetLat}` +
+                    `?overview=full&geometries=geojson&steps=true&alternatives=false&access_token=${TOKEN}`;
+                const res  = await fetch(url);
+                const data = await res.json();
+                if (data.code === 'Ok' && data.routes?.length) {
+                    const route = data.routes[0];
+                    const rawSteps = route.legs[0].steps || [];
+                    
+                    // Enrich steps with nearby campus landmarks
+                    const enrichedSteps = rawSteps.map(step => {
+                        let stepName = step.name || '';
+                        const loc = step.maneuver?.location;
+                        if ((!stepName || stepName === '') && loc && buildingsData && buildingsData.length) {
+                            const landmark = (typeof ManeuverGenerator !== 'undefined' && ManeuverGenerator.findNearbyLandmark) ?
+                                ManeuverGenerator.findNearbyLandmark(buildingsData, loc[1], loc[0], 50) : null;
+                            if (landmark) {
+                                stepName = `${step.maneuver?.instruction || 'Follow path'} near ${landmark.name}`;
+                            } else {
+                                stepName = step.maneuver?.instruction || 'Follow campus walkway';
+                            }
+                        } else if (!stepName) {
+                            stepName = step.maneuver?.instruction || 'Follow campus path';
+                        }
+                        return {
+                            ...step,
+                            name: stepName
+                        };
+                    });
+
+                    routeData = {
+                        distance: route.distance,
+                        duration: route.duration,
+                        geometry: route.geometry,
+                        steps: enrichedSteps,
+                        isOffline: false
+                    };
+                }
+            } catch (err) {
+                console.warn('Mapbox directions API notice, falling back to offline router:', err);
+            }
+        }
+
+        // 2. Fallback: If offline, or if Mapbox API failed, invoke OfflineRouter
+        if (!routeData) {
+            try {
+                const offline = OfflineRouter.compute(origin.lat, origin.lng, targetLat, targetLng, computeOptions);
                 if (offline && offline.geometry) {
                     routeData = {
                         distance: offline.distance,
@@ -3653,18 +3703,16 @@
                     };
                 }
             } catch (err) {
-                console.warn('Campus walking router error:', err);
+                console.warn('Campus offline router error:', err);
             }
         }
 
-        // If driving or offline walking didn't return, query Mapbox Directions API
-        if (!routeData) {
+        // 3. Fallback: Try OSRM public server if both failed and online
+        if (!routeData && isOnline) {
             try {
-                const profile = travelMode === 'driving' ? 'driving' : 'walking';
-                const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/` +
-                    `${origin.lng},${origin.lat};${destLng},${destLat}` +
-                    `?overview=full&geometries=geojson&steps=true&alternatives=false&access_token=${TOKEN}`;
-                const res  = await fetch(url);
+                const profile = travelMode === 'driving' ? 'driving' : 'foot';
+                const url = `${OSRM_BASE}/${profile}/${origin.lng},${origin.lat};${targetLng},${targetLat}?overview=full&geometries=geojson&steps=true&alternatives=false`;
+                const res = await fetch(url);
                 const data = await res.json();
                 if (data.code === 'Ok' && data.routes?.length) {
                     const route = data.routes[0];
@@ -3677,25 +3725,7 @@
                     };
                 }
             } catch (err) {
-                console.warn('Mapbox directions API notice:', err);
-            }
-        }
-
-        // Final fallback: invoke OfflineRouter with virtual snapping & connector fallback
-        if (!routeData) {
-            try {
-                const offline = OfflineRouter.compute(origin.lat, origin.lng, destLat, destLng, computeOptions);
-                if (offline && offline.geometry) {
-                    routeData = {
-                        distance: offline.distance,
-                        duration: offline.duration,
-                        geometry: offline.geometry,
-                        steps: offline.steps,
-                        isOffline: true
-                    };
-                }
-            } catch (err) {
-                console.warn('Fallback offline router error:', err);
+                console.warn('OSRM fallback notice:', err);
             }
         }
 
