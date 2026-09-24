@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.ustednav.twa",
+        "sha256_cert_fingerprints": ["1C:E7:95:41:74:A4:1C:EB:3F:09:CD:F1:D6:85:B4:F2:F5:3F:A3:08:DF:9F:0F:BD:63:48:BA:4F:7A:D7:06:B8"]
+      }
+    }]
