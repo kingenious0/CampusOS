@@ -504,6 +504,16 @@
             margin-left: 0.25rem;
         }
 
+        /* Automatically hide APK download button and install banners in standalone / installed app mode */
+        @media all and (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+            .apk-download-btn,
+            #apk-download-btn,
+            #pwa-install-banner,
+            #installPromptBanner {
+                display: none !important;
+            }
+        }
+
         /* Mobile Viewport Polish: Hide top header to eliminate duplicate visual clutter */
         @media (max-width: 768px) {
             .top-navbar {
@@ -722,8 +732,8 @@
             });
         }
 
-        // --- 2. DEVICE-SPECIFIC OS DETECTION & PWA PROMPT MANAGEMENT ---
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        // --- 2. DEVICE-SPECIFIC OS & MOBILE APP DETECTION ---
+        const ua = navigator.userAgent || navigator.vendor || window.opera || '';
         const isAndroid = /android/i.test(ua);
         const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
@@ -732,15 +742,52 @@
         const bannerBtn = document.getElementById('bannerInstallBtn');
         const navBtn = document.getElementById('navInstallBtn');
 
+        // Check if opened inside standalone PWA / TWA / Android app wrapper
         const isStandalone =
             window.matchMedia('(display-mode: standalone)').matches ||
-            window.navigator.standalone === true ||
-            (document.referrer && document.referrer.startsWith('android-app://'));
+            window.matchMedia('(display-mode: fullscreen)').matches ||
+            window.matchMedia('(display-mode: minimal-ui)').matches ||
+            window.navigator.standalone === true;
 
-        if (isAndroid) {
-            // Android: Keep APK download button visible, hide the bottom PWA install banner completely
+        // Check if opened via Android mobile app (TWA / WebView / Custom intent / Referrer)
+        const isAndroidApp =
+            (document.referrer && document.referrer.includes('android-app://')) ||
+            /[?&](source|mode|from|platform)=(app|twa|android|pwa)/i.test(window.location.search) ||
+            /\bwv\b/i.test(ua) ||
+            (isAndroid && /Version\/[0-9.]+/i.test(ua)) ||
+            window.isAndroidApp === true;
+
+        const isPreviouslyInstalled = localStorage.getItem('ustednav_app_installed') === 'true';
+
+        function hideAllInstallPrompts() {
+            if (apkBtn) apkBtn.style.display = 'none';
             if (pwaBanner) pwaBanner.style.display = 'none';
-            if (apkBtn) apkBtn.style.display = 'flex';
+            if (navBtn) navBtn.style.display = 'none';
+        }
+
+        // If currently opened via Android mobile app, or launched standalone, or previously installed
+        if (isStandalone || isAndroidApp || isPreviouslyInstalled) {
+            localStorage.setItem('ustednav_app_installed', 'true');
+            hideAllInstallPrompts();
+        } else if (isAndroid) {
+            // Check if related Android app is already installed on the phone via Chrome getInstalledRelatedApps API
+            if ('getInstalledRelatedApps' in navigator) {
+                navigator.getInstalledRelatedApps().then(relatedApps => {
+                    if (relatedApps && relatedApps.length > 0) {
+                        // App is installed on this phone!
+                        localStorage.setItem('ustednav_app_installed', 'true');
+                        hideAllInstallPrompts();
+                    } else {
+                        // Not installed: show APK download button
+                        if (apkBtn) apkBtn.style.display = 'flex';
+                    }
+                }).catch(() => {
+                    if (apkBtn) apkBtn.style.display = 'flex';
+                });
+            } else {
+                if (apkBtn) apkBtn.style.display = 'flex';
+            }
+            if (pwaBanner) pwaBanner.style.display = 'none';
         } else if (isIOS) {
             // iOS: Hide the APK button (incompatible), display iOS-friendly PWA instructions
             if (apkBtn) apkBtn.style.display = 'none';
@@ -758,7 +805,21 @@
             if (apkBtn) apkBtn.style.display = 'flex';
         }
 
-        if (!isStandalone && !isAndroid) {
+        if (apkBtn) {
+            apkBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                    localStorage.setItem('ustednav_apk_downloaded', 'true');
+                }, 2000);
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            localStorage.setItem('ustednav_app_installed', 'true');
+            hideAllInstallPrompts();
+            console.log('USTED NAV was installed');
+        });
+
+        if (!isStandalone && !isAndroidApp && !isAndroid) {
             let deferredPrompt;
 
             window.addEventListener('beforeinstallprompt', (e) => {
@@ -780,13 +841,6 @@
 
             if (bannerBtn) bannerBtn.addEventListener('click', triggerPrompt);
             if (navBtn) navBtn.addEventListener('click', triggerPrompt);
-
-            window.addEventListener('appinstalled', () => {
-                if (pwaBanner) pwaBanner.style.display = 'none';
-                if (navBtn) navBtn.style.display = 'none';
-                deferredPrompt = null;
-                console.log('USTED NAV PWA was installed');
-            });
         }
     </script>
 </body>
