@@ -2984,12 +2984,12 @@
             ${b.description ? `<p class="place-desc">${b.description}</p>` : ''}
             ${meta ? `<div class="meta-list">${meta}</div>` : ''}
             <div class="mode-toggle">
-                <button class="mode-btn active" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
-                <button class="mode-btn" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
+                <button class="mode-btn ${travelMode === 'driving' ? '' : 'active'}" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
+                <button class="mode-btn ${travelMode === 'driving' ? 'active-car' : ''}" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
             </div>
             <div class="sheet-actions">
                 <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${b.name.replace(/'/g,"\\'")}')">
-                    <i class="fas fa-person-walking"></i> Start Walking
+                    <i class="fas ${travelMode === 'driving' ? 'fa-car' : 'fa-person-walking'}"></i> ${travelMode === 'driving' ? 'Start Driving' : 'Start Walking'}
                 </button>
                 <button class="action-btn btn-share" onclick="shareLocation('${b.name.replace(/'/g,"\\'") }', ${b.lat}, ${b.lng})">
                     <i class="fas fa-share-nodes"></i> Share
@@ -3046,9 +3046,13 @@
             </div>
             ${s.description ? `<p class="place-desc" style="margin:12px 14px 0">${s.description}</p>` : ''}
             <div class="meta-list">${meta}</div>
+            <div class="mode-toggle">
+                <button class="mode-btn ${travelMode === 'driving' ? '' : 'active'}" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
+                <button class="mode-btn ${travelMode === 'driving' ? 'active-car' : ''}" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
+            </div>
             <div class="sheet-actions">
                 <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${breadcrumb.replace(/'/g,"\\'")}')">
-                    <i class="fas fa-person-walking"></i> Start Walking
+                    <i class="fas ${travelMode === 'driving' ? 'fa-car' : 'fa-person-walking'}"></i> ${travelMode === 'driving' ? 'Start Driving' : 'Start Walking'}
                 </button>
                 <button class="action-btn btn-share" onclick="shareLocation('${breadcrumb.replace(/'/g,"\\'") }', ${b.lat}, ${b.lng})">
                     <i class="fas fa-share-nodes"></i> Share
@@ -3102,9 +3106,15 @@
 
         const subtitle = formatStaffSubtitle(person);
         const isBuildingOnly = person.location?.status === 'building_only' || !person.location?.room;
-        const btnIcon = isBuildingOnly ? 'fa-compass' : 'fa-person-walking';
         const targetBuildingName = b ? (b.shortName || b.name) : 'Building';
-        const btnLabel = isBuildingOnly ? `Go to ${targetBuildingName}` : 'Start Walking';
+        let btnIcon, btnLabel;
+        if (isBuildingOnly) {
+            btnIcon = travelMode === 'driving' ? 'fa-car' : 'fa-compass';
+            btnLabel = travelMode === 'driving' ? `Drive to ${targetBuildingName}` : `Go to ${targetBuildingName}`;
+        } else {
+            btnIcon = travelMode === 'driving' ? 'fa-car' : 'fa-person-walking';
+            btnLabel = travelMode === 'driving' ? 'Start Driving' : 'Start Walking';
+        }
 
         openSheet(`
             <div class="place-header">
@@ -3125,8 +3135,8 @@
             </div>
             <div class="meta-list" style="margin-top:12px">${meta}</div>
             <div class="mode-toggle">
-                <button class="mode-btn active" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
-                <button class="mode-btn" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
+                <button class="mode-btn ${travelMode === 'driving' ? '' : 'active'}" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
+                <button class="mode-btn ${travelMode === 'driving' ? 'active-car' : ''}" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
             </div>
             <div class="sheet-actions">
                 <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${breadcrumb.replace(/'/g, "\\'")}')">
@@ -3191,12 +3201,12 @@
             ${r.description ? `<p class="place-desc" style="margin:12px 14px 0">${r.description}</p>` : ''}
             <div class="meta-list">${meta}</div>
             <div class="mode-toggle">
-                <button class="mode-btn active" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
-                <button class="mode-btn" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
+                <button class="mode-btn ${travelMode === 'driving' ? '' : 'active'}" onclick="setMode('foot',this)"><i class="fas fa-person-walking"></i> Walk</button>
+                <button class="mode-btn ${travelMode === 'driving' ? 'active-car' : ''}" onclick="setMode('driving',this)"><i class="fas fa-car"></i> Drive</button>
             </div>
             <div class="sheet-actions">
                 <button class="action-btn btn-dir" onclick="startRoute(${b.lat}, ${b.lng}, '${breadcrumb.replace(/'/g, "\\'")}')">
-                    <i class="fas fa-person-walking"></i> Start Walking
+                    <i class="fas ${travelMode === 'driving' ? 'fa-car' : 'fa-person-walking'}"></i> ${travelMode === 'driving' ? 'Start Driving' : 'Start Walking'}
                 </button>
                 <button class="action-btn btn-share" onclick="shareLocation('${breadcrumb.replace(/'/g, "\\'")}', ${b.lat}, ${b.lng})">
                     <i class="fas fa-share-nodes"></i> Share
@@ -3209,6 +3219,21 @@
         travelMode = mode;
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active','active-car'));
         btn.classList.add(mode === 'driving' ? 'active-car' : 'active');
+
+        // Dynamically update the action button in the active bottom sheet
+        const dirBtn = document.querySelector('.sheet-actions .action-btn.btn-dir');
+        if (dirBtn) {
+            const isDriving = mode === 'driving';
+            const iconClass = isDriving ? 'fa-car' : 'fa-person-walking';
+            const currentText = dirBtn.textContent.trim();
+
+            if (/^(Go to|Drive to)\s+(.+)$/i.test(currentText)) {
+                const dest = currentText.replace(/^(Go to|Drive to)\s+/i, '');
+                dirBtn.innerHTML = `<i class="fas ${isDriving ? 'fa-car' : 'fa-compass'}"></i> ${isDriving ? 'Drive to ' : 'Go to '}${dest}`;
+            } else {
+                dirBtn.innerHTML = `<i class="fas ${iconClass}"></i> ${isDriving ? 'Start Driving' : 'Start Walking'}`;
+            }
+        }
     }
 
     function metaRow(icon, val) {

@@ -713,16 +713,6 @@
     "hours": "8:00 AM – 5:00 PM",
     "rooms": [
       {
-        "number": "101",
-        "floor": "1st",
-        "description": "Department office",
-        "keywords": [
-          "ESA ROOM 101",
-          "ESA FF",
-          "ESA 101"
-        ]
-      },
-      {
         "number": "Room 3",
         "room": "3",
         "floor": "Ground",
