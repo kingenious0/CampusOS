@@ -418,7 +418,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.65rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         .primary-launch-btn {
@@ -484,40 +484,14 @@
             margin-left: 0.25rem;
         }
 
-        /* Feature Chips Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-            text-align: left;
-        }
-
-        .feature-chip {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.65rem;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 11px;
-            font-weight: 500;
-            color: #cbd5e1;
-            transition: background 0.2s;
-        }
-        .feature-chip:hover {
-            background: rgba(30, 41, 59, 0.65);
-        }
-
-        .feature-icon-wrapper {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            flex-shrink: 0;
+        /* Mobile Viewport Polish: Hide top header to eliminate duplicate visual clutter */
+        @media (max-width: 768px) {
+            .top-navbar {
+                display: none !important;
+            }
+            .hero-viewport {
+                padding: 1.5rem 0.75rem;
+            }
         }
 
         /* Floating PWA Install Notification Bar */
@@ -678,43 +652,15 @@
                         Launch Campus Map
                     </a>
                     
-                    <a href="/download/ustednav.apk" download class="apk-download-btn">
+                    <a href="/download/ustednav.apk" download="ustednav.apk" class="apk-download-btn">
                         <svg style="width:15px;height:15px;color:#34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
                             <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
                         <span>Download Android App (.apk)</span>
-                        <span class="apk-size-pill">2.6 MB</span>
+                        <span class="apk-size-pill">2.7 MB</span>
                     </a>
-                </div>
-
-                <!-- Feature Value-Prop Grid -->
-                <div class="feature-grid">
-                    <div class="feature-chip">
-                        <div class="feature-icon-wrapper" style="background:rgba(245,158,11,0.15);color:#fbbf24;">
-                            <i class="fas fa-cube"></i>
-                        </div>
-                        <span>3D Spatial Map</span>
-                    </div>
-                    <div class="feature-chip">
-                        <div class="feature-icon-wrapper" style="background:rgba(59,130,246,0.15);color:#60a5fa;">
-                            <i class="fas fa-route"></i>
-                        </div>
-                        <span>Walking Routes</span>
-                    </div>
-                    <div class="feature-chip">
-                        <div class="feature-icon-wrapper" style="background:rgba(16,185,129,0.15);color:#34d399;">
-                            <i class="fas fa-door-open"></i>
-                        </div>
-                        <span>Hall & Room Finder</span>
-                    </div>
-                    <div class="feature-chip">
-                        <div class="feature-icon-wrapper" style="background:rgba(245,158,11,0.15);color:#fbbf24;">
-                            <i class="fas fa-wifi-slash"></i>
-                        </div>
-                        <span>100% Offline Ready</span>
-                    </div>
                 </div>
             </div>
         </main>
