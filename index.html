@@ -574,6 +574,7 @@
         }
 
         @media all and (display-mode: standalone), (display-mode: fullscreen) {
+            #pwa-install-banner,
             #installPromptBanner,
             .ghost-install-btn {
                 display: none !important;
@@ -675,14 +676,13 @@
                         Launch Campus Map
                     </a>
                     
-                    <a href="/download/ustednav.apk" download="ustednav.apk" class="apk-download-btn">
+                    <a href="/download/ustednav.apk" download="ustednav.apk" id="apk-download-btn" class="apk-download-btn">
                         <svg style="width:15px;height:15px;color:#34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
                             <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
-                        <span>Download Android App (.apk)</span>
-                        <span class="apk-size-pill">2.7 MB</span>
+                        <span>Download Android App</span>
                     </a>
                 </div>
             </div>
@@ -695,10 +695,10 @@
     </div>
 
     <!-- Floating PWA Install Prompt Banner -->
-    <div id="installPromptBanner" class="install-prompt-banner">
+    <div id="pwa-install-banner" class="install-prompt-banner">
         <div class="install-prompt-text">
             <strong>Install USTED NAV</strong>
-            <div style="font-size:11px;color:#94a3b8;">Add to home screen for 1-tap offline map launch.</div>
+            <p class="pwa-banner-text" style="font-size:11px;color:#94a3b8;margin:2px 0 0 0;">Add to home screen for 1-tap offline map launch.</p>
         </div>
         <button id="bannerInstallBtn" class="install-action-btn">Install App</button>
     </div>
@@ -722,8 +722,13 @@
             });
         }
 
-        // --- 2. PWA INSTALL PROMPT MANAGEMENT ---
-        const banner = document.getElementById('installPromptBanner');
+        // --- 2. DEVICE-SPECIFIC OS DETECTION & PWA PROMPT MANAGEMENT ---
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroid = /android/i.test(ua);
+        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+        const apkBtn = document.getElementById('apk-download-btn'); // Target the "Download Android App" element
+        const pwaBanner = document.getElementById('pwa-install-banner') || document.getElementById('installPromptBanner'); // Target the bottom "Install USTED NAV" banner
         const bannerBtn = document.getElementById('bannerInstallBtn');
         const navBtn = document.getElementById('navInstallBtn');
 
@@ -732,13 +737,34 @@
             window.navigator.standalone === true ||
             (document.referrer && document.referrer.startsWith('android-app://'));
 
-        if (!isStandalone) {
+        if (isAndroid) {
+            // Android: Keep APK download button visible, hide the bottom PWA install banner completely
+            if (pwaBanner) pwaBanner.style.display = 'none';
+            if (apkBtn) apkBtn.style.display = 'flex';
+        } else if (isIOS) {
+            // iOS: Hide the APK button (incompatible), display iOS-friendly PWA instructions
+            if (apkBtn) apkBtn.style.display = 'none';
+            if (pwaBanner && !isStandalone) {
+                pwaBanner.style.display = 'flex';
+                const subtitle = pwaBanner.querySelector('.pwa-banner-text') || pwaBanner.querySelector('p');
+                if (subtitle) {
+                    subtitle.textContent = "Tap Share ⎋ and select 'Add to Home Screen'";
+                }
+                const installBtn = pwaBanner.querySelector('button');
+                if (installBtn) installBtn.style.display = 'none'; // iOS does not support programmatic beforeinstallprompt
+            }
+        } else {
+            // Desktop: Keep APK button visible for sideloaders or desktop testers
+            if (apkBtn) apkBtn.style.display = 'flex';
+        }
+
+        if (!isStandalone && !isAndroid) {
             let deferredPrompt;
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                if (banner) banner.style.display = 'flex';
+                if (!isIOS && pwaBanner) pwaBanner.style.display = 'flex';
                 if (navBtn) navBtn.style.display = 'inline-flex';
             });
 
@@ -748,7 +774,7 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log(`PWA Prompt Outcome: ${outcome}`);
                 deferredPrompt = null;
-                if (banner) banner.style.display = 'none';
+                if (pwaBanner) pwaBanner.style.display = 'none';
                 if (navBtn) navBtn.style.display = 'none';
             };
 
@@ -756,7 +782,7 @@
             if (navBtn) navBtn.addEventListener('click', triggerPrompt);
 
             window.addEventListener('appinstalled', () => {
-                if (banner) banner.style.display = 'none';
+                if (pwaBanner) pwaBanner.style.display = 'none';
                 if (navBtn) navBtn.style.display = 'none';
                 deferredPrompt = null;
                 console.log('USTED NAV PWA was installed');
