@@ -46,7 +46,9 @@ Thumbs.db
 
 # ── Raw Scraped Datasets, Ingestion Scripts & Scratches ──
 *.csv
-data/*.csv
 usted_kumasi_staff*
 data/staff_overrides.json
-scripts/
+scripts/process-staff-data.js
+!scripts/schema.sql
+!scripts/seed_supabase.js
+!scripts/seed_data.sql

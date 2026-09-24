@@ -74,6 +74,7 @@ const SearchModule = (() => {
         searchInput = document.getElementById('searchInput');
         searchResults = document.getElementById('searchResults');
 
+        // 1. Primary: Load bundled static JSON for guaranteed instant offline availability
         if (typeof MapModule !== 'undefined' && MapModule.getBuildingsData) {
             buildingsData = MapModule.getBuildingsData() || [];
         }
@@ -83,7 +84,7 @@ const SearchModule = (() => {
                 const res = await fetch('data/buildings.json');
                 buildingsData = await res.json();
             } catch (err) {
-                console.warn('SearchModule: Failed to fetch data/buildings.json', err);
+                console.warn('SearchModule: Failed to fetch bundled data/buildings.json', err);
             }
         }
 
@@ -91,7 +92,82 @@ const SearchModule = (() => {
             const res = await fetch('data/people.json');
             peopleData = await res.json();
         } catch (err) {
-            console.warn('SearchModule: Failed to fetch data/people.json', err);
+            console.warn('SearchModule: Failed to fetch bundled data/people.json', err);
+        }
+
+        // 2. Optional: Stale-While-Revalidate from local IndexedDB if updated via Studio
+        if (typeof indexedDB !== 'undefined') {
+            try {
+                const openReq = indexedDB.open('CampusOS_Studio_DB', 1);
+                openReq.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (db.objectStoreNames.contains('buildings') && db.objectStoreNames.contains('staff_directory')) {
+                        const tx = db.transaction(['buildings', 'staff_directory', 'rooms'], 'readonly');
+                        const bReq = tx.objectStore('buildings').getAll();
+                        const sReq = tx.objectStore('staff_directory').getAll();
+                        const rReq = tx.objectStore('rooms').getAll();
+
+                        tx.oncomplete = () => {
+                            if (bReq.result && bReq.result.length > 0) {
+                                // Overlay any entrance updates or new buildings
+                                const bMap = new Map(bReq.result.map(b => [String(b.id), b]));
+                                const roomsByBldg = new Map();
+                                if (rReq.result) {
+                                    rReq.result.forEach(r => {
+                                        const arr = roomsByBldg.get(String(r.building_id)) || [];
+                                        arr.push({
+                                            number: r.room_number,
+                                            floor: r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st' : `${r.floor}th`),
+                                            description: r.description,
+                                            keywords: r.keywords || []
+                                        });
+                                        roomsByBldg.set(String(r.building_id), arr);
+                                    });
+                                }
+
+                                buildingsData = buildingsData.map(b => {
+                                    const updated = bMap.get(String(b.id));
+                                    if (updated) {
+                                        return {
+                                            ...b,
+                                            ...updated,
+                                            rooms: roomsByBldg.get(String(b.id)) || b.rooms || []
+                                        };
+                                    }
+                                    return b;
+                                });
+                            }
+
+                            if (sReq.result && sReq.result.length > 0) {
+                                // Merge staff
+                                const updatedPeople = sReq.result.map(s => ({
+                                    id: s.id,
+                                    name: s.name,
+                                    title: s.title || '',
+                                    position: s.position || '',
+                                    department: s.department || '',
+                                    faculty: s.faculty || '',
+                                    location: {
+                                        building: s.building_id || '',
+                                        room: s.room_id || '',
+                                        floor: s.floor !== undefined ? String(s.floor) : '',
+                                        status: s.location_status || 'exact'
+                                    },
+                                    contact: {
+                                        email: s.email || '',
+                                        phone: s.phone || ''
+                                    }
+                                }));
+                                if (updatedPeople.length > 0) {
+                                    peopleData = updatedPeople;
+                                }
+                            }
+                        };
+                    }
+                };
+            } catch (idbErr) {
+                // Silently ignore IDB overlay failures; static JSON remains active
+            }
         }
 
         if (searchInput) {
