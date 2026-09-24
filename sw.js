@@ -3,29 +3,24 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1';
+const CACHE_NAME  = 'ustednav-v2';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
-// App shell files to cache on install
+// App shell files to cache on install (Deduplicated clean paths)
 const APP_SHELL = [
-    './map.html',
+    './',
     './index.html',
+    './map.html',
     './logo.png',
     './manifest.json',
-    '/manifest.json',
     './icons/icon-192.png',
     './icons/icon-192-maskable.png',
     './icons/icon-512.png',
     './icons/icon-512-maskable.png',
-    '/icons/icon-192.png',
-    '/icons/icon-192-maskable.png',
-    '/icons/icon-512.png',
-    '/icons/icon-512-maskable.png',
     './screenshots/screenshot-mobile.png',
     './screenshots/screenshot-desktop.png',
-    '/screenshots/screenshot-mobile.png',
-    '/screenshots/screenshot-desktop.png',
     './data/buildings.json',
+    './data/people.json',
     './data/campus.geojson',
     './data/roads.geojson',
     './js/cesium-viewer.js',
@@ -45,12 +40,28 @@ const APP_SHELL = [
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
 
-// ── INSTALL: cache app shell ──
+// ── INSTALL: cache app shell safely with deduplication ──
 self.addEventListener('install', e => {
     e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(APP_SHELL))
-            .then(() => self.skipWaiting())
+        caches.open(CACHE_NAME).then(async cache => {
+            // Deduplicate resolved URLs
+            const resolvedUrls = Array.from(new Set(APP_SHELL.map(url => {
+                try {
+                    return new URL(url, self.location.href).href;
+                } catch(err) {
+                    return url;
+                }
+            })));
+
+            // Cache items individually so one non-critical failure doesn't abort whole install
+            return Promise.all(
+                resolvedUrls.map(url =>
+                    cache.add(url).catch(err => {
+                        console.warn('SW: Cache failed for asset:', url, err);
+                    })
+                )
+            );
+        }).then(() => self.skipWaiting())
     );
 });
 
@@ -177,4 +188,3 @@ self.addEventListener('notificationclick', event => {
         })
     );
 });
-

@@ -1963,6 +1963,50 @@
             // After data is loaded, setup labels layer
             if (map.isStyleLoaded()) addCampusLabels();
             else map.on('load', addCampusLabels);
+
+            // Handle incoming search query parameter (e.g. ?q=rob or ?search=library)
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = (urlParams.get('q') || urlParams.get('search') || '').trim();
+            if (initialQuery) {
+                const sInput = document.getElementById('searchInput');
+                const sClear = document.getElementById('searchClear');
+                const sBtn = document.getElementById('searchSearchBtn');
+                if (sInput) {
+                    sInput.value = initialQuery;
+                    document.body.classList.add('search-focused');
+                }
+                if (sClear) sClear.style.display = 'flex';
+                if (sBtn) sBtn.style.display = 'none';
+
+                // Run search to display dropdown results
+                doSearch(initialQuery);
+
+                // If building match, center and highlight on map
+                const queryLower = initialQuery.toLowerCase();
+                const matchedBuilding = buildingsData.find(b => 
+                    (b.shortName && b.shortName.toLowerCase() === queryLower) ||
+                    (b.name && b.name.toLowerCase() === queryLower)
+                ) || buildingsData.find(b =>
+                    (b.shortName && b.shortName.toLowerCase().includes(queryLower)) ||
+                    (b.name && b.name.toLowerCase().includes(queryLower))
+                );
+
+                if (matchedBuilding) {
+                    const flyToMatch = () => {
+                        if (map) {
+                            map.flyTo({ center: [matchedBuilding.lng, matchedBuilding.lat], zoom: 18.5, duration: 1000, essential: true });
+                        }
+                        if (window.ViewControllerModule && window.ViewControllerModule.getMode() === '3D') {
+                            window.CesiumViewerModule?.syncCameraFrom2D(matchedBuilding.lng, matchedBuilding.lat, 18);
+                        }
+                    };
+                    if (map && map.isStyleLoaded()) {
+                        flyToMatch();
+                    } else if (map) {
+                        map.once('load', flyToMatch);
+                    }
+                }
+            }
         } catch(e) {
             showToast('Could not load campus data');
         }
