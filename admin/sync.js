@@ -111,8 +111,11 @@ const CampusSync = (() => {
         if (buildingCount === 0) {
             console.log('[Sync] Database is empty. Loading initial seed_data.json...');
             try {
-                const res = await fetch('seed_data.json');
-                if (res.ok) {
+                let res = await fetch('/admin/seed_data.json').catch(() => null);
+                if (!res || !res.ok) {
+                    res = await fetch('seed_data.json').catch(() => null);
+                }
+                if (res && res.ok) {
                     const data = await res.json();
                     await bulkPut('buildings', data.buildings || []);
                     await bulkPut('rooms', data.rooms || []);

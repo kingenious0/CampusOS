@@ -1,6 +1,6 @@
 /**
  * CampusOS Studio - Admin CMS Application Controller
- * Handles UI interactions, CRUD modals, Leaflet entrance spatial editor, and sync status.
+ * Handles UI interactions, responsive cards & tables, Leaflet entrance spatial editor, and sync status.
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -32,14 +32,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         staff: document.getElementById('badge-staff-count')
     };
 
+    // Mobile Sidebar Elements
+    const appSidebar = document.getElementById('app-sidebar');
+    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+    const mobileBackdrop = document.getElementById('mobile-sidebar-backdrop');
+
+    function openMobileSidebar() {
+        if (appSidebar) appSidebar.classList.remove('-translate-x-full');
+        if (mobileBackdrop) mobileBackdrop.classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+        if (appSidebar) appSidebar.classList.add('-translate-x-full');
+        if (mobileBackdrop) mobileBackdrop.classList.add('hidden');
+    }
+
+    if (btnToggleSidebar) btnToggleSidebar.addEventListener('click', openMobileSidebar);
+    if (btnCloseSidebar) btnCloseSidebar.addEventListener('click', closeMobileSidebar);
+    if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileSidebar);
+
     // 1. Initialize Sync Engine
-    await CampusSync.init();
+    try {
+        await CampusSync.init();
+    } catch (err) {
+        console.error('[App] CampusSync init error:', err);
+        showToast('Local database initialization issue: ' + err.message, 'error');
+    }
 
     // 2. Initial Data Load
     async function refreshData() {
-        buildings = await CampusSync.getAll('buildings');
-        rooms = await CampusSync.getAll('rooms');
-        staff = await CampusSync.getAll('staff_directory');
+        try {
+            buildings = await CampusSync.getAll('buildings');
+            rooms = await CampusSync.getAll('rooms');
+            staff = await CampusSync.getAll('staff_directory');
+        } catch (e) {
+            console.warn('[App] Error fetching records from sync:', e);
+        }
 
         // Update counts
         if (badges.buildings) badges.buildings.textContent = buildings.length;
@@ -50,16 +79,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         populateDropdowns();
     }
 
-    // 3. Tab Switching
-    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetTab = btn.getAttribute('data-tab');
-            switchTab(targetTab);
+    // 3. Tab Switching (Desktop Sidebar + Mobile Bottom Nav)
+    function bindTabButtons(selector) {
+        document.querySelectorAll(selector).forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                switchTab(targetTab);
+                closeMobileSidebar();
+            });
         });
-    });
+    }
+
+    bindTabButtons('.nav-tab-btn');
+    bindTabButtons('.mobile-nav-btn');
 
     function switchTab(tabName) {
         activeTab = tabName;
+
+        // Desktop Sidebar styles
         document.querySelectorAll('.nav-tab-btn').forEach(b => {
             const isMatch = b.getAttribute('data-tab') === tabName;
             b.classList.toggle('active', isMatch);
@@ -69,6 +106,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             b.classList.toggle('text-slate-400', !isMatch);
         });
 
+        // Mobile Bottom Nav styles
+        document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+            const isMatch = b.getAttribute('data-tab') === tabName;
+            b.classList.toggle('text-brand-400', isMatch);
+            b.classList.toggle('text-slate-400', !isMatch);
+        });
+
+        // View panels
         Object.keys(views).forEach(vKey => {
             if (views[vKey]) {
                 views[vKey].classList.toggle('hidden', vKey !== tabName);
@@ -83,60 +128,93 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderCurrentTab() {
-        if (activeTab === 'buildings') renderBuildingsTable();
-        else if (activeTab === 'rooms') renderRoomsTable();
-        else if (activeTab === 'staff') renderStaffTable();
+        if (activeTab === 'buildings') renderBuildings();
+        else if (activeTab === 'rooms') renderRooms();
+        else if (activeTab === 'staff') renderStaff();
         else if (activeTab === 'entrance-editor') renderEditorBuildingList();
         else if (activeTab === 'sync-queue') renderSyncQueue();
     }
 
     // =========================================================================
-    // BUILDINGS TABLE & CRUD
+    // BUILDINGS TABLE & RESPONSIVE CARDS
     // =========================================================================
 
     const buildingsTableBody = document.getElementById('buildings-table-body');
+    const buildingsMobileCards = document.getElementById('buildings-mobile-cards');
     const searchBuildingsInput = document.getElementById('search-buildings');
 
-    searchBuildingsInput.addEventListener('input', () => renderBuildingsTable());
+    if (searchBuildingsInput) {
+        searchBuildingsInput.addEventListener('input', () => renderBuildings());
+    }
 
-    function renderBuildingsTable() {
-        const query = (searchBuildingsInput.value || '').trim().toLowerCase();
+    function renderBuildings() {
+        const query = (searchBuildingsInput ? searchBuildingsInput.value : '').trim().toLowerCase();
         const filtered = buildings.filter(b => {
             return (b.name && b.name.toLowerCase().includes(query)) ||
                    (b.code && b.code.toLowerCase().includes(query)) ||
                    (b.type && b.type.toLowerCase().includes(query));
         });
 
-        buildingsTableBody.innerHTML = filtered.map(b => {
-            const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
-            const entranceBadge = hasEntrance ?
-                `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 w-fit">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Set [${b.entrance[1].toFixed(5)}, ${b.entrance[0].toFixed(5)}]
-                 </span>` :
-                `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700/60">Not Set</span>`;
+        // 1. Desktop Table Body
+        if (buildingsTableBody) {
+            buildingsTableBody.innerHTML = filtered.map(b => {
+                const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
+                const entranceBadge = hasEntrance ?
+                    `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 w-fit">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Set [${b.entrance[1].toFixed(5)}, ${b.entrance[0].toFixed(5)}]
+                     </span>` :
+                    `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700/60">Not Set</span>`;
 
-            return `
-                <tr class="hover:bg-slate-800/30 transition">
-                    <td class="p-3.5 font-mono font-semibold text-slate-200">${b.code || b.id}</td>
-                    <td class="p-3.5 font-medium text-white">${b.name}</td>
-                    <td class="p-3.5 capitalize text-slate-400"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${b.type || 'academic'}</span></td>
-                    <td class="p-3.5 font-mono text-slate-400">${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</td>
-                    <td class="p-3.5">${entranceBadge}</td>
-                    <td class="p-3.5 text-slate-400">${b.hours || '—'}</td>
-                    <td class="p-3.5 text-right space-x-1.5">
-                        <button onclick="window.editBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                        <button onclick="window.jumpToEntranceEditor('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition">Pin Doorway</button>
-                        <button onclick="window.deleteBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                return `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="p-3.5 font-mono font-semibold text-slate-200">${b.code || b.id}</td>
+                        <td class="p-3.5 font-medium text-white">${b.name}</td>
+                        <td class="p-3.5 capitalize text-slate-400"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${b.type || 'academic'}</span></td>
+                        <td class="p-3.5 font-mono text-slate-400">${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</td>
+                        <td class="p-3.5">${entranceBadge}</td>
+                        <td class="p-3.5 text-slate-400">${b.hours || '—'}</td>
+                        <td class="p-3.5 text-right space-x-1.5">
+                            <button onclick="window.editBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
+                            <button onclick="window.jumpToEntranceEditor('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition">Pin Doorway</button>
+                            <button onclick="window.deleteBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 2. Mobile Responsive Cards
+        if (buildingsMobileCards) {
+            buildingsMobileCards.innerHTML = filtered.map(b => {
+                const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm space-y-2.5">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="font-bold text-white text-sm">${b.name}</div>
+                                <div class="text-[11px] text-slate-400 font-mono mt-0.5">Code: ${b.code || b.id} • <span class="capitalize text-slate-300">${b.type || 'academic'}</span></div>
+                            </div>
+                            ${hasEntrance ? 
+                                `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">Doorway Pin Set</span>` : 
+                                `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400 shrink-0">Centroid Only</span>`
+                            }
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-mono">Coords: ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</div>
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
+                            <button onclick="window.editBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
+                            <button onclick="window.jumpToEntranceEditor('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 touch-btn">Pin Doorway</button>
+                            <button onclick="window.deleteBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     }
 
     const modalBuilding = document.getElementById('modal-building');
     const formBuilding = document.getElementById('form-building');
 
-    document.getElementById('btn-add-building').addEventListener('click', () => {
+    document.getElementById('btn-add-building')?.addEventListener('click', () => {
         document.getElementById('modal-building-title').textContent = 'Add Campus Building';
         formBuilding.reset();
         document.getElementById('building-id').value = '';
@@ -164,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await refreshData();
     };
 
-    formBuilding.addEventListener('submit', async (e) => {
+    formBuilding?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('building-id').value || `bldg-${Date.now()}`;
         const existing = buildings.find(x => x.id === id) || {};
@@ -188,19 +266,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // =========================================================================
-    // ROOMS TABLE & CRUD
+    // ROOMS TABLE & RESPONSIVE CARDS
     // =========================================================================
 
     const roomsTableBody = document.getElementById('rooms-table-body');
+    const roomsMobileCards = document.getElementById('rooms-mobile-cards');
     const searchRoomsInput = document.getElementById('search-rooms');
     const filterRoomsBuilding = document.getElementById('filter-rooms-building');
 
-    searchRoomsInput.addEventListener('input', () => renderRoomsTable());
-    filterRoomsBuilding.addEventListener('change', () => renderRoomsTable());
+    searchRoomsInput?.addEventListener('input', () => renderRooms());
+    filterRoomsBuilding?.addEventListener('change', () => renderRooms());
 
-    function renderRoomsTable() {
-        const query = (searchRoomsInput.value || '').trim().toLowerCase();
-        const bFilter = filterRoomsBuilding.value;
+    function renderRooms() {
+        const query = (searchRoomsInput ? searchRoomsInput.value : '').trim().toLowerCase();
+        const bFilter = filterRoomsBuilding ? filterRoomsBuilding.value : '';
 
         const bldgMap = new Map(buildings.map(b => [b.id, b]));
 
@@ -215,32 +294,61 @@ document.addEventListener('DOMContentLoaded', async () => {
             return matchesBldg && matchesQuery;
         });
 
-        roomsTableBody.innerHTML = filtered.map(r => {
-            const bldg = bldgMap.get(r.building_id);
-            const bldgName = bldg ? `${bldg.name} (${bldg.code || bldg.id})` : r.building_id;
-            const floorText = r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st Floor' : (r.floor === 2 ? '2nd Floor' : `Floor ${r.floor}`));
+        // 1. Desktop Table
+        if (roomsTableBody) {
+            roomsTableBody.innerHTML = filtered.map(r => {
+                const bldg = bldgMap.get(r.building_id);
+                const bldgName = bldg ? `${bldg.name} (${bldg.code || bldg.id})` : r.building_id;
+                const floorText = r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st Floor' : (r.floor === 2 ? '2nd Floor' : `Floor ${r.floor}`));
 
-            return `
-                <tr class="hover:bg-slate-800/30 transition">
-                    <td class="p-3.5 font-bold font-mono text-white">${r.room_number}</td>
-                    <td class="p-3.5 text-slate-300 font-medium">${bldgName}</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${floorText}</span></td>
-                    <td class="p-3.5 text-slate-400">${r.description || '—'}</td>
-                    <td class="p-3.5 text-slate-500 font-mono text-[11px]">${(r.keywords || []).slice(0, 3).join(', ')}</td>
-                    <td class="p-3.5 text-right space-x-2">
-                        <button onclick="window.editRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                        <button onclick="window.deleteRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                return `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="p-3.5 font-bold font-mono text-white">${r.room_number}</td>
+                        <td class="p-3.5 text-slate-300 font-medium">${bldgName}</td>
+                        <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${floorText}</span></td>
+                        <td class="p-3.5 text-slate-400">${r.description || '—'}</td>
+                        <td class="p-3.5 text-slate-500 font-mono text-[11px]">${(r.keywords || []).slice(0, 3).join(', ')}</td>
+                        <td class="p-3.5 text-right space-x-2">
+                            <button onclick="window.editRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
+                            <button onclick="window.deleteRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 2. Mobile Responsive Cards
+        if (roomsMobileCards) {
+            roomsMobileCards.innerHTML = filtered.map(r => {
+                const bldg = bldgMap.get(r.building_id);
+                const bldgName = bldg ? `${bldg.name}` : r.building_id;
+                const floorText = r.floor === 0 ? 'Ground Floor' : (r.floor === 1 ? '1st Floor' : (r.floor === 2 ? '2nd Floor' : `Floor ${r.floor}`));
+
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="font-bold text-white text-sm">Room ${r.room_number}</div>
+                                <div class="text-xs text-slate-400 mt-0.5 font-medium">${bldgName}</div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">${floorText}</span>
+                        </div>
+                        ${r.description ? `<div class="text-xs text-slate-300">${r.description}</div>` : ''}
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
+                            <button onclick="window.editRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
+                            <button onclick="window.deleteRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     }
 
     const modalRoom = document.getElementById('modal-room');
     const formRoom = document.getElementById('form-room');
     const roomBuildingSelect = document.getElementById('room-building-select');
 
-    document.getElementById('btn-add-room').addEventListener('click', () => {
+    document.getElementById('btn-add-room')?.addEventListener('click', () => {
         document.getElementById('modal-room-title').textContent = 'Add Room Allocation';
         formRoom.reset();
         document.getElementById('room-id').value = '';
@@ -252,7 +360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!r) return;
         document.getElementById('modal-room-title').textContent = 'Edit Room Allocation';
         document.getElementById('room-id').value = r.id;
-        roomBuildingSelect.value = r.building_id;
+        if (roomBuildingSelect) roomBuildingSelect.value = r.building_id;
         document.getElementById('room-number').value = r.room_number;
         document.getElementById('room-floor').value = r.floor;
         document.getElementById('room-description').value = r.description || '';
@@ -267,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await refreshData();
     };
 
-    formRoom.addEventListener('submit', async (e) => {
+    formRoom?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const bId = roomBuildingSelect.value;
         const num = document.getElementById('room-number').value.trim();
@@ -294,19 +402,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // =========================================================================
-    // STAFF DIRECTORY TABLE & CRUD
+    // STAFF DIRECTORY TABLE & RESPONSIVE CARDS
     // =========================================================================
 
     const staffTableBody = document.getElementById('staff-table-body');
+    const staffMobileCards = document.getElementById('staff-mobile-cards');
     const searchStaffInput = document.getElementById('search-staff');
     const filterStaffDept = document.getElementById('filter-staff-department');
 
-    searchStaffInput.addEventListener('input', () => renderStaffTable());
-    filterStaffDept.addEventListener('change', () => renderStaffTable());
+    searchStaffInput?.addEventListener('input', () => renderStaff());
+    filterStaffDept?.addEventListener('change', () => renderStaff());
 
-    function renderStaffTable() {
-        const query = (searchStaffInput.value || '').trim().toLowerCase();
-        const deptFilter = filterStaffDept.value;
+    function renderStaff() {
+        const query = (searchStaffInput ? searchStaffInput.value : '').trim().toLowerCase();
+        const deptFilter = filterStaffDept ? filterStaffDept.value : '';
 
         const bldgMap = new Map(buildings.map(b => [b.id, b]));
         const roomMap = new Map(rooms.map(r => [r.id, r]));
@@ -321,39 +430,71 @@ document.addEventListener('DOMContentLoaded', async () => {
             return matchesDept && matchesQuery;
         });
 
-        staffTableBody.innerHTML = filtered.map(s => {
-            const bldg = bldgMap.get(s.building_id);
-            const room = roomMap.get(s.room_id);
-            
-            let locPill = `<span class="text-slate-500 italic text-[11px]">Unassigned</span>`;
-            if (bldg && room) {
-                locPill = `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">📍 ${bldg.code || bldg.short_name} — Rm ${room.room_number}</span>`;
-            } else if (bldg) {
-                locPill = `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">📍 ${bldg.code || bldg.short_name} (Block Only)</span>`;
-            }
+        // 1. Desktop Table
+        if (staffTableBody) {
+            staffTableBody.innerHTML = filtered.map(s => {
+                const bldg = bldgMap.get(s.building_id);
+                const room = roomMap.get(s.room_id);
+                
+                let locPill = `<span class="text-slate-500 italic text-[11px]">Unassigned</span>`;
+                if (bldg && room) {
+                    locPill = `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">📍 ${bldg.code || bldg.short_name} — Rm ${room.room_number}</span>`;
+                } else if (bldg) {
+                    locPill = `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">📍 ${bldg.code || bldg.short_name} (Block Only)</span>`;
+                }
 
-            return `
-                <tr class="hover:bg-slate-800/30 transition">
-                    <td class="p-3.5">
-                        <div class="font-bold text-white">${s.title ? s.title + ' ' : ''}${s.name}</div>
-                    </td>
-                    <td class="p-3.5 text-slate-300">${s.position || 'Lecturer'}</td>
-                    <td class="p-3.5 text-slate-400">
-                        <div class="font-medium text-slate-300">${s.department || '—'}</div>
-                        <div class="text-[10px] text-slate-500">${s.faculty || ''}</div>
-                    </td>
-                    <td class="p-3.5">${locPill}</td>
-                    <td class="p-3.5 font-mono text-[11px] text-slate-400">
-                        <div>${s.email || '—'}</div>
-                        <div class="text-slate-500">${s.phone || ''}</div>
-                    </td>
-                    <td class="p-3.5 text-right space-x-2">
-                        <button onclick="window.editStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                        <button onclick="window.deleteStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                return `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="p-3.5">
+                            <div class="font-bold text-white">${s.title ? s.title + ' ' : ''}${s.name}</div>
+                        </td>
+                        <td class="p-3.5 text-slate-300">${s.position || 'Lecturer'}</td>
+                        <td class="p-3.5 text-slate-400">
+                            <div class="font-medium text-slate-300">${s.department || '—'}</div>
+                            <div class="text-[10px] text-slate-500">${s.faculty || ''}</div>
+                        </td>
+                        <td class="p-3.5">${locPill}</td>
+                        <td class="p-3.5 font-mono text-[11px] text-slate-400">
+                            <div>${s.email || '—'}</div>
+                            <div class="text-slate-500">${s.phone || ''}</div>
+                        </td>
+                        <td class="p-3.5 text-right space-x-2">
+                            <button onclick="window.editStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
+                            <button onclick="window.deleteStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 2. Mobile Responsive Cards
+        if (staffMobileCards) {
+            staffMobileCards.innerHTML = filtered.map(s => {
+                const bldg = bldgMap.get(s.building_id);
+                const room = roomMap.get(s.room_id);
+
+                let locText = 'No Office Assigned';
+                if (bldg && room) locText = `📍 ${bldg.code || bldg.short_name} — Rm ${room.room_number}`;
+                else if (bldg) locText = `📍 ${bldg.code || bldg.short_name} (Block Only)`;
+
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="font-bold text-white text-sm">${s.title ? s.title + ' ' : ''}${s.name}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">${s.position || 'Lecturer'} • ${s.department || ''}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit border border-emerald-500/20">${locText}</div>
+                        ${s.email ? `<div class="text-[11px] text-slate-400 font-mono">${s.email}</div>` : ''}
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
+                            <button onclick="window.editStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
+                            <button onclick="window.deleteStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     }
 
     const modalStaff = document.getElementById('modal-staff');
@@ -361,11 +502,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const staffBuildingSelect = document.getElementById('staff-building-select');
     const staffRoomSelect = document.getElementById('staff-room-select');
 
-    staffBuildingSelect.addEventListener('change', () => {
+    staffBuildingSelect?.addEventListener('change', () => {
         updateStaffRoomDropdown(staffBuildingSelect.value);
     });
 
     function updateStaffRoomDropdown(buildingId, selectedRoomId = '') {
+        if (!staffRoomSelect) return;
         staffRoomSelect.innerHTML = '<option value="">(No Room Assigned)</option>';
         if (!buildingId) return;
         const bldgRooms = rooms.filter(r => r.building_id === buildingId);
@@ -378,7 +520,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    document.getElementById('btn-add-staff').addEventListener('click', () => {
+    document.getElementById('btn-add-staff')?.addEventListener('click', () => {
         document.getElementById('modal-staff-title').textContent = 'Add Staff Member';
         formStaff.reset();
         document.getElementById('staff-id').value = '';
@@ -395,7 +537,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('staff-name').value = s.name;
         document.getElementById('staff-position').value = s.position || '';
         document.getElementById('staff-department').value = s.department || '';
-        staffBuildingSelect.value = s.building_id || '';
+        if (staffBuildingSelect) staffBuildingSelect.value = s.building_id || '';
         updateStaffRoomDropdown(s.building_id || '', s.room_id || '');
         document.getElementById('staff-email').value = s.email || '';
         document.getElementById('staff-phone').value = s.phone || '';
@@ -409,14 +551,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         await refreshData();
     };
 
-    formStaff.addEventListener('submit', async (e) => {
+    formStaff?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('staff-name').value.trim();
         const id = document.getElementById('staff-id').value || `staff-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
         const existing = staff.find(x => x.id === id) || {};
 
-        const bId = staffBuildingSelect.value || null;
-        const rId = staffRoomSelect.value || null;
+        const bId = staffBuildingSelect ? staffBuildingSelect.value || null : null;
+        const rId = staffRoomSelect ? staffRoomSelect.value || null : null;
 
         const record = {
             ...existing,
@@ -444,9 +586,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const editorBuildingList = document.getElementById('editor-building-list');
     const searchEditorBuilding = document.getElementById('search-editor-building');
+    const mobileEditorBuildingSelect = document.getElementById('mobile-editor-building-select');
     const btnSaveEntrance = document.getElementById('btn-save-entrance');
 
-    searchEditorBuilding.addEventListener('input', () => renderEditorBuildingList());
+    searchEditorBuilding?.addEventListener('input', () => renderEditorBuildingList());
+
+    mobileEditorBuildingSelect?.addEventListener('change', (e) => {
+        if (e.target.value) {
+            window.selectEditorBuilding(e.target.value);
+        }
+    });
 
     function initOrResizeEditorMap() {
         if (!editorMap) {
@@ -456,7 +605,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 maxZoom: 20
             });
 
-            // Clean CartoDB Dark/Voyager or OpenStreetMap layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(editorMap);
@@ -474,32 +622,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         setTimeout(() => {
             if (editorMap) editorMap.invalidateSize();
-        }, 150);
+        }, 200);
     }
 
     function renderEditorBuildingList() {
-        const query = (searchEditorBuilding.value || '').trim().toLowerCase();
+        const query = (searchEditorBuilding ? searchEditorBuilding.value : '').trim().toLowerCase();
         const filtered = buildings.filter(b => {
             return (b.name && b.name.toLowerCase().includes(query)) ||
                    (b.code && b.code.toLowerCase().includes(query));
         });
 
-        editorBuildingList.innerHTML = filtered.map(b => {
-            const isSelected = b.id === selectedBuildingId;
-            const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
-            return `
-                <div onclick="window.selectEditorBuilding('${b.id}')" class="p-2.5 rounded-xl cursor-pointer transition border ${isSelected ? 'bg-brand-600/20 border-brand-500 text-white' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50 text-slate-300'}">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-xs">${b.name}</span>
-                        ${hasEntrance ? '<span class="w-2 h-2 rounded-full bg-emerald-400" title="Entrance pin set"></span>' : '<span class="w-2 h-2 rounded-full bg-slate-600" title="No entrance set"></span>'}
+        // Desktop list
+        if (editorBuildingList) {
+            editorBuildingList.innerHTML = filtered.map(b => {
+                const isSelected = b.id === selectedBuildingId;
+                const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
+                return `
+                    <div onclick="window.selectEditorBuilding('${b.id}')" class="p-2.5 rounded-xl cursor-pointer transition border ${isSelected ? 'bg-brand-600/20 border-brand-500 text-white' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50 text-slate-300'}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs">${b.name}</span>
+                            ${hasEntrance ? '<span class="w-2 h-2 rounded-full bg-emerald-400" title="Entrance pin set"></span>' : '<span class="w-2 h-2 rounded-full bg-slate-600" title="No entrance set"></span>'}
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+                            <span class="font-mono">${b.code || b.id}</span>
+                            <span>${hasEntrance ? 'Doorway Set' : 'Centroid only'}</span>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                        <span class="font-mono">${b.code || b.id}</span>
-                        <span>${hasEntrance ? 'Doorway Set' : 'Centroid only'}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        }
+
+        // Mobile dropdown
+        if (mobileEditorBuildingSelect) {
+            mobileEditorBuildingSelect.innerHTML = '<option value="">Select Building to Pin...</option>' + 
+                buildings.map(b => `<option value="${b.id}" ${b.id === selectedBuildingId ? 'selected' : ''}>${b.name} (${b.code || b.id})</option>`).join('');
+        }
     }
 
     window.jumpToEntranceEditor = (buildingId) => {
@@ -511,13 +668,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectedBuildingId = id;
         renderEditorBuildingList();
         const b = buildings.find(x => x.id === id);
-        if (!b || !editorMap) return;
+        if (!b) return;
+
+        initOrResizeEditorMap();
 
         // Clear existing markers
-        if (buildingMarker) editorMap.removeLayer(buildingMarker);
-        if (entranceMarker) editorMap.removeLayer(entranceMarker);
+        if (buildingMarker && editorMap) editorMap.removeLayer(buildingMarker);
+        if (entranceMarker && editorMap) editorMap.removeLayer(entranceMarker);
         pendingEntranceCoords = null;
-        btnSaveEntrance.disabled = true;
+        if (btnSaveEntrance) btnSaveEntrance.disabled = true;
 
         // Centroid marker (Blue pin)
         buildingMarker = L.marker([b.lat, b.lng], {
@@ -540,7 +699,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function setPendingEntrance(lng, lat) {
         pendingEntranceCoords = [lng, lat];
         placeEntranceMarker(lng, lat, true);
-        btnSaveEntrance.disabled = false;
+        if (btnSaveEntrance) btnSaveEntrance.disabled = false;
         showToast('Entrance position picked. Click "Save Entrance Pin" to commit.', 'info');
     }
 
@@ -560,11 +719,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         entranceMarker.on('dragend', (e) => {
             const pos = e.target.getLatLng();
             pendingEntranceCoords = [pos.lng, pos.lat];
-            btnSaveEntrance.disabled = false;
+            if (btnSaveEntrance) btnSaveEntrance.disabled = false;
         });
     }
 
-    btnSaveEntrance.addEventListener('click', async () => {
+    btnSaveEntrance?.addEventListener('click', async () => {
         if (!selectedBuildingId || !pendingEntranceCoords) return;
         const b = buildings.find(x => x.id === selectedBuildingId);
         if (!b) return;
@@ -589,6 +748,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSyncTrigger = document.getElementById('btn-sync-trigger');
 
     async function renderSyncQueue() {
+        if (!queueList) return;
         const pending = await CampusSync.getPendingMutations();
         if (pending.length === 0) {
             queueList.innerHTML = `
@@ -619,8 +779,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         `).join('');
     }
 
-    btnForceSync.addEventListener('click', () => CampusSync.triggerSync());
-    btnSyncTrigger.addEventListener('click', () => CampusSync.triggerSync());
+    btnForceSync?.addEventListener('click', () => CampusSync.triggerSync());
+    btnSyncTrigger?.addEventListener('click', () => CampusSync.triggerSync());
 
     // =========================================================================
     // SETTINGS / CONNECT DRAWER & AUTH
@@ -647,33 +807,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function openSettings() {
         const cfg = CampusSync.getConfig();
-        inputOrgId.value = cfg.orgId || 'usted-ksi';
-        inputSupabaseUrl.value = cfg.supabaseUrl || '';
-        inputSupabaseKey.value = cfg.supabaseAnonKey || '';
+        if (inputOrgId) inputOrgId.value = cfg.orgId || 'usted-ksi';
+        if (inputSupabaseUrl) inputSupabaseUrl.value = cfg.supabaseUrl || '';
+        if (inputSupabaseKey) inputSupabaseKey.value = cfg.supabaseAnonKey || '';
 
-        settingsDrawer.classList.remove('pointer-events-none', 'opacity-0');
+        if (settingsDrawer) settingsDrawer.classList.remove('pointer-events-none', 'opacity-0');
     }
 
     function closeSettings() {
-        settingsDrawer.classList.add('pointer-events-none', 'opacity-0');
+        if (settingsDrawer) settingsDrawer.classList.add('pointer-events-none', 'opacity-0');
     }
 
-    btnOpenSettings.addEventListener('click', openSettings);
-    btnCloseSettings.addEventListener('click', closeSettings);
-    drawerBackdrop.addEventListener('click', closeSettings);
+    btnOpenSettings?.addEventListener('click', openSettings);
+    btnCloseSettings?.addEventListener('click', closeSettings);
+    drawerBackdrop?.addEventListener('click', closeSettings);
 
-    btnSaveConnection.addEventListener('click', async () => {
+    btnSaveConnection?.addEventListener('click', async () => {
         CampusSync.saveConfig({
-            orgId: inputOrgId.value.trim() || 'usted-ksi',
-            supabaseUrl: inputSupabaseUrl.value.trim().replace(/\/+$/, ''),
-            supabaseAnonKey: inputSupabaseKey.value.trim()
+            orgId: inputOrgId ? inputOrgId.value.trim() || 'usted-ksi' : 'usted-ksi',
+            supabaseUrl: inputSupabaseUrl ? inputSupabaseUrl.value.trim().replace(/\/+$/, '') : '',
+            supabaseAnonKey: inputSupabaseKey ? inputSupabaseKey.value.trim() : ''
         });
         showToast('Connection settings saved', 'success');
         CampusSync.triggerSync();
         closeSettings();
     });
 
-    btnAuthLogin.addEventListener('click', async () => {
+    btnAuthLogin?.addEventListener('click', async () => {
         try {
             const email = authEmail.value.trim();
             const password = authPassword.value;
@@ -684,16 +844,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    btnAuthLogout.addEventListener('click', () => {
+    btnAuthLogout?.addEventListener('click', () => {
         CampusSync.logout();
         showToast('Signed out', 'info');
     });
 
-    btnResetSeed.addEventListener('click', async () => {
-        if (!confirm('This will wipe your local IndexedDB and re-import data/buildings.json and data/people.json. Proceed?')) return;
+    btnResetSeed?.addEventListener('click', async () => {
+        if (!confirm('This will reset your local IndexedDB and re-import data/buildings.json and data/people.json. Proceed?')) return;
         try {
-            const res = await fetch('seed_data.json');
-            if (res.ok) {
+            let res = await fetch('/admin/seed_data.json').catch(() => null);
+            if (!res || !res.ok) res = await fetch('seed_data.json').catch(() => null);
+            if (res && res.ok) {
                 const data = await res.json();
                 await CampusSync.bulkPut('buildings', data.buildings || []);
                 await CampusSync.bulkPut('rooms', data.rooms || []);
@@ -708,7 +869,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Snapshot Export
-    document.getElementById('btn-export-backup').addEventListener('click', () => {
+    document.getElementById('btn-export-backup')?.addEventListener('click', () => {
         const snapshot = {
             exported_at: new Date().toISOString(),
             org_id: CampusSync.getConfig().orgId,
@@ -728,30 +889,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
 
     function populateDropdowns() {
-        // Buildings dropdown for rooms & staff
-        roomBuildingSelect.innerHTML = buildings.map(b => `<option value="${b.id}">${b.name} (${b.code || b.id})</option>`).join('');
-        filterRoomsBuilding.innerHTML = '<option value="">All Buildings</option>' + buildings.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+        if (roomBuildingSelect) {
+            roomBuildingSelect.innerHTML = buildings.map(b => `<option value="${b.id}">${b.name} (${b.code || b.id})</option>`).join('');
+        }
+        if (filterRoomsBuilding) {
+            filterRoomsBuilding.innerHTML = '<option value="">All Buildings</option>' + buildings.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+        }
+        if (staffBuildingSelect) {
+            staffBuildingSelect.innerHTML = '<option value="">(No Building Assigned)</option>' + buildings.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+        }
 
-        staffBuildingSelect.innerHTML = '<option value="">(No Building Assigned)</option>' + buildings.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+        if (filterStaffDept) {
+            const depts = Array.from(new Set(staff.map(s => s.department).filter(Boolean))).sort();
+            filterStaffDept.innerHTML = '<option value="">All Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+        }
 
-        // Department dropdown for staff filter
-        const depts = Array.from(new Set(staff.map(s => s.department).filter(Boolean))).sort();
-        filterStaffDept.innerHTML = '<option value="">All Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (mobileEditorBuildingSelect) {
+            mobileEditorBuildingSelect.innerHTML = '<option value="">Select Building to Pin...</option>' + 
+                buildings.map(b => `<option value="${b.id}" ${b.id === selectedBuildingId ? 'selected' : ''}>${b.name} (${b.code || b.id})</option>`).join('');
+        }
     }
 
     document.querySelectorAll('.btn-close-modal').forEach(btn => {
         btn.addEventListener('click', () => {
-            modalBuilding.classList.add('hidden');
-            modalRoom.classList.add('hidden');
-            modalStaff.classList.add('hidden');
+            modalBuilding?.classList.add('hidden');
+            modalRoom?.classList.add('hidden');
+            modalStaff?.classList.add('hidden');
         });
     });
 
     document.querySelectorAll('.modal-backdrop').forEach(bd => {
         bd.addEventListener('click', () => {
-            modalBuilding.classList.add('hidden');
-            modalRoom.classList.add('hidden');
-            modalStaff.classList.add('hidden');
+            modalBuilding?.classList.add('hidden');
+            modalRoom?.classList.add('hidden');
+            modalStaff?.classList.add('hidden');
         });
     });
 
@@ -765,29 +936,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     const syncIcon = document.getElementById('sync-icon');
 
     CampusSync.subscribe((status) => {
-        if (status.isSandbox) {
-            envBadge.className = 'px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 bg-amber-500/10 text-amber-300 border border-amber-500/30';
-            envText.textContent = 'Local Sandbox Mode';
-        } else {
-            envBadge.className = 'px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30';
-            envText.textContent = 'Supabase Connected';
+        if (envBadge && envText) {
+            if (status.isSandbox) {
+                envBadge.className = 'px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-amber-500/10 text-amber-300 border border-amber-500/30';
+                envText.textContent = 'Local Sandbox Mode';
+            } else {
+                envBadge.className = 'px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30';
+                envText.textContent = 'Supabase Connected';
+            }
         }
 
-        syncCountText.textContent = `${status.pendingCount} Pending`;
-        if (status.isSyncing) {
-            syncIcon.classList.add('animate-spin');
-        } else {
-            syncIcon.classList.remove('animate-spin');
+        if (syncCountText) syncCountText.textContent = `${status.pendingCount} Pending`;
+        if (syncIcon) {
+            if (status.isSyncing) syncIcon.classList.add('animate-spin');
+            else syncIcon.classList.remove('animate-spin');
         }
 
         // Auth display
-        if (status.user) {
-            authUnlogged.classList.add('hidden');
-            authLogged.classList.remove('hidden');
-            userDisplayEmail.textContent = status.user.email;
-        } else {
-            authUnlogged.classList.remove('hidden');
-            authLogged.classList.add('hidden');
+        if (authUnlogged && authLogged) {
+            if (status.user) {
+                authUnlogged.classList.add('hidden');
+                authLogged.classList.remove('hidden');
+                if (userDisplayEmail) userDisplayEmail.textContent = status.user.email;
+            } else {
+                authUnlogged.classList.remove('hidden');
+                authLogged.classList.add('hidden');
+            }
         }
 
         if (activeTab === 'sync-queue') {
@@ -798,6 +972,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Toast helper
     function showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');
+        if (!container) return;
         const toast = document.createElement('div');
         const color = type === 'success' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-200' :
                       type === 'error' ? 'bg-rose-950 border-rose-500/50 text-rose-200' :
