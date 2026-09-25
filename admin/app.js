@@ -63,29 +63,47 @@ window.showToast = showToast;
 // =============================================================================
 
 function closeAllModals() {
-    const modalBuilding = document.getElementById('modal-building');
-    const modalRoom = document.getElementById('modal-room');
-    const modalStaff = document.getElementById('modal-staff');
-    if (modalBuilding) modalBuilding.classList.add('hidden');
-    if (modalRoom) modalRoom.classList.add('hidden');
-    if (modalStaff) modalStaff.classList.add('hidden');
+    ['modal-building', 'modal-room', 'modal-staff'].forEach(mId => {
+        const modal = document.getElementById(mId);
+        if (modal) {
+            modal.classList.add('hidden', 'pointer-events-none');
+            modal.classList.remove('pointer-events-auto');
+            const backdrop = modal.querySelector ? modal.querySelector('.modal-backdrop') : null;
+            if (backdrop) {
+                backdrop.classList.add('pointer-events-none');
+                backdrop.classList.remove('pointer-events-auto');
+            }
+        }
+    });
 }
 window.closeAllModals = closeAllModals;
 
+function openModal(modalId) {
+    closeAllModals();
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('pointer-events-auto');
+    const backdrop = modal.querySelector ? modal.querySelector('.modal-backdrop') : null;
+    if (backdrop) {
+        backdrop.classList.remove('pointer-events-none');
+        backdrop.classList.add('pointer-events-auto');
+    }
+}
+window.openModal = openModal;
+
 function openAddBuildingModal() {
-    const modal = document.getElementById('modal-building');
     const form = document.getElementById('form-building');
     const title = document.getElementById('modal-building-title');
     const bId = document.getElementById('building-id');
     if (title) title.textContent = 'Add Campus Building';
     if (form) form.reset();
     if (bId) bId.value = '';
-    if (modal) modal.classList.remove('hidden');
+    openModal('modal-building');
 }
 window.openAddBuildingModal = openAddBuildingModal;
 
 function openAddRoomModal() {
-    const modal = document.getElementById('modal-room');
     const form = document.getElementById('form-room');
     const title = document.getElementById('modal-room-title');
     const rId = document.getElementById('room-id');
@@ -93,12 +111,11 @@ function openAddRoomModal() {
     if (form) form.reset();
     if (rId) rId.value = '';
     populateDropdowns();
-    if (modal) modal.classList.remove('hidden');
+    openModal('modal-room');
 }
 window.openAddRoomModal = openAddRoomModal;
 
 function openAddStaffModal() {
-    const modal = document.getElementById('modal-staff');
     const form = document.getElementById('form-staff');
     const title = document.getElementById('modal-staff-title');
     const sId = document.getElementById('staff-id');
@@ -107,7 +124,7 @@ function openAddStaffModal() {
     if (sId) sId.value = '';
     populateDropdowns();
     updateStaffRoomDropdown('');
-    if (modal) modal.classList.remove('hidden');
+    openModal('modal-staff');
 }
 window.openAddStaffModal = openAddStaffModal;
 
@@ -117,6 +134,7 @@ window.openAddStaffModal = openAddStaffModal;
 
 function openSettings() {
     const settingsDrawer = document.getElementById('settings-drawer');
+    const drawerBackdrop = document.getElementById('drawer-backdrop');
     const inputOrgId = document.getElementById('input-org-id');
     const inputSupabaseUrl = document.getElementById('input-supabase-url');
     const inputSupabaseKey = document.getElementById('input-supabase-key');
@@ -129,15 +147,36 @@ function openSettings() {
     }
 
     if (settingsDrawer) {
-        settingsDrawer.classList.remove('pointer-events-none', 'opacity-0');
+        settingsDrawer.classList.remove('hidden', 'pointer-events-none');
+        settingsDrawer.classList.add('pointer-events-auto');
+        if (typeof requestAnimationFrame !== 'undefined') {
+            requestAnimationFrame(() => settingsDrawer.classList.remove('opacity-0'));
+        } else {
+            settingsDrawer.classList.remove('opacity-0');
+        }
+    }
+    if (drawerBackdrop) {
+        drawerBackdrop.classList.remove('pointer-events-none');
+        drawerBackdrop.classList.add('pointer-events-auto');
     }
 }
 window.openSettings = openSettings;
 
 function closeSettings() {
     const settingsDrawer = document.getElementById('settings-drawer');
+    const drawerBackdrop = document.getElementById('drawer-backdrop');
     if (settingsDrawer) {
-        settingsDrawer.classList.add('pointer-events-none', 'opacity-0');
+        settingsDrawer.classList.add('opacity-0', 'pointer-events-none');
+        settingsDrawer.classList.remove('pointer-events-auto');
+        setTimeout(() => {
+            if (settingsDrawer && settingsDrawer.classList.contains('opacity-0')) {
+                settingsDrawer.classList.add('hidden');
+            }
+        }, 300);
+    }
+    if (drawerBackdrop) {
+        drawerBackdrop.classList.add('pointer-events-none');
+        drawerBackdrop.classList.remove('pointer-events-auto');
     }
 }
 window.closeSettings = closeSettings;
@@ -150,7 +189,10 @@ function openMobileSidebar() {
     const appSidebar = document.getElementById('app-sidebar');
     const mobileBackdrop = document.getElementById('mobile-sidebar-backdrop');
     if (appSidebar) appSidebar.classList.remove('-translate-x-full');
-    if (mobileBackdrop) mobileBackdrop.classList.remove('hidden');
+    if (mobileBackdrop) {
+        mobileBackdrop.classList.remove('hidden', 'pointer-events-none');
+        mobileBackdrop.classList.add('pointer-events-auto');
+    }
 }
 window.openMobileSidebar = openMobileSidebar;
 
@@ -158,7 +200,10 @@ function closeMobileSidebar() {
     const appSidebar = document.getElementById('app-sidebar');
     const mobileBackdrop = document.getElementById('mobile-sidebar-backdrop');
     if (appSidebar) appSidebar.classList.add('-translate-x-full');
-    if (mobileBackdrop) mobileBackdrop.classList.add('hidden');
+    if (mobileBackdrop) {
+        mobileBackdrop.classList.add('hidden', 'pointer-events-none');
+        mobileBackdrop.classList.remove('pointer-events-auto');
+    }
 }
 window.closeMobileSidebar = closeMobileSidebar;
 
@@ -265,9 +310,9 @@ function renderBuildings() {
                         <td class="p-3.5">${entranceBadge}</td>
                         <td class="p-3.5 text-slate-400">${b.hours || '—'}</td>
                         <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
-                            <button data-action="edit-building" data-id="${b.id}" onclick="window.editBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                            <button data-action="pin-building" data-id="${b.id}" onclick="window.jumpToEntranceEditor('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition">Pin Doorway</button>
-                            <button data-action="delete-building" data-id="${b.id}" onclick="window.deleteBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                            <button data-action="edit-building" data-id="${b.id}" onclick="event.stopPropagation(); window.editBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition cursor-pointer">Edit</button>
+                            <button data-action="pin-building" data-id="${b.id}" onclick="event.stopPropagation(); window.jumpToEntranceEditor('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition cursor-pointer">Pin Doorway</button>
+                            <button data-action="delete-building" data-id="${b.id}" onclick="event.stopPropagation(); window.deleteBuilding('${b.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition cursor-pointer">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -299,9 +344,9 @@ function renderBuildings() {
                         </div>
                         <div class="text-[11px] text-slate-400 font-mono">Coords: ${latFormatted}, ${lngFormatted}</div>
                         <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
-                            <button data-action="edit-building" data-id="${b.id}" onclick="window.editBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
-                            <button data-action="pin-building" data-id="${b.id}" onclick="window.jumpToEntranceEditor('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 touch-btn">Pin Doorway</button>
-                            <button data-action="delete-building" data-id="${b.id}" onclick="window.deleteBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                            <button data-action="edit-building" data-id="${b.id}" onclick="event.stopPropagation(); window.editBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn cursor-pointer">Edit</button>
+                            <button data-action="pin-building" data-id="${b.id}" onclick="event.stopPropagation(); window.jumpToEntranceEditor('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 touch-btn cursor-pointer">Pin Doorway</button>
+                            <button data-action="delete-building" data-id="${b.id}" onclick="event.stopPropagation(); window.deleteBuilding('${b.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn cursor-pointer">Delete</button>
                         </div>
                     </div>
                 `;
@@ -314,16 +359,23 @@ window.renderBuildings = renderBuildings;
 function editBuilding(id) {
     const b = buildings.find(x => x.id === id);
     if (!b) return;
-    const modal = document.getElementById('modal-building');
-    document.getElementById('modal-building-title').textContent = 'Edit Building';
-    document.getElementById('building-id').value = b.id;
-    document.getElementById('building-name').value = b.name || '';
-    document.getElementById('building-code').value = b.code || '';
-    document.getElementById('building-type').value = b.type || 'academic';
-    document.getElementById('building-lat').value = b.lat;
-    document.getElementById('building-lng').value = b.lng;
-    document.getElementById('building-description').value = b.description || '';
-    if (modal) modal.classList.remove('hidden');
+    const title = document.getElementById('modal-building-title');
+    if (title) title.textContent = 'Edit Building';
+    const bId = document.getElementById('building-id');
+    if (bId) bId.value = b.id;
+    const bName = document.getElementById('building-name');
+    if (bName) bName.value = b.name || '';
+    const bCode = document.getElementById('building-code');
+    if (bCode) bCode.value = b.code || '';
+    const bType = document.getElementById('building-type');
+    if (bType) bType.value = b.type || 'academic';
+    const bLat = document.getElementById('building-lat');
+    if (bLat) bLat.value = b.lat;
+    const bLng = document.getElementById('building-lng');
+    if (bLng) bLng.value = b.lng;
+    const bDesc = document.getElementById('building-description');
+    if (bDesc) bDesc.value = b.description || '';
+    openModal('modal-building');
 }
 window.editBuilding = editBuilding;
 
@@ -390,8 +442,8 @@ function renderRooms() {
                         <td class="p-3.5 text-slate-400">${r.description || '—'}</td>
                         <td class="p-3.5 text-slate-500 font-mono text-[11px]">${(r.keywords || []).slice(0, 3).join(', ')}</td>
                         <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
-                            <button data-action="edit-room" data-id="${r.id}" onclick="window.editRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                            <button data-action="delete-room" data-id="${r.id}" onclick="window.deleteRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                            <button data-action="edit-room" data-id="${r.id}" onclick="event.stopPropagation(); window.editRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition cursor-pointer">Edit</button>
+                            <button data-action="delete-room" data-id="${r.id}" onclick="event.stopPropagation(); window.deleteRoom('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition cursor-pointer">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -420,8 +472,8 @@ function renderRooms() {
                         </div>
                         ${r.description ? `<div class="text-xs text-slate-300">${r.description}</div>` : ''}
                         <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
-                            <button data-action="edit-room" data-id="${r.id}" onclick="window.editRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
-                            <button data-action="delete-room" data-id="${r.id}" onclick="window.deleteRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                            <button data-action="edit-room" data-id="${r.id}" onclick="event.stopPropagation(); window.editRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn cursor-pointer">Edit</button>
+                            <button data-action="delete-room" data-id="${r.id}" onclick="event.stopPropagation(); window.deleteRoom('${r.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn cursor-pointer">Delete</button>
                         </div>
                     </div>
                 `;
@@ -435,16 +487,21 @@ function editRoom(id) {
     const r = rooms.find(x => x.id === id);
     if (!r) return;
     populateDropdowns();
-    const modal = document.getElementById('modal-room');
-    document.getElementById('modal-room-title').textContent = 'Edit Room Allocation';
-    document.getElementById('room-id').value = r.id;
+    const title = document.getElementById('modal-room-title');
+    if (title) title.textContent = 'Edit Room Allocation';
+    const rId = document.getElementById('room-id');
+    if (rId) rId.value = r.id;
     const roomBuildingSelect = document.getElementById('room-building-select');
     if (roomBuildingSelect) roomBuildingSelect.value = r.building_id;
-    document.getElementById('room-number').value = r.room_number;
-    document.getElementById('room-floor').value = r.floor;
-    document.getElementById('room-description').value = r.description || '';
-    document.getElementById('room-keywords').value = (r.keywords || []).join(', ');
-    if (modal) modal.classList.remove('hidden');
+    const rNum = document.getElementById('room-number');
+    if (rNum) rNum.value = r.room_number;
+    const rFloor = document.getElementById('room-floor');
+    if (rFloor) rFloor.value = r.floor;
+    const rDesc = document.getElementById('room-description');
+    if (rDesc) rDesc.value = r.description || '';
+    const rKeywords = document.getElementById('room-keywords');
+    if (rKeywords) rKeywords.value = (r.keywords || []).join(', ');
+    openModal('modal-room');
 }
 window.editRoom = editRoom;
 
@@ -525,8 +582,8 @@ function renderStaff() {
                             <div class="text-slate-500">${s.phone || ''}</div>
                         </td>
                         <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
-                            <button data-action="edit-staff" data-id="${s.id}" onclick="window.editStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition">Edit</button>
-                            <button data-action="delete-staff" data-id="${s.id}" onclick="window.deleteStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition">Delete</button>
+                            <button data-action="edit-staff" data-id="${s.id}" onclick="event.stopPropagation(); window.editStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-brand-400 hover:bg-brand-500/10 transition cursor-pointer">Edit</button>
+                            <button data-action="delete-staff" data-id="${s.id}" onclick="event.stopPropagation(); window.deleteStaff('${s.id}')" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition cursor-pointer">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -558,8 +615,8 @@ function renderStaff() {
                         <div class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit border border-emerald-500/20">${locText}</div>
                         ${s.email ? `<div class="text-[11px] text-slate-400 font-mono">${s.email}</div>` : ''}
                         <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
-                            <button data-action="edit-staff" data-id="${s.id}" onclick="window.editStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn">Edit</button>
-                            <button data-action="delete-staff" data-id="${s.id}" onclick="window.deleteStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn">Delete</button>
+                            <button data-action="edit-staff" data-id="${s.id}" onclick="event.stopPropagation(); window.editStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 touch-btn cursor-pointer">Edit</button>
+                            <button data-action="delete-staff" data-id="${s.id}" onclick="event.stopPropagation(); window.deleteStaff('${s.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 touch-btn cursor-pointer">Delete</button>
                         </div>
                     </div>
                 `;
@@ -589,19 +646,26 @@ function editStaff(id) {
     const s = staff.find(x => x.id === id);
     if (!s) return;
     populateDropdowns();
-    const modal = document.getElementById('modal-staff');
-    document.getElementById('modal-staff-title').textContent = 'Edit Staff Member';
-    document.getElementById('staff-id').value = s.id;
-    document.getElementById('staff-title').value = s.title || '';
-    document.getElementById('staff-name').value = s.name;
-    document.getElementById('staff-position').value = s.position || '';
-    document.getElementById('staff-department').value = s.department || '';
+    const title = document.getElementById('modal-staff-title');
+    if (title) title.textContent = 'Edit Staff Member';
+    const sId = document.getElementById('staff-id');
+    if (sId) sId.value = s.id;
+    const sTitle = document.getElementById('staff-title');
+    if (sTitle) sTitle.value = s.title || '';
+    const sName = document.getElementById('staff-name');
+    if (sName) sName.value = s.name;
+    const sPos = document.getElementById('staff-position');
+    if (sPos) sPos.value = s.position || '';
+    const sDept = document.getElementById('staff-department');
+    if (sDept) sDept.value = s.department || '';
     const staffBuildingSelect = document.getElementById('staff-building-select');
     if (staffBuildingSelect) staffBuildingSelect.value = s.building_id || '';
     updateStaffRoomDropdown(s.building_id || '', s.room_id || '');
-    document.getElementById('staff-email').value = s.email || '';
-    document.getElementById('staff-phone').value = s.phone || '';
-    if (modal) modal.classList.remove('hidden');
+    const sEmail = document.getElementById('staff-email');
+    if (sEmail) sEmail.value = s.email || '';
+    const sPhone = document.getElementById('staff-phone');
+    if (sPhone) sPhone.value = s.phone || '';
+    openModal('modal-staff');
 }
 window.editStaff = editStaff;
 
@@ -892,7 +956,7 @@ document.addEventListener('click', (e) => {
     }
 
     // 3. Settings Drawer Open / Close
-    if (e.target.closest('#btn-open-settings')) {
+    if (e.target.closest('#btn-settings, #btn-open-settings, [data-action="open-settings"]')) {
         openSettings();
         return;
     }
@@ -928,9 +992,13 @@ document.addEventListener('click', (e) => {
     // 6. Action Buttons in Table / Cards (Delegated)
     const actionBtn = e.target.closest('[data-action]');
     if (actionBtn) {
+        e.stopPropagation();
         const action = actionBtn.getAttribute('data-action');
         const id = actionBtn.getAttribute('data-id');
-        if (action === 'edit-building') editBuilding(id);
+        if (action === 'open-settings') openSettings();
+        else if (action === 'close-settings') closeSettings();
+        else if (action === 'close-modal') closeAllModals();
+        else if (action === 'edit-building') editBuilding(id);
         else if (action === 'delete-building') deleteBuilding(id);
         else if (action === 'pin-building') jumpToEntranceEditor(id);
         else if (action === 'edit-room') editRoom(id);

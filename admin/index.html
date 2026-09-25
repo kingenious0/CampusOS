@@ -62,6 +62,13 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover {
             background: rgba(148, 163, 184, 0.6);
         }
+        button,
+        [role="button"],
+        .touch-btn,
+        .nav-tab-btn,
+        .mobile-nav-btn {
+            cursor: pointer;
+        }
         .touch-btn {
             min-height: 40px;
             touch-action: manipulation;
@@ -81,10 +88,10 @@
 <body class="h-full flex flex-col overflow-hidden bg-slate-950 font-sans selection:bg-brand-500 selection:text-white">
 
     <!-- Top Navigation Header -->
-    <header class="h-16 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between z-30 shrink-0">
+    <header class="h-16 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between relative z-30 shrink-0">
         <div class="flex items-center gap-2.5 sm:gap-3">
             <!-- Mobile Sidebar Hamburger Toggle -->
-            <button id="btn-toggle-sidebar" class="lg:hidden p-2 -ml-1 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none touch-btn" aria-label="Toggle navigation">
+            <button id="btn-toggle-sidebar" class="lg:hidden p-2 -ml-1 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none touch-btn cursor-pointer" aria-label="Toggle navigation">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -115,7 +122,7 @@
             </div>
 
             <!-- Sync Status Button -->
-            <button id="btn-sync-trigger" title="Click to sync pending mutations" class="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition touch-btn">
+            <button id="btn-sync-trigger" title="Click to sync pending mutations" class="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition touch-btn cursor-pointer">
                 <svg id="sync-icon" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -125,7 +132,7 @@
 
         <!-- Right: Actions -->
         <div class="flex items-center gap-2">
-            <a href="../map.html" target="_blank" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition touch-btn">
+            <a href="../map.html" target="_blank" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition touch-btn cursor-pointer">
                 <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
@@ -133,7 +140,7 @@
             </a>
 
             <!-- Connect / Settings Drawer Button -->
-            <button id="btn-open-settings" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-sm transition touch-btn">
+            <button id="btn-settings" data-action="open-settings" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-sm transition touch-btn cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -147,7 +154,7 @@
     <div class="flex-1 flex overflow-hidden relative">
         
         <!-- Mobile Sidebar Backdrop Overlay -->
-        <div id="mobile-sidebar-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+        <div id="mobile-sidebar-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden pointer-events-none lg:hidden"></div>
 
         <!-- Sidebar Navigation Drawer -->
         <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-900 lg:bg-slate-900/60 border-r border-slate-800 flex flex-col shrink-0 p-3 gap-1 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
@@ -215,7 +222,7 @@
             <!-- TAB 1: BUILDINGS VIEW -->
             <section id="view-buildings" class="tab-view flex-1 flex flex-col overflow-hidden p-4 sm:p-6">
                 <!-- Controls bar -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 relative z-30">
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Campus Buildings</h1>
                         <p class="text-xs text-slate-400 mt-0.5">Facilities, academic blocks, halls, and administration centers.</p>
@@ -224,7 +231,7 @@
                         <div class="relative flex-1 sm:w-64">
                             <input id="search-buildings" type="text" placeholder="Search buildings..." class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                         </div>
-                        <button id="btn-add-building" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn">
+                        <button id="btn-add-building" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn cursor-pointer relative z-30">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -262,7 +269,7 @@
             <!-- TAB 2: ROOMS VIEW -->
             <section id="view-rooms" class="tab-view hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6">
                 <!-- Controls bar -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 relative z-30">
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Room Allocations</h1>
                         <p class="text-xs text-slate-400 mt-0.5">Lecture rooms, labs, auditoriums, and staff offices with floor levels.</p>
@@ -274,7 +281,7 @@
                         <div class="relative flex-1 sm:w-56">
                             <input id="search-rooms" type="text" placeholder="Search rooms..." class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                         </div>
-                        <button id="btn-add-room" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn">
+                        <button id="btn-add-room" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn cursor-pointer relative z-30">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -311,7 +318,7 @@
             <!-- TAB 3: STAFF DIRECTORY VIEW -->
             <section id="view-staff" class="tab-view hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6">
                 <!-- Controls bar -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 relative z-30">
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Staff Directory</h1>
                         <p class="text-xs text-slate-400 mt-0.5">Faculty members, lecturers, and administrators with office locations.</p>
@@ -323,7 +330,7 @@
                         <div class="relative flex-1 sm:w-56">
                             <input id="search-staff" type="text" placeholder="Search staff..." class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                         </div>
-                        <button id="btn-add-staff" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn">
+                        <button id="btn-add-staff" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1.5 transition shrink-0 touch-btn cursor-pointer relative z-30">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
@@ -360,7 +367,7 @@
             <!-- TAB 4: OUTDOOR ENTRANCE EDITOR -->
             <section id="view-entrance-editor" class="tab-view hidden flex-1 flex flex-col overflow-hidden p-3 sm:p-6">
                 <!-- Top Map Header -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 mb-3 relative z-30">
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Outdoor Entrance & Pin Editor</h1>
                         <p class="text-xs text-slate-400 mt-0.5">Click or drag entrance pins so navigation drops users directly at the doorway.</p>
@@ -370,7 +377,7 @@
                         <select id="mobile-editor-building-select" class="lg:hidden flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
                             <option value="">Select Building to Pin...</option>
                         </select>
-                        <button id="btn-save-entrance" disabled class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white transition flex items-center justify-center gap-1.5 shrink-0 touch-btn">
+                        <button id="btn-save-entrance" disabled class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white transition flex items-center justify-center gap-1.5 shrink-0 touch-btn cursor-pointer">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -402,16 +409,16 @@
 
             <!-- TAB 5: SYNC QUEUE & AUDIT LOG -->
             <section id="view-sync-queue" class="tab-view hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6">
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 relative z-30">
                     <div>
                         <h1 class="text-lg sm:text-xl font-bold text-white tracking-tight">Offline Mutation Queue & Audit Log</h1>
                         <p class="text-xs text-slate-400 mt-0.5">All administrative modifications queued locally in IndexedDB.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-export-backup" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition touch-btn">
+                        <button id="btn-export-backup" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition touch-btn cursor-pointer">
                             Export Snapshot (JSON)
                         </button>
-                        <button id="btn-force-sync" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition touch-btn">
+                        <button id="btn-force-sync" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition touch-btn cursor-pointer">
                             Re-sync Now
                         </button>
                     </div>
@@ -463,15 +470,15 @@
     </nav>
 
     <!-- SETTINGS & SUPABASE CONNECT DRAWER -->
-    <div id="settings-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
-        <div id="drawer-backdrop" class="absolute inset-0 bg-slate-950/75 backdrop-blur-sm pointer-events-auto"></div>
+    <div id="settings-drawer" class="fixed inset-0 z-50 hidden pointer-events-none transition-opacity duration-300 opacity-0">
+        <div id="drawer-backdrop" class="absolute inset-0 bg-slate-950/75 backdrop-blur-sm pointer-events-none"></div>
         <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl p-5 sm:p-6 flex flex-col pointer-events-auto overflow-auto custom-scroll">
             <div class="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
                     <h2 class="text-base sm:text-lg font-bold text-white">Database & Sync Settings</h2>
                     <p class="text-xs text-slate-400">Connect to Supabase Postgres or work in Local Sandbox.</p>
                 </div>
-                <button id="btn-close-settings" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 touch-btn">
+                <button id="btn-close-settings" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 touch-btn cursor-pointer">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -497,7 +504,7 @@
                 </div>
 
                 <div class="pt-2">
-                    <button id="btn-save-connection" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition flex items-center justify-center gap-2 touch-btn">
+                    <button id="btn-save-connection" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition flex items-center justify-center gap-2 touch-btn cursor-pointer">
                         Save Connection & Test Sync
                     </button>
                 </div>
@@ -508,7 +515,7 @@
                     <div id="auth-unlogged" class="space-y-3">
                         <input id="auth-email" type="email" placeholder="admin@aamusted.edu.gh" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                         <input id="auth-password" type="password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
-                        <button id="btn-auth-login" class="w-full py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition touch-btn">
+                        <button id="btn-auth-login" class="w-full py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition touch-btn cursor-pointer">
                             Sign In via Supabase Auth
                         </button>
                     </div>
@@ -518,7 +525,7 @@
                                 <div class="text-[10px] text-slate-500 font-semibold uppercase">Signed In As</div>
                                 <div id="user-display-email" class="text-slate-200 font-medium">user@example.com</div>
                             </div>
-                            <button id="btn-auth-logout" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition touch-btn">
+                            <button id="btn-auth-logout" class="px-2.5 py-1 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-500/10 transition touch-btn cursor-pointer">
                                 Sign Out
                             </button>
                         </div>
@@ -528,7 +535,7 @@
                 <!-- Danger / Reset Zone -->
                 <div class="mt-6 pt-5 border-t border-slate-800 space-y-2">
                     <h3 class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">Local Sandbox Reset</h3>
-                    <button id="btn-reset-seed" class="w-full py-2 rounded-xl text-xs font-medium text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition touch-btn">
+                    <button id="btn-reset-seed" class="w-full py-2 rounded-xl text-xs font-medium text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition touch-btn cursor-pointer">
                         Reset Local Database to Default Seed Data
                     </button>
                 </div>
@@ -537,9 +544,9 @@
     </div>
 
     <!-- ADD / EDIT BUILDING MODAL -->
-    <div id="modal-building" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6">
+    <div id="modal-building" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
+        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
             <h3 id="modal-building-title" class="text-base font-bold text-white mb-3">Edit Building</h3>
             <form id="form-building" class="space-y-3">
                 <input type="hidden" id="building-id">
@@ -578,17 +585,17 @@
                     <textarea id="building-description" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn">Save Building</button>
+                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Building</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ADD / EDIT ROOM MODAL -->
-    <div id="modal-room" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6">
+    <div id="modal-room" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
+        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
             <h3 id="modal-room-title" class="text-base font-bold text-white mb-3">Edit Room Allocation</h3>
             <form id="form-room" class="space-y-3">
                 <input type="hidden" id="room-id">
@@ -621,17 +628,17 @@
                     <input id="room-keywords" type="text" placeholder="e.g. DIS, ROB 018, Dr. Kotor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn">Save Room</button>
+                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Room</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ADD / EDIT STAFF MODAL -->
-    <div id="modal-staff" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6">
+    <div id="modal-staff" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+        <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
+        <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
             <h3 id="modal-staff-title" class="text-base font-bold text-white mb-3">Edit Staff Record</h3>
             <form id="form-staff" class="space-y-3">
                 <input type="hidden" id="staff-id">
@@ -680,8 +687,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn">Save Staff Record</button>
+                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Staff Record</button>
                 </div>
             </form>
         </div>
