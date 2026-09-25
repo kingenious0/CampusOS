@@ -1,6 +1,8 @@
+SET search_path TO usted_nav, public;
+
 -- ==============================================================================
 -- CampusOS Studio - Automated Data Seed Script
--- Generated at: 2026-09-24T18:30:13.472Z
+-- Generated at: 2026-09-25T03:29:31.671Z
 -- Org: usted-ksi
 -- ==============================================================================
 
@@ -666,7 +668,7 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- 2. Insert Rooms
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('1-101', 'usted-ksi', '1', '101', 0, 'Main reading room', '"LIBRARY 101","LIBRARY ROOM 101","LIBRARY GF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('1-101', 'usted-ksi', '1', '101', 0, 'Main reading room', ARRAY['LIBRARY 101', 'LIBRARY ROOM 101', 'LIBRARY GF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -676,7 +678,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('1-102', 'usted-ksi', '1', '102', 0, 'Digital resources center', '"LIBRARY ROOM 102","LIBRARY 102","LIBRARY GF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('1-102', 'usted-ksi', '1', '102', 0, 'Digital resources center', ARRAY['LIBRARY ROOM 102', 'LIBRARY 102', 'LIBRARY GF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -686,7 +688,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('1-odsa-lib', 'usted-ksi', '1', 'odsa lib', 0, 'Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)', '"PROF. DR. PHILIP OTI-AGYEN","OTI-AGYEN","LIBRARY ODSA LIB","LIBRARY ROOM ODSA LIB","ROOM ODSA LIB","ODSA LIB","DEPARTMENT OF EDUCATIONAL LEADERSHIP","DEL","EDUCATIONAL LEADERSHIP","LIBRARY GF","GROUND FLOOR"'::TEXT[], NULL, '{"staff":["Prof. Dr. Philip Oti-Agyen"]}'::jsonb)
+VALUES ('1-odsa-lib', 'usted-ksi', '1', 'odsa lib', 0, 'Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)', ARRAY['PROF. DR. PHILIP OTI-AGYEN', 'OTI-AGYEN', 'LIBRARY ODSA LIB', 'LIBRARY ROOM ODSA LIB', 'ROOM ODSA LIB', 'ODSA LIB', 'DEPARTMENT OF EDUCATIONAL LEADERSHIP', 'DEL', 'EDUCATIONAL LEADERSHIP', 'LIBRARY GF', 'GROUND FLOOR']::TEXT[], NULL, '{"staff":["Prof. Dr. Philip Oti-Agyen"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -696,7 +698,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('3-101', 'usted-ksi', '3', '101', 1, 'Study room', '"ATWIMA HALL ROOM 101","ATWIMA HALL 101","ATWIMA HALL FF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('3-101', 'usted-ksi', '3', '101', 1, 'Study room', ARRAY['ATWIMA HALL ROOM 101', 'ATWIMA HALL 101', 'ATWIMA HALL FF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -706,7 +708,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('5-main-hall', 'usted-ksi', '5', 'Main Hall', 0, 'Large auditorium space', '"AUDITORIUM MAIN HALL","AUDITORIUM GF","AUDITORIUM ROOM MAIN HALL"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('5-main-hall', 'usted-ksi', '5', 'Main Hall', 0, 'Large auditorium space', ARRAY['AUDITORIUM MAIN HALL', 'AUDITORIUM GF', 'AUDITORIUM ROOM MAIN HALL']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -716,7 +718,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('7-201', 'usted-ksi', '7', '201', 2, 'Research area', '"NEW LIBRARY ROOM 201","NEW LIBRARY 201","NEW LIBRARY SF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('7-201', 'usted-ksi', '7', '201', 2, 'Research area', ARRAY['NEW LIBRARY ROOM 201', 'NEW LIBRARY 201', 'NEW LIBRARY SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -726,7 +728,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('7-301', 'usted-ksi', '7', '301', 3, 'Study hall', '"NEW LIBRARY TF","NEW LIBRARY ROOM 301","NEW LIBRARY 301"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('7-301', 'usted-ksi', '7', '301', 3, 'Study hall', ARRAY['NEW LIBRARY TF', 'NEW LIBRARY ROOM 301', 'NEW LIBRARY 301']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -736,7 +738,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('8-workshop-1', 'usted-ksi', '8', 'Workshop 1', 0, 'Main mechanical workshop', '"MECH. WORKSHOP GF","MECH. WORKSHOP ROOM WORKSHOP 1","MECH. WORKSHOP WORKSHOP 1"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('8-workshop-1', 'usted-ksi', '8', 'Workshop 1', 0, 'Main mechanical workshop', ARRAY['MECH. WORKSHOP GF', 'MECH. WORKSHOP ROOM WORKSHOP 1', 'MECH. WORKSHOP WORKSHOP 1']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -746,7 +748,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('10-101', 'usted-ksi', '10', '101', 1, 'Lecture room', '"MANAGEMENT DEPT. 101","MANAGEMENT DEPT. FF","MANAGEMENT DEPT. ROOM 101"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('10-101', 'usted-ksi', '10', '101', 1, 'Lecture room', ARRAY['MANAGEMENT DEPT. 101', 'MANAGEMENT DEPT. FF', 'MANAGEMENT DEPT. ROOM 101']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -756,7 +758,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('10-102', 'usted-ksi', '10', '102', 1, 'Seminar room', '"MANAGEMENT DEPT. ROOM 102","MANAGEMENT DEPT. FF","MANAGEMENT DEPT. 102"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('10-102', 'usted-ksi', '10', '102', 1, 'Seminar room', ARRAY['MANAGEMENT DEPT. ROOM 102', 'MANAGEMENT DEPT. FF', 'MANAGEMENT DEPT. 102']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -766,7 +768,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('11-25', 'usted-ksi', '11', '25', 2, 'Standard student room', '"OW HALL 25","OW HALL SF","OW HALL ROOM 25"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('11-25', 'usted-ksi', '11', '25', 2, 'Standard student room', ARRAY['OW HALL 25', 'OW HALL SF', 'OW HALL ROOM 25']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -776,7 +778,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('12-lt1', 'usted-ksi', '12', 'LT1', 0, 'Lecture theatre 1', '"TL BLOCK ROOM 1","TL BLOCK 1","TL BLOCK GF","TL BLOCK ROOM LT1","TL BLOCK LT1"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('12-lt1', 'usted-ksi', '12', 'LT1', 0, 'Lecture theatre 1', ARRAY['TL BLOCK ROOM 1', 'TL BLOCK 1', 'TL BLOCK GF', 'TL BLOCK ROOM LT1', 'TL BLOCK LT1']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -786,7 +788,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('12-lt2', 'usted-ksi', '12', 'LT2', 1, 'Lecture theatre 2', '"TL BLOCK LT2","TL BLOCK ROOM 2","TL BLOCK 2","TL BLOCK FF","TL BLOCK ROOM LT2"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('12-lt2', 'usted-ksi', '12', 'LT2', 1, 'Lecture theatre 2', ARRAY['TL BLOCK LT2', 'TL BLOCK ROOM 2', 'TL BLOCK 2', 'TL BLOCK FF', 'TL BLOCK ROOM LT2']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -796,7 +798,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-201', 'usted-ksi', '13', '201', 2, 'Faculty office', '"FTE 201","FTE ROOM 201","FTE SF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('13-201', 'usted-ksi', '13', '201', 2, 'Faculty office', ARRAY['FTE 201', 'FTE ROOM 201', 'FTE SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -806,7 +808,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-02', 'usted-ksi', '13', '02', 0, 'Staff Office – Associate Professor Dr. Engr. Kwaku Antwi (Department of Civil Engineering)', '"ASSOCIATE PROFESSOR DR. ENGR. KWAKU ANTWI","ANTWI","FTE 02","FTE ROOM 02","ROOM 02","02","DEPARTMENT OF CIVIL ENGINEERING","CIVIL ENGINEERING"'::TEXT[], NULL, '{"staff":["Associate Professor Dr. Engr. Kwaku Antwi"]}'::jsonb)
+VALUES ('13-02', 'usted-ksi', '13', '02', 0, 'Staff Office – Associate Professor Dr. Engr. Kwaku Antwi (Department of Civil Engineering)', ARRAY['ASSOCIATE PROFESSOR DR. ENGR. KWAKU ANTWI', 'ANTWI', 'FTE 02', 'FTE ROOM 02', 'ROOM 02', '02', 'DEPARTMENT OF CIVIL ENGINEERING', 'CIVIL ENGINEERING']::TEXT[], NULL, '{"staff":["Associate Professor Dr. Engr. Kwaku Antwi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -816,7 +818,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-09', 'usted-ksi', '13', '09', 0, 'Staff Office – Dr. Fredrick Simpeh (Department of Construction and Wood Technology Education)', '"DR. FREDRICK SIMPEH","SIMPEH","FTE 09","FTE ROOM 09","ROOM 09","09","DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION","DCWTE","CONSTRUCTION","WOOD TECHNOLOGY"'::TEXT[], NULL, '{"staff":["Dr. Fredrick Simpeh"]}'::jsonb)
+VALUES ('13-09', 'usted-ksi', '13', '09', 0, 'Staff Office – Dr. Fredrick Simpeh (Department of Construction and Wood Technology Education)', ARRAY['DR. FREDRICK SIMPEH', 'SIMPEH', 'FTE 09', 'FTE ROOM 09', 'ROOM 09', '09', 'DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION', 'DCWTE', 'CONSTRUCTION', 'WOOD TECHNOLOGY']::TEXT[], NULL, '{"staff":["Dr. Fredrick Simpeh"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -826,7 +828,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-15', 'usted-ksi', '13', '15', 0, 'Staff Office – Dr. Jacob Ofori-Darko (Department of Construction and Wood Technology Education)', '"DR. JACOB OFORI-DARKO","OFORI-DARKO","FTE 15","FTE ROOM 15","ROOM 15","15","DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION","DCWTE","CONSTRUCTION","WOOD TECHNOLOGY"'::TEXT[], NULL, '{"staff":["Dr. Jacob Ofori-Darko"]}'::jsonb)
+VALUES ('13-15', 'usted-ksi', '13', '15', 0, 'Staff Office – Dr. Jacob Ofori-Darko (Department of Construction and Wood Technology Education)', ARRAY['DR. JACOB OFORI-DARKO', 'OFORI-DARKO', 'FTE 15', 'FTE ROOM 15', 'ROOM 15', '15', 'DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION', 'DCWTE', 'CONSTRUCTION', 'WOOD TECHNOLOGY']::TEXT[], NULL, '{"staff":["Dr. Jacob Ofori-Darko"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -836,7 +838,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-28', 'usted-ksi', '13', '28', 0, 'Staff Office – Dr. Joseph Frank Gordon (Department of Mathematics Education)', '"DR. JOSEPH FRANK GORDON","GORDON","FTE 28","FTE ROOM 28","ROOM 28","28","DEPARTMENT OF MATHEMATICS EDUCATION","MATHEMATICS","MATHS","PROF. EBENEZER BONYAH","BONYAH"'::TEXT[], NULL, '{"staff":["Dr. Joseph Frank Gordon","Prof. Ebenezer Bonyah"]}'::jsonb)
+VALUES ('13-28', 'usted-ksi', '13', '28', 0, 'Staff Office – Dr. Joseph Frank Gordon (Department of Mathematics Education)', ARRAY['DR. JOSEPH FRANK GORDON', 'GORDON', 'FTE 28', 'FTE ROOM 28', 'ROOM 28', '28', 'DEPARTMENT OF MATHEMATICS EDUCATION', 'MATHEMATICS', 'MATHS', 'PROF. EBENEZER BONYAH', 'BONYAH']::TEXT[], NULL, '{"staff":["Dr. Joseph Frank Gordon","Prof. Ebenezer Bonyah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -846,7 +848,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-16', 'usted-ksi', '13', '16', 0, 'Staff Office – Dr. Justice Williams (Department of Construction and Wood Technology Education)', '"DR. JUSTICE WILLIAMS","WILLIAMS","FTE 16","FTE ROOM 16","ROOM 16","16","DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION","DCWTE","CONSTRUCTION","WOOD TECHNOLOGY"'::TEXT[], NULL, '{"staff":["Dr. Justice Williams"]}'::jsonb)
+VALUES ('13-16', 'usted-ksi', '13', '16', 0, 'Staff Office – Dr. Justice Williams (Department of Construction and Wood Technology Education)', ARRAY['DR. JUSTICE WILLIAMS', 'WILLIAMS', 'FTE 16', 'FTE ROOM 16', 'ROOM 16', '16', 'DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION', 'DCWTE', 'CONSTRUCTION', 'WOOD TECHNOLOGY']::TEXT[], NULL, '{"staff":["Dr. Justice Williams"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -856,7 +858,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-7', 'usted-ksi', '13', '7', 0, 'Staff Office – Engr. Dr. Elijah Kusi (Department of Construction Technology and Management)', '"ENGR. DR. ELIJAH KUSI","KUSI","FTE 7","FTE ROOM 7","ROOM 7","7","DEPARTMENT OF CONSTRUCTION TECHNOLOGY AND MANAGEMENT","CONSTRUCTION MANAGEMENT"'::TEXT[], NULL, '{"staff":["Engr. Dr. Elijah Kusi"]}'::jsonb)
+VALUES ('13-7', 'usted-ksi', '13', '7', 0, 'Staff Office – Engr. Dr. Elijah Kusi (Department of Construction Technology and Management)', ARRAY['ENGR. DR. ELIJAH KUSI', 'KUSI', 'FTE 7', 'FTE ROOM 7', 'ROOM 7', '7', 'DEPARTMENT OF CONSTRUCTION TECHNOLOGY AND MANAGEMENT', 'CONSTRUCTION MANAGEMENT']::TEXT[], NULL, '{"staff":["Engr. Dr. Elijah Kusi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -866,7 +868,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('13-26', 'usted-ksi', '13', '26', 0, 'Staff Office – Ms. Akosua Afriyie Addi (Department of Electrical and Electronic Engineering Technology Education)', '"MS. AKOSUA AFRIYIE ADDI","ADDI","FTE 26","FTE ROOM 26","ROOM 26","26","DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING TECHNOLOGY EDUCATION","ELECTRICAL","ELECTRONICS"'::TEXT[], NULL, '{"staff":["Ms. Akosua Afriyie Addi"]}'::jsonb)
+VALUES ('13-26', 'usted-ksi', '13', '26', 0, 'Staff Office – Ms. Akosua Afriyie Addi (Department of Electrical and Electronic Engineering Technology Education)', ARRAY['MS. AKOSUA AFRIYIE ADDI', 'ADDI', 'FTE 26', 'FTE ROOM 26', 'ROOM 26', '26', 'DEPARTMENT OF ELECTRICAL AND ELECTRONIC ENGINEERING TECHNOLOGY EDUCATION', 'ELECTRICAL', 'ELECTRONICS']::TEXT[], NULL, '{"staff":["Ms. Akosua Afriyie Addi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -876,7 +878,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('14-kitchen-1', 'usted-ksi', '14', 'Kitchen 1', 0, 'Main kitchen lab', '"CATERING LAB GF","CATERING LAB ROOM KITCHEN 1","CATERING LAB KITCHEN 1"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('14-kitchen-1', 'usted-ksi', '14', 'Kitchen 1', 0, 'Main kitchen lab', ARRAY['CATERING LAB GF', 'CATERING LAB ROOM KITCHEN 1', 'CATERING LAB KITCHEN 1']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -886,7 +888,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('15-design-room', 'usted-ksi', '15', 'Design Room', 1, 'Fashion design studio', '"FASHION LAB FF","FASHION LAB DESIGN ROOM","FASHION LAB ROOM DESIGN ROOM"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('15-design-room', 'usted-ksi', '15', 'Design Room', 1, 'Fashion design studio', ARRAY['FASHION LAB FF', 'FASHION LAB DESIGN ROOM', 'FASHION LAB ROOM DESIGN ROOM']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -896,7 +898,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('16-annex-workshop', 'usted-ksi', '16', 'Annex Workshop', 0, 'Additional workshop space', '"MECH. ANNEX GF","MECH. ANNEX ROOM ANNEX WORKSHOP","MECH. ANNEX ANNEX WORKSHOP"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('16-annex-workshop', 'usted-ksi', '16', 'Annex Workshop', 0, 'Additional workshop space', ARRAY['MECH. ANNEX GF', 'MECH. ANNEX ROOM ANNEX WORKSHOP', 'MECH. ANNEX ANNEX WORKSHOP']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -906,7 +908,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('17-garage-1', 'usted-ksi', '17', 'Garage 1', 0, 'Vehicle repair bay', '"AUTO WORKSHOP GARAGE 1","AUTO WORKSHOP ROOM GARAGE 1","AUTO WORKSHOP GF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('17-garage-1', 'usted-ksi', '17', 'Garage 1', 0, 'Vehicle repair bay', ARRAY['AUTO WORKSHOP GARAGE 1', 'AUTO WORKSHOP ROOM GARAGE 1', 'AUTO WORKSHOP GF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -916,7 +918,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('18-woodshop', 'usted-ksi', '18', 'Woodshop', 0, 'Woodworking area', '"WOODLAB GF","WOODLAB ROOM WOODSHOP","WOODLAB WOODSHOP"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('18-woodshop', 'usted-ksi', '18', 'Woodshop', 0, 'Woodworking area', ARRAY['WOODLAB GF', 'WOODLAB ROOM WOODSHOP', 'WOODLAB WOODSHOP']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -926,7 +928,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('21-3', 'usted-ksi', '21', '3', 0, 'Staff Office – Dr. Courage S.K. Dogbe (Department of Management Studies Education)', '"DR. COURAGE S.K. DOGBE","DOGBE","ESA ROOM 3","ESA 3","ROOM 3","3","DEPARTMENT OF MANAGEMENT STUDIES EDUCATION","MANAGEMENT","MANAGEMENT STUDIES","ESA GF","GROUND FLOOR","ESA BLOCK ROOM 3","ESA BLOCK 3","ESA BLOCK GF"'::TEXT[], NULL, '{"staff":["Dr. Courage S.K. Dogbe"]}'::jsonb)
+VALUES ('21-3', 'usted-ksi', '21', '3', 0, 'Staff Office – Dr. Courage S.K. Dogbe (Department of Management Studies Education)', ARRAY['DR. COURAGE S.K. DOGBE', 'DOGBE', 'ESA ROOM 3', 'ESA 3', 'ROOM 3', '3', 'DEPARTMENT OF MANAGEMENT STUDIES EDUCATION', 'MANAGEMENT', 'MANAGEMENT STUDIES', 'ESA GF', 'GROUND FLOOR', 'ESA BLOCK ROOM 3', 'ESA BLOCK 3', 'ESA BLOCK GF']::TEXT[], NULL, '{"staff":["Dr. Courage S.K. Dogbe"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -936,7 +938,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('21-17', 'usted-ksi', '21', '17', 1, 'Staff Office – Prof. Stella Appiah (Department of Hospitality and Tourism Education)', '"PROF. STELLA APPIAH","APPIAH","ESA ROOM 17","ESA 17","ROOM 17","17","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING","ESA FF","1ST FLOOR","ESA BLOCK ROOM 17","ESA BLOCK 17","ESA BLOCK FF"'::TEXT[], NULL, '{"staff":["Prof. Stella Appiah"]}'::jsonb)
+VALUES ('21-17', 'usted-ksi', '21', '17', 1, 'Staff Office – Prof. Stella Appiah (Department of Hospitality and Tourism Education)', ARRAY['PROF. STELLA APPIAH', 'APPIAH', 'ESA ROOM 17', 'ESA 17', 'ROOM 17', '17', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING', 'ESA FF', '1ST FLOOR', 'ESA BLOCK ROOM 17', 'ESA BLOCK 17', 'ESA BLOCK FF']::TEXT[], NULL, '{"staff":["Prof. Stella Appiah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -946,7 +948,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('21-15', 'usted-ksi', '21', '15', 1, 'Staff Office – Veronica Adwoa Agyare (Department of Hospitality and Tourism Education)', '"VERONICA ADWOA AGYARE","AGYARE","ESA ROOM 15","ESA 15","ROOM 15","15","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING","ESA FF","1ST FLOOR","ESA BLOCK ROOM 15","ESA BLOCK 15","ESA BLOCK FF"'::TEXT[], NULL, '{"staff":["Veronica Adwoa Agyare"]}'::jsonb)
+VALUES ('21-15', 'usted-ksi', '21', '15', 1, 'Staff Office – Veronica Adwoa Agyare (Department of Hospitality and Tourism Education)', ARRAY['VERONICA ADWOA AGYARE', 'AGYARE', 'ESA ROOM 15', 'ESA 15', 'ROOM 15', '15', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING', 'ESA FF', '1ST FLOOR', 'ESA BLOCK ROOM 15', 'ESA BLOCK 15', 'ESA BLOCK FF']::TEXT[], NULL, '{"staff":["Veronica Adwoa Agyare"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -956,7 +958,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('24-201', 'usted-ksi', '24', '201', 2, 'Lecture room', '"ECONOMICS DEPT. 201","ECONOMICS DEPT. ROOM 201","ECONOMICS DEPT. SF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('24-201', 'usted-ksi', '24', '201', 2, 'Lecture room', ARRAY['ECONOMICS DEPT. 201', 'ECONOMICS DEPT. ROOM 201', 'ECONOMICS DEPT. SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -966,7 +968,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-lecture-room-001', 'usted-ksi', '25', 'Lecture Room 001', 0, 'Large lecture hall', '"ROB GF","LECTURE 1","ROB 001","RM 1","ROB ROOM 001","ROB LECTURE ROOM 001","ROOM 1","ROB 1","ROB ROOM 1"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-lecture-room-001', 'usted-ksi', '25', 'Lecture Room 001', 0, 'Large lecture hall', ARRAY['ROB GF', 'LECTURE 1', 'ROB 001', 'RM 1', 'ROB ROOM 001', 'ROB LECTURE ROOM 001', 'ROOM 1', 'ROB 1', 'ROB ROOM 1']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -976,7 +978,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-lecture-room-025', 'usted-ksi', '25', 'Lecture Room 025', 0, 'Large lecture hall', '"ROB GF","LECTURE 25","ROB ROOM 025","ROB 025","ROB 25","ROOM 25","RM 25","ROB ROOM 25","ROB LECTURE ROOM 025"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-lecture-room-025', 'usted-ksi', '25', 'Lecture Room 025', 0, 'Large lecture hall', ARRAY['ROB GF', 'LECTURE 25', 'ROB ROOM 025', 'ROB 025', 'ROB 25', 'ROOM 25', 'RM 25', 'ROB ROOM 25', 'ROB LECTURE ROOM 025']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -986,7 +988,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-lecture-room-003', 'usted-ksi', '25', 'Lecture Room 003', 1, 'Large lecture hall', '"ROB FF","ROB 3","ROB LECTURE ROOM 003","ROB ROOM 3","RM 3","LECTURE 3","ROB ROOM 003","ROOM 3","ROB 003"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-lecture-room-003', 'usted-ksi', '25', 'Lecture Room 003', 1, 'Large lecture hall', ARRAY['ROB FF', 'ROB 3', 'ROB LECTURE ROOM 003', 'ROB ROOM 3', 'RM 3', 'LECTURE 3', 'ROB ROOM 003', 'ROOM 3', 'ROB 003']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -996,7 +998,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-lecture-room-023', 'usted-ksi', '25', 'Lecture Room 023', 1, 'Large lecture hall', '"ROB FF","ROB ROOM 023","RM 23","ROB ROOM 23","ROOM 23","LECTURE 23","ROB 23","ROB LECTURE ROOM 023","ROB 023"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-lecture-room-023', 'usted-ksi', '25', 'Lecture Room 023', 1, 'Large lecture hall', ARRAY['ROB FF', 'ROB ROOM 023', 'RM 23', 'ROB ROOM 23', 'ROOM 23', 'LECTURE 23', 'ROB 23', 'ROB LECTURE ROOM 023', 'ROB 023']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1006,7 +1008,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-department-of-languages', 'usted-ksi', '25', 'Department of Languages', 0, 'Academic department office', '"ROB GF","ROB DEPARTMENT OF LANGUAGES","LANGUAGES","ENGLISH","LINGUISTICS"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-department-of-languages', 'usted-ksi', '25', 'Department of Languages', 0, 'Academic department office', ARRAY['ROB GF', 'ROB DEPARTMENT OF LANGUAGES', 'LANGUAGES', 'ENGLISH', 'LINGUISTICS']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1016,7 +1018,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-department-of-management', 'usted-ksi', '25', 'Department of Management', 2, 'FBE Management Studies HOD office', '"MANAGEMENT","ROB DEPARTMENT OF MANAGEMENT","ROB SF","HOD","MANAGEMENT HOD","ROB 039","FBE MANAGEMENT STUDIES HOD OFFICE"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-department-of-management', 'usted-ksi', '25', 'Department of Management', 2, 'FBE Management Studies HOD office', ARRAY['MANAGEMENT', 'ROB DEPARTMENT OF MANAGEMENT', 'ROB SF', 'HOD', 'MANAGEMENT HOD', 'ROB 039', 'FBE MANAGEMENT STUDIES HOD OFFICE']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1026,7 +1028,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-department-of-accounting', 'usted-ksi', '25', 'Department of Accounting', 2, 'FBE Accounting Studies HOD office', '"FINANCE","ROB DEPARTMENT OF ACCOUNTING","ROB SF","ACCOUNTING","AUDIT","HOD","ACCOUNTING HOD","ROB 040","FBE ACCOUNTING STUDIES HOD OFFICE"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-department-of-accounting', 'usted-ksi', '25', 'Department of Accounting', 2, 'FBE Accounting Studies HOD office', ARRAY['FINANCE', 'ROB DEPARTMENT OF ACCOUNTING', 'ROB SF', 'ACCOUNTING', 'AUDIT', 'HOD', 'ACCOUNTING HOD', 'ROB 040', 'FBE ACCOUNTING STUDIES HOD OFFICE']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1036,7 +1038,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-022', 'usted-ksi', '25', '022', 1, 'DEL HOD Office (Languages)', '"HOD","DEL","LANGUAGES HOD","ROB 022","ROB ROOM 022","DEL HOD OFFICE","LANGUAGES HOD OFFICE","ROB FF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-022', 'usted-ksi', '25', '022', 1, 'DEL HOD Office (Languages)', ARRAY['HOD', 'DEL', 'LANGUAGES HOD', 'ROB 022', 'ROB ROOM 022', 'DEL HOD OFFICE', 'LANGUAGES HOD OFFICE', 'ROB FF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1046,7 +1048,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-023', 'usted-ksi', '25', '023', 1, 'DIS HOD Office (Interdisciplinary)', '"HOD","DIS","INTERDISCIPLINARY HOD","ROB 023","ROB ROOM 023","DIS HOD OFFICE","INTERDISCIPLINARY HOD OFFICE","ROB FF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-023', 'usted-ksi', '25', '023', 1, 'DIS HOD Office (Interdisciplinary)', ARRAY['HOD', 'DIS', 'INTERDISCIPLINARY HOD', 'ROB 023', 'ROB ROOM 023', 'DIS HOD OFFICE', 'INTERDISCIPLINARY HOD OFFICE', 'ROB FF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1056,7 +1058,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-046', 'usted-ksi', '25', '046', 2, 'Accounting Exams Office', '"ACCOUNTING EXAMS","EXAMS OFFICE","ROB 046","ROB ROOM 046","ACCOUNTING EXAMS OFFICE","ROB SF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-046', 'usted-ksi', '25', '046', 2, 'Accounting Exams Office', ARRAY['ACCOUNTING EXAMS', 'EXAMS OFFICE', 'ROB 046', 'ROB ROOM 046', 'ACCOUNTING EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1066,7 +1068,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-047', 'usted-ksi', '25', '047', 2, 'Management Exams Office', '"MANAGEMENT EXAMS","EXAMS OFFICE","ROB 047","ROB ROOM 047","MANAGEMENT EXAMS OFFICE","ROB SF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-047', 'usted-ksi', '25', '047', 2, 'Management Exams Office', ARRAY['MANAGEMENT EXAMS', 'EXAMS OFFICE', 'ROB 047', 'ROB ROOM 047', 'MANAGEMENT EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1076,7 +1078,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-computer-lab-016', 'usted-ksi', '25', 'Computer Lab 016', 4, 'Advanced computing laboratory', '"ROB 16","ROB ROOM COMPUTER LAB 016","ICT","ROB 016","ROB 4F","ROB COMPUTER LAB 016","ROB ROOM 16","LAB","COMPUTER","ROB ROOM 016"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-computer-lab-016', 'usted-ksi', '25', 'Computer Lab 016', 4, 'Advanced computing laboratory', ARRAY['ROB 16', 'ROB ROOM COMPUTER LAB 016', 'ICT', 'ROB 016', 'ROB 4F', 'ROB COMPUTER LAB 016', 'ROB ROOM 16', 'LAB', 'COMPUTER', 'ROB ROOM 016']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1086,7 +1088,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-045', 'usted-ksi', '25', '045', 2, 'Staff Office – ASSOC. PROF. DR. DR. FRANK YAO GBADAGO (Department of Accounting Studies Education)', '"ASSOC. PROF. DR. DR. FRANK YAO GBADAGO","GBADAGO","ROB 045","ROB ROOM 045","ROOM 045","045","DEPARTMENT OF ACCOUNTING STUDIES EDUCATION","ACCOUNTING","FINANCE","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["ASSOC. PROF. DR. DR. FRANK YAO GBADAGO"]}'::jsonb)
+VALUES ('25-045', 'usted-ksi', '25', '045', 2, 'Staff Office – ASSOC. PROF. DR. DR. FRANK YAO GBADAGO (Department of Accounting Studies Education)', ARRAY['ASSOC. PROF. DR. DR. FRANK YAO GBADAGO', 'GBADAGO', 'ROB 045', 'ROB ROOM 045', 'ROOM 045', '045', 'DEPARTMENT OF ACCOUNTING STUDIES EDUCATION', 'ACCOUNTING', 'FINANCE', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["ASSOC. PROF. DR. DR. FRANK YAO GBADAGO"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1096,7 +1098,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-34', 'usted-ksi', '25', 'Rm 34', 2, 'Staff Office – Dr. (Mrs) Veronica Adu-Brobbey (Department of Management Studies Education)', '"DR. (MRS) VERONICA ADU-BROBBEY","ADU-BROBBEY","ROB RM 34","ROB 34","ROB ROOM 34","ROOM 34","RM 34","34","DEPARTMENT OF MANAGEMENT STUDIES EDUCATION","MANAGEMENT","MANAGEMENT STUDIES","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Dr. (Mrs) Veronica Adu-Brobbey"]}'::jsonb)
+VALUES ('25-rm-34', 'usted-ksi', '25', 'Rm 34', 2, 'Staff Office – Dr. (Mrs) Veronica Adu-Brobbey (Department of Management Studies Education)', ARRAY['DR. (MRS) VERONICA ADU-BROBBEY', 'ADU-BROBBEY', 'ROB RM 34', 'ROB 34', 'ROB ROOM 34', 'ROOM 34', 'RM 34', '34', 'DEPARTMENT OF MANAGEMENT STUDIES EDUCATION', 'MANAGEMENT', 'MANAGEMENT STUDIES', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Dr. (Mrs) Veronica Adu-Brobbey"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1106,7 +1108,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-005', 'usted-ksi', '25', '005', 0, 'Staff Office – Dr. James Nsoh Adogpa (Department of Interdisciplinary Studies)', '"DR. JAMES NSOH ADOGPA","ADOGPA","ROB 005","ROB ROOM 005","ROOM 005","005","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB GF","GROUND FLOOR"'::TEXT[], NULL, '{"staff":["Dr. James Nsoh Adogpa"]}'::jsonb)
+VALUES ('25-005', 'usted-ksi', '25', '005', 0, 'Staff Office – Dr. James Nsoh Adogpa (Department of Interdisciplinary Studies)', ARRAY['DR. JAMES NSOH ADOGPA', 'ADOGPA', 'ROB 005', 'ROB ROOM 005', 'ROOM 005', '005', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB GF', 'GROUND FLOOR']::TEXT[], NULL, '{"staff":["Dr. James Nsoh Adogpa"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1116,7 +1118,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-3', 'usted-ksi', '25', 'Rm 3', 0, 'Staff Office – Dr. Jonathan Essuman (Department of Languages Education)', '"DR. JONATHAN ESSUMAN","ESSUMAN","ROB RM 3","ROB 3","ROB ROOM 3","ROOM 3","RM 3","3","DEPARTMENT OF LANGUAGES EDUCATION","LANGUAGES","ENGLISH","LINGUISTICS","ROB GF","GROUND FLOOR"'::TEXT[], NULL, '{"staff":["Dr. Jonathan Essuman"]}'::jsonb)
+VALUES ('25-rm-3', 'usted-ksi', '25', 'Rm 3', 0, 'Staff Office – Dr. Jonathan Essuman (Department of Languages Education)', ARRAY['DR. JONATHAN ESSUMAN', 'ESSUMAN', 'ROB RM 3', 'ROB 3', 'ROB ROOM 3', 'ROOM 3', 'RM 3', '3', 'DEPARTMENT OF LANGUAGES EDUCATION', 'LANGUAGES', 'ENGLISH', 'LINGUISTICS', 'ROB GF', 'GROUND FLOOR']::TEXT[], NULL, '{"staff":["Dr. Jonathan Essuman"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1126,7 +1128,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-018', 'usted-ksi', '25', '018', 1, 'Staff Office – Dr. Kotor Asare (Department of Interdisciplinary Studies)', '"DR. KOTOR ASARE","ASARE","ROB 018","ROB ROOM 018","ROOM 018","018","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB FF","1ST FLOOR"'::TEXT[], NULL, '{"staff":["Dr. Kotor Asare"]}'::jsonb)
+VALUES ('25-018', 'usted-ksi', '25', '018', 1, 'Staff Office – Dr. Kotor Asare (Department of Interdisciplinary Studies)', ARRAY['DR. KOTOR ASARE', 'ASARE', 'ROB 018', 'ROB ROOM 018', 'ROOM 018', '018', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB FF', '1ST FLOOR']::TEXT[], NULL, '{"staff":["Dr. Kotor Asare"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1136,7 +1138,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-021', 'usted-ksi', '25', '021', 1, 'Staff Office – Dr. Kwadwo Arhin (Department of Economics Education)', '"DR. KWADWO ARHIN","ARHIN","ROB 021","ROB ROOM 021","ROOM 021","021","DEPARTMENT OF ECONOMICS EDUCATION","ECONOMICS","ROB FF","1ST FLOOR"'::TEXT[], NULL, '{"staff":["Dr. Kwadwo Arhin"]}'::jsonb)
+VALUES ('25-021', 'usted-ksi', '25', '021', 1, 'Staff Office – Dr. Kwadwo Arhin (Department of Economics Education)', ARRAY['DR. KWADWO ARHIN', 'ARHIN', 'ROB 021', 'ROB ROOM 021', 'ROOM 021', '021', 'DEPARTMENT OF ECONOMICS EDUCATION', 'ECONOMICS', 'ROB FF', '1ST FLOOR']::TEXT[], NULL, '{"staff":["Dr. Kwadwo Arhin"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1146,7 +1148,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-037', 'usted-ksi', '25', '037', 2, 'Staff Office – Dr. Lawyer Mrs. Ohenewaa Boateng Newman (Department of Management Studies Education)', '"DR. LAWYER MRS. OHENEWAA BOATENG NEWMAN","NEWMAN","ROB 037","ROB ROOM 037","ROOM 037","037","DEPARTMENT OF MANAGEMENT STUDIES EDUCATION","MANAGEMENT","MANAGEMENT STUDIES","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Dr. Lawyer Mrs. Ohenewaa Boateng Newman"]}'::jsonb)
+VALUES ('25-037', 'usted-ksi', '25', '037', 2, 'Staff Office – Dr. Lawyer Mrs. Ohenewaa Boateng Newman (Department of Management Studies Education)', ARRAY['DR. LAWYER MRS. OHENEWAA BOATENG NEWMAN', 'NEWMAN', 'ROB 037', 'ROB ROOM 037', 'ROOM 037', '037', 'DEPARTMENT OF MANAGEMENT STUDIES EDUCATION', 'MANAGEMENT', 'MANAGEMENT STUDIES', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Dr. Lawyer Mrs. Ohenewaa Boateng Newman"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1156,7 +1158,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-30', 'usted-ksi', '25', '30', 2, 'Staff Office – Mrs. Gertrude Effeh Brew (Guidance and Counselling Centre)', '"ROB RM 30","ROB 30","ROB ROOM 30","ROOM 30","RM 30","30","ROB SF","2ND FLOOR","MRS. GERTRUDE EFFEH BREW","BREW","GUIDANCE AND COUNSELLING CENTRE"'::TEXT[], NULL, '{"staff":["Mrs. Gertrude Effeh Brew"]}'::jsonb)
+VALUES ('25-30', 'usted-ksi', '25', '30', 2, 'Staff Office – Mrs. Gertrude Effeh Brew (Guidance and Counselling Centre)', ARRAY['ROB RM 30', 'ROB 30', 'ROB ROOM 30', 'ROOM 30', 'RM 30', '30', 'ROB SF', '2ND FLOOR', 'MRS. GERTRUDE EFFEH BREW', 'BREW', 'GUIDANCE AND COUNSELLING CENTRE']::TEXT[], NULL, '{"staff":["Mrs. Gertrude Effeh Brew"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1166,7 +1168,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-54', 'usted-ksi', '25', 'Rm 54', 3, 'Staff Office – FRANCIS OPUNI KESSEH, ESQ. (Department of Management Studies Education)', '"FRANCIS OPUNI KESSEH, ESQ.","ESQ.","ROB RM 54","ROB 54","ROB ROOM 54","ROOM 54","RM 54","54","DEPARTMENT OF MANAGEMENT STUDIES EDUCATION","MANAGEMENT","MANAGEMENT STUDIES","ROB 3F","3RD FLOOR"'::TEXT[], NULL, '{"staff":["FRANCIS OPUNI KESSEH, ESQ."]}'::jsonb)
+VALUES ('25-rm-54', 'usted-ksi', '25', 'Rm 54', 3, 'Staff Office – FRANCIS OPUNI KESSEH, ESQ. (Department of Management Studies Education)', ARRAY['FRANCIS OPUNI KESSEH, ESQ.', 'ESQ.', 'ROB RM 54', 'ROB 54', 'ROB ROOM 54', 'ROOM 54', 'RM 54', '54', 'DEPARTMENT OF MANAGEMENT STUDIES EDUCATION', 'MANAGEMENT', 'MANAGEMENT STUDIES', 'ROB 3F', '3RD FLOOR']::TEXT[], NULL, '{"staff":["FRANCIS OPUNI KESSEH, ESQ."]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1176,7 +1178,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-008', 'usted-ksi', '25', '008', 0, 'Staff Office – Mr. Eric Effah Sarkodie (Department of Economics Education)', '"MR. ERIC EFFAH SARKODIE","SARKODIE","ROB 008","ROB ROOM 008","ROOM 008","008","DEPARTMENT OF ECONOMICS EDUCATION","ECONOMICS","ROB GF","GROUND FLOOR","PROF. JOSEPH ANTWI BAAFI","BAAFI"'::TEXT[], NULL, '{"staff":["Mr. Eric Effah Sarkodie","Prof. Joseph Antwi Baafi"]}'::jsonb)
+VALUES ('25-008', 'usted-ksi', '25', '008', 0, 'Staff Office – Mr. Eric Effah Sarkodie (Department of Economics Education)', ARRAY['MR. ERIC EFFAH SARKODIE', 'SARKODIE', 'ROB 008', 'ROB ROOM 008', 'ROOM 008', '008', 'DEPARTMENT OF ECONOMICS EDUCATION', 'ECONOMICS', 'ROB GF', 'GROUND FLOOR', 'PROF. JOSEPH ANTWI BAAFI', 'BAAFI']::TEXT[], NULL, '{"staff":["Mr. Eric Effah Sarkodie","Prof. Joseph Antwi Baafi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1186,7 +1188,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-26', 'usted-ksi', '25', 'Rm 26', 2, 'Staff Office – Mr. Ficus Gyasi (Department of Interdisciplinary Studies)', '"MR. FICUS GYASI","GYASI","ROB RM 26","ROB 26","ROB ROOM 26","ROOM 26","RM 26","26","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Mr. Ficus Gyasi"]}'::jsonb)
+VALUES ('25-rm-26', 'usted-ksi', '25', 'Rm 26', 2, 'Staff Office – Mr. Ficus Gyasi (Department of Interdisciplinary Studies)', ARRAY['MR. FICUS GYASI', 'GYASI', 'ROB RM 26', 'ROB 26', 'ROB ROOM 26', 'ROOM 26', 'RM 26', '26', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Mr. Ficus Gyasi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1196,7 +1198,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-16', 'usted-ksi', '25', 'Rm 16', 1, 'Staff Office – Mr. Franklin Benjamin Appiah (Department of Languages Education)', '"MR. FRANKLIN BENJAMIN APPIAH","APPIAH","ROB RM 16","ROB 16","ROB ROOM 16","ROOM 16","RM 16","16","DEPARTMENT OF LANGUAGES EDUCATION","LANGUAGES","ENGLISH","LINGUISTICS","ROB FF","1ST FLOOR"'::TEXT[], NULL, '{"staff":["Mr. Franklin Benjamin Appiah"]}'::jsonb)
+VALUES ('25-rm-16', 'usted-ksi', '25', 'Rm 16', 1, 'Staff Office – Mr. Franklin Benjamin Appiah (Department of Languages Education)', ARRAY['MR. FRANKLIN BENJAMIN APPIAH', 'APPIAH', 'ROB RM 16', 'ROB 16', 'ROB ROOM 16', 'ROOM 16', 'RM 16', '16', 'DEPARTMENT OF LANGUAGES EDUCATION', 'LANGUAGES', 'ENGLISH', 'LINGUISTICS', 'ROB FF', '1ST FLOOR']::TEXT[], NULL, '{"staff":["Mr. Franklin Benjamin Appiah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1206,7 +1208,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-office-no-19', 'usted-ksi', '25', 'Office No. 19', 1, 'Staff Office – Mr. Philip Boateng (Department of Interdisciplinary Studies)', '"MR. PHILIP BOATENG","BOATENG","ROB OFFICE NO. 19","ROB NO. 19","ROB ROOM NO. 19","ROOM NO. 19","OFFICE NO. 19","NO. 19","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB FF","1ST FLOOR"'::TEXT[], NULL, '{"staff":["Mr. Philip Boateng"]}'::jsonb)
+VALUES ('25-office-no-19', 'usted-ksi', '25', 'Office No. 19', 1, 'Staff Office – Mr. Philip Boateng (Department of Interdisciplinary Studies)', ARRAY['MR. PHILIP BOATENG', 'BOATENG', 'ROB OFFICE NO. 19', 'ROB NO. 19', 'ROB ROOM NO. 19', 'ROOM NO. 19', 'OFFICE NO. 19', 'NO. 19', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB FF', '1ST FLOOR']::TEXT[], NULL, '{"staff":["Mr. Philip Boateng"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1216,7 +1218,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-25', 'usted-ksi', '25', 'Rm 25', 1, 'Staff Office – Mr. Sylvanus Kofie (Department of Interdisciplinary Studies)', '"MR. SYLVANUS KOFIE","KOFIE","ROB RM 25","ROB 25","ROB ROOM 25","ROOM 25","RM 25","25","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB FF","1ST FLOOR"'::TEXT[], NULL, '{"staff":["Mr. Sylvanus Kofie"]}'::jsonb)
+VALUES ('25-rm-25', 'usted-ksi', '25', 'Rm 25', 1, 'Staff Office – Mr. Sylvanus Kofie (Department of Interdisciplinary Studies)', ARRAY['MR. SYLVANUS KOFIE', 'KOFIE', 'ROB RM 25', 'ROB 25', 'ROB ROOM 25', 'ROOM 25', 'RM 25', '25', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB FF', '1ST FLOOR']::TEXT[], NULL, '{"staff":["Mr. Sylvanus Kofie"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1226,7 +1228,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-044', 'usted-ksi', '25', '044', 2, 'Staff Office – Mr. Williams Kwasi Boachie (Department of Economics Education)', '"MR. WILLIAMS KWASI BOACHIE","BOACHIE","ROB 044","ROB ROOM 044","ROOM 044","044","DEPARTMENT OF ECONOMICS EDUCATION","ECONOMICS","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Mr. Williams Kwasi Boachie"]}'::jsonb)
+VALUES ('25-044', 'usted-ksi', '25', '044', 2, 'Staff Office – Mr. Williams Kwasi Boachie (Department of Economics Education)', ARRAY['MR. WILLIAMS KWASI BOACHIE', 'BOACHIE', 'ROB 044', 'ROB ROOM 044', 'ROOM 044', '044', 'DEPARTMENT OF ECONOMICS EDUCATION', 'ECONOMICS', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Mr. Williams Kwasi Boachie"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1236,7 +1238,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-school-of-graduate-studies', 'usted-ksi', '25', 'School of Graduate Studies', 3, 'Staff Office – Mrs. Emma Maame Afua Darkoa Douglas Anyan (School of Graduate Studies)', '"MRS. EMMA MAAME AFUA DARKOA DOUGLAS ANYAN","ANYAN","ROB SCHOOL OF GRADUATE STUDIES","ROB ROOM SCHOOL OF GRADUATE STUDIES","ROOM SCHOOL OF GRADUATE STUDIES","SCHOOL OF GRADUATE STUDIES","SGS","GRADUATE STUDIES","ROB 3F","3RD FLOOR","PROF. HUMPREY DANSO","DANSO","DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION","DCWTE","CONSTRUCTION","WOOD TECHNOLOGY"'::TEXT[], NULL, '{"staff":["Mrs. Emma Maame Afua Darkoa Douglas Anyan","Prof. Humprey Danso"]}'::jsonb)
+VALUES ('25-school-of-graduate-studies', 'usted-ksi', '25', 'School of Graduate Studies', 3, 'Staff Office – Mrs. Emma Maame Afua Darkoa Douglas Anyan (School of Graduate Studies)', ARRAY['MRS. EMMA MAAME AFUA DARKOA DOUGLAS ANYAN', 'ANYAN', 'ROB SCHOOL OF GRADUATE STUDIES', 'ROB ROOM SCHOOL OF GRADUATE STUDIES', 'ROOM SCHOOL OF GRADUATE STUDIES', 'SCHOOL OF GRADUATE STUDIES', 'SGS', 'GRADUATE STUDIES', 'ROB 3F', '3RD FLOOR', 'PROF. HUMPREY DANSO', 'DANSO', 'DEPARTMENT OF CONSTRUCTION AND WOOD TECHNOLOGY EDUCATION', 'DCWTE', 'CONSTRUCTION', 'WOOD TECHNOLOGY']::TEXT[], NULL, '{"staff":["Mrs. Emma Maame Afua Darkoa Douglas Anyan","Prof. Humprey Danso"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1246,7 +1248,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-office-rm-1', 'usted-ksi', '25', 'Office Rm 1', 0, 'Staff Office – Prince Gyimah (PhD, FChPA) (Department of Accounting Education)', '"PRINCE GYIMAH (PHD, FCHPA)","FCHPA)","ROB OFFICE RM 1","ROB RM 1","ROB ROOM RM 1","ROOM RM 1","OFFICE RM 1","RM 1","DEPARTMENT OF ACCOUNTING EDUCATION","ACCOUNTING","FINANCE","ROB GF","GROUND FLOOR"'::TEXT[], NULL, '{"staff":["Prince Gyimah (PhD, FChPA)"]}'::jsonb)
+VALUES ('25-office-rm-1', 'usted-ksi', '25', 'Office Rm 1', 0, 'Staff Office – Prince Gyimah (PhD, FChPA) (Department of Accounting Education)', ARRAY['PRINCE GYIMAH (PHD, FCHPA)', 'FCHPA)', 'ROB OFFICE RM 1', 'ROB RM 1', 'ROB ROOM RM 1', 'ROOM RM 1', 'OFFICE RM 1', 'RM 1', 'DEPARTMENT OF ACCOUNTING EDUCATION', 'ACCOUNTING', 'FINANCE', 'ROB GF', 'GROUND FLOOR']::TEXT[], NULL, '{"staff":["Prince Gyimah (PhD, FChPA)"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1256,7 +1258,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-37', 'usted-ksi', '25', 'Rm 37', 2, 'Staff Office – Prof. Dr. Masud Ibrahim (Department of Management Studies Education)', '"PROF. DR. MASUD IBRAHIM","IBRAHIM","ROB RM 37","ROB 37","ROB ROOM 37","ROOM 37","RM 37","37","DEPARTMENT OF MANAGEMENT STUDIES EDUCATION","MANAGEMENT","MANAGEMENT STUDIES","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Prof. Dr. Masud Ibrahim"]}'::jsonb)
+VALUES ('25-rm-37', 'usted-ksi', '25', 'Rm 37', 2, 'Staff Office – Prof. Dr. Masud Ibrahim (Department of Management Studies Education)', ARRAY['PROF. DR. MASUD IBRAHIM', 'IBRAHIM', 'ROB RM 37', 'ROB 37', 'ROB ROOM 37', 'ROOM 37', 'RM 37', '37', 'DEPARTMENT OF MANAGEMENT STUDIES EDUCATION', 'MANAGEMENT', 'MANAGEMENT STUDIES', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Prof. Dr. Masud Ibrahim"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1266,7 +1268,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-32', 'usted-ksi', '25', 'Rm 32', 2, 'Staff Office – PROF. ISAAC ADDAI (Department of Interdisciplinary Studies)', '"PROF. ISAAC ADDAI","ADDAI","ROB RM 32","ROB 32","ROB ROOM 32","ROOM 32","RM 32","32","DEPARTMENT OF INTERDISCIPLINARY STUDIES","DIS","INTERDISCIPLINARY","IDS","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["PROF. ISAAC ADDAI"]}'::jsonb)
+VALUES ('25-rm-32', 'usted-ksi', '25', 'Rm 32', 2, 'Staff Office – PROF. ISAAC ADDAI (Department of Interdisciplinary Studies)', ARRAY['PROF. ISAAC ADDAI', 'ADDAI', 'ROB RM 32', 'ROB 32', 'ROB ROOM 32', 'ROOM 32', 'RM 32', '32', 'DEPARTMENT OF INTERDISCIPLINARY STUDIES', 'DIS', 'INTERDISCIPLINARY', 'IDS', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["PROF. ISAAC ADDAI"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1276,7 +1278,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-42', 'usted-ksi', '25', 'Rm 42', 2, 'Staff Office – Rabiatu Kamil (Ph.D. FCCA, ICAG) (Department of Accounting Education)', '"RABIATU KAMIL (PH.D. FCCA, ICAG)","ICAG)","ROB RM 42","ROB 42","ROB ROOM 42","ROOM 42","RM 42","42","DEPARTMENT OF ACCOUNTING EDUCATION","ACCOUNTING","FINANCE","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Rabiatu Kamil (Ph.D. FCCA, ICAG)"]}'::jsonb)
+VALUES ('25-rm-42', 'usted-ksi', '25', 'Rm 42', 2, 'Staff Office – Rabiatu Kamil (Ph.D. FCCA, ICAG) (Department of Accounting Education)', ARRAY['RABIATU KAMIL (PH.D. FCCA, ICAG)', 'ICAG)', 'ROB RM 42', 'ROB 42', 'ROB ROOM 42', 'ROOM 42', 'RM 42', '42', 'DEPARTMENT OF ACCOUNTING EDUCATION', 'ACCOUNTING', 'FINANCE', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Rabiatu Kamil (Ph.D. FCCA, ICAG)"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1286,7 +1288,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-rm-27', 'usted-ksi', '25', 'Rm 27', 2, 'Staff Office – Sr. Dr. Mary Assumpta Ayikue (Department of Educational Leadership)', '"SR. DR. MARY ASSUMPTA AYIKUE","AYIKUE","ROB RM 27","ROB 27","ROB ROOM 27","ROOM 27","RM 27","27","DEPARTMENT OF EDUCATIONAL LEADERSHIP","DEL","EDUCATIONAL LEADERSHIP","ROB SF","2ND FLOOR"'::TEXT[], NULL, '{"staff":["Sr. Dr. Mary Assumpta Ayikue"]}'::jsonb)
+VALUES ('25-rm-27', 'usted-ksi', '25', 'Rm 27', 2, 'Staff Office – Sr. Dr. Mary Assumpta Ayikue (Department of Educational Leadership)', ARRAY['SR. DR. MARY ASSUMPTA AYIKUE', 'AYIKUE', 'ROB RM 27', 'ROB 27', 'ROB ROOM 27', 'ROOM 27', 'RM 27', '27', 'DEPARTMENT OF EDUCATIONAL LEADERSHIP', 'DEL', 'EDUCATIONAL LEADERSHIP', 'ROB SF', '2ND FLOOR']::TEXT[], NULL, '{"staff":["Sr. Dr. Mary Assumpta Ayikue"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1296,7 +1298,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('26-dept-doc-web-mgt-main-adm-blk', 'usted-ksi', '26', 'Dept. Doc. & Web Mgt. - Main Adm. Blk.', 0, 'Staff Office – Donald Yeboah (Department of Information Technology Education)', '"DONALD YEBOAH","YEBOAH","ADMIN BLOCK DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.","ADMIN BLOCK ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.","ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.","DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.","DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION","IT","ICT","INFORMATION TECHNOLOGY","ITE","INFORMATION TECHNOLOGY EDUCATION","FASME"'::TEXT[], NULL, '{"staff":["Donald Yeboah"]}'::jsonb)
+VALUES ('26-dept-doc-web-mgt-main-adm-blk', 'usted-ksi', '26', 'Dept. Doc. & Web Mgt. - Main Adm. Blk.', 0, 'Staff Office – Donald Yeboah (Department of Information Technology Education)', ARRAY['DONALD YEBOAH', 'YEBOAH', 'ADMIN BLOCK DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.', 'ADMIN BLOCK ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.', 'ROOM DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.', 'DEPT. DOC. & WEB MGT. - MAIN ADM. BLK.', 'DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION', 'IT', 'ICT', 'INFORMATION TECHNOLOGY', 'ITE', 'INFORMATION TECHNOLOGY EDUCATION', 'FASME']::TEXT[], NULL, '{"staff":["Donald Yeboah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1306,7 +1308,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('26-main-admin-block', 'usted-ksi', '26', 'Main Admin. Block', 0, 'Staff Office – Nicholas Donkor (Directorate of IT Services)', '"NICHOLAS DONKOR","DONKOR","ADMIN BLOCK MAIN ADMIN. BLOCK","ADMIN BLOCK ROOM MAIN ADMIN. BLOCK","ROOM MAIN ADMIN. BLOCK","MAIN ADMIN. BLOCK","DIRECTORATE OF IT SERVICES","ADMIN BLOCK FL","TOP FLOOR"'::TEXT[], NULL, '{"staff":["Nicholas Donkor"]}'::jsonb)
+VALUES ('26-main-admin-block', 'usted-ksi', '26', 'Main Admin. Block', 0, 'Staff Office – Nicholas Donkor (Directorate of IT Services)', ARRAY['NICHOLAS DONKOR', 'DONKOR', 'ADMIN BLOCK MAIN ADMIN. BLOCK', 'ADMIN BLOCK ROOM MAIN ADMIN. BLOCK', 'ROOM MAIN ADMIN. BLOCK', 'MAIN ADMIN. BLOCK', 'DIRECTORATE OF IT SERVICES', 'ADMIN BLOCK FL', 'TOP FLOOR']::TEXT[], NULL, '{"staff":["Nicholas Donkor"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1316,7 +1318,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('27-lab-1', 'usted-ksi', '27', 'Lab 1', 0, 'Computer lab', '"ICT LAB LAB 1","ICT LAB GF","ICT LAB 1","ICT LAB ROOM 1"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('27-lab-1', 'usted-ksi', '27', 'Lab 1', 0, 'Computer lab', ARRAY['ICT LAB LAB 1', 'ICT LAB GF', 'ICT LAB 1', 'ICT LAB ROOM 1']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1326,7 +1328,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('27-lab-2', 'usted-ksi', '27', 'Lab 2', 1, 'Advanced computing lab', '"ICT LAB 2","ICT LAB LAB 2","ICT LAB ROOM 2","ICT LAB FF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('27-lab-2', 'usted-ksi', '27', 'Lab 2', 1, 'Advanced computing lab', ARRAY['ICT LAB 2', 'ICT LAB LAB 2', 'ICT LAB ROOM 2', 'ICT LAB FF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1336,7 +1338,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('28-101', 'usted-ksi', '28', '101', 1, 'Faculty office', '"FASME ROOM 101","FASME FF","FASME 101"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('28-101', 'usted-ksi', '28', '101', 1, 'Faculty office', ARRAY['FASME ROOM 101', 'FASME FF', 'FASME 101']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1346,7 +1348,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('28-10', 'usted-ksi', '28', '10', 1, 'Staff Office – Dr. Adasa Nkrumah Kofi Frimpong (Department of Information Technology Education)', '"DR. ADASA NKRUMAH KOFI FRIMPONG","FRIMPONG","FASME 10","FASME ROOM 10","ROOM 10","10","DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION","IT","ICT","INFORMATION TECHNOLOGY","FASME FF","1ST FLOOR","ITE","INFORMATION TECHNOLOGY EDUCATION","FASME"'::TEXT[], NULL, '{"staff":["Dr. Adasa Nkrumah Kofi Frimpong"]}'::jsonb)
+VALUES ('28-10', 'usted-ksi', '28', '10', 1, 'Staff Office – Dr. Adasa Nkrumah Kofi Frimpong (Department of Information Technology Education)', ARRAY['DR. ADASA NKRUMAH KOFI FRIMPONG', 'FRIMPONG', 'FASME 10', 'FASME ROOM 10', 'ROOM 10', '10', 'DEPARTMENT OF INFORMATION TECHNOLOGY EDUCATION', 'IT', 'ICT', 'INFORMATION TECHNOLOGY', 'FASME FF', '1ST FLOOR', 'ITE', 'INFORMATION TECHNOLOGY EDUCATION', 'FASME']::TEXT[], NULL, '{"staff":["Dr. Adasa Nkrumah Kofi Frimpong"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1356,7 +1358,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('29-201', 'usted-ksi', '29', '201', 2, 'Graduate study area', '"GRAD BLOCK SF","GRAD BLOCK 201","GRAD BLOCK ROOM 201"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('29-201', 'usted-ksi', '29', '201', 2, 'Graduate study area', ARRAY['GRAD BLOCK SF', 'GRAD BLOCK 201', 'GRAD BLOCK ROOM 201']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1366,7 +1368,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('30-office-of-the-dean-of-student-affairs', 'usted-ksi', '30', 'Office of the Dean of Student Affairs', 0, 'Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)', '"PROF. DR. PHILIP OTI-AGYEN","OTI-AGYEN","ODSA OFFICE OF THE DEAN OF STUDENT AFFAIRS","ODSA OF THE DEAN OF STUDENT AFFAIRS","ODSA ROOM OF THE DEAN OF STUDENT AFFAIRS","ROOM OF THE DEAN OF STUDENT AFFAIRS","OFFICE OF THE DEAN OF STUDENT AFFAIRS","OF THE DEAN OF STUDENT AFFAIRS","DEPARTMENT OF EDUCATIONAL LEADERSHIP","DEL","EDUCATIONAL LEADERSHIP","ODSA GF","GROUND FLOOR"'::TEXT[], NULL, '{"staff":["Prof. Dr. Philip Oti-Agyen"]}'::jsonb)
+VALUES ('30-office-of-the-dean-of-student-affairs', 'usted-ksi', '30', 'Office of the Dean of Student Affairs', 0, 'Staff Office – Prof. Dr. Philip Oti-Agyen (Department of Educational Leadership)', ARRAY['PROF. DR. PHILIP OTI-AGYEN', 'OTI-AGYEN', 'ODSA OFFICE OF THE DEAN OF STUDENT AFFAIRS', 'ODSA OF THE DEAN OF STUDENT AFFAIRS', 'ODSA ROOM OF THE DEAN OF STUDENT AFFAIRS', 'ROOM OF THE DEAN OF STUDENT AFFAIRS', 'OFFICE OF THE DEAN OF STUDENT AFFAIRS', 'OF THE DEAN OF STUDENT AFFAIRS', 'DEPARTMENT OF EDUCATIONAL LEADERSHIP', 'DEL', 'EDUCATIONAL LEADERSHIP', 'ODSA GF', 'GROUND FLOOR']::TEXT[], NULL, '{"staff":["Prof. Dr. Philip Oti-Agyen"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1376,7 +1378,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('32-15', 'usted-ksi', '32', '15', 1, 'Student room', '"OW II HALL FF","OW II HALL 15","OW II HALL ROOM 15"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('32-15', 'usted-ksi', '32', '15', 1, 'Student room', ARRAY['OW II HALL FF', 'OW II HALL 15', 'OW II HALL ROOM 15']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1386,7 +1388,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('42-10', 'usted-ksi', '42', '10', 1, 'Student accommodation', '"AUTONOMY HALL ROOM 10","AUTONOMY HALL 10","AUTONOMY HALL FF"'::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('42-10', 'usted-ksi', '42', '10', 1, 'Student accommodation', ARRAY['AUTONOMY HALL ROOM 10', 'AUTONOMY HALL 10', 'AUTONOMY HALL FF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1396,7 +1398,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-20', 'usted-ksi', '35', '20', 0, 'Staff Office – Abigail Nkansah (Department of Fashion Design and Textiles Education)', '"ABIGAIL NKANSAH","NKANSAH","CBT ROOM 20","CBT 20","ROOM 20","20","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES","DR. PHYLLIS MENSAH","MENSAH"'::TEXT[], NULL, '{"staff":["Abigail Nkansah","Dr. Phyllis Mensah"]}'::jsonb)
+VALUES ('35-20', 'usted-ksi', '35', '20', 0, 'Staff Office – Abigail Nkansah (Department of Fashion Design and Textiles Education)', ARRAY['ABIGAIL NKANSAH', 'NKANSAH', 'CBT ROOM 20', 'CBT 20', 'ROOM 20', '20', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES', 'DR. PHYLLIS MENSAH', 'MENSAH']::TEXT[], NULL, '{"staff":["Abigail Nkansah","Dr. Phyllis Mensah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1406,7 +1408,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-026', 'usted-ksi', '35', '026', 0, 'Staff Office – Andrew Adu Asabere (Department of Fashion Design and Textiles Education)', '"ANDREW ADU ASABERE","ASABERE","CBT 026","CBT ROOM 026","ROOM 026","026","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Andrew Adu Asabere"]}'::jsonb)
+VALUES ('35-026', 'usted-ksi', '35', '026', 0, 'Staff Office – Andrew Adu Asabere (Department of Fashion Design and Textiles Education)', ARRAY['ANDREW ADU ASABERE', 'ASABERE', 'CBT 026', 'CBT ROOM 026', 'ROOM 026', '026', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Andrew Adu Asabere"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1416,7 +1418,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-033', 'usted-ksi', '35', '033', 0, 'Staff Office – Charlotte Caitoe (Department of Hospitality and Tourism Education)', '"CHARLOTTE CAITOE","CAITOE","CBT 033","CBT ROOM 033","ROOM 033","033","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING","DR. MRS. MERCY BOADI","BOADI"'::TEXT[], NULL, '{"staff":["Charlotte Caitoe","Dr. Mrs. Mercy Boadi"]}'::jsonb)
+VALUES ('35-033', 'usted-ksi', '35', '033', 0, 'Staff Office – Charlotte Caitoe (Department of Hospitality and Tourism Education)', ARRAY['CHARLOTTE CAITOE', 'CAITOE', 'CBT 033', 'CBT ROOM 033', 'ROOM 033', '033', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING', 'DR. MRS. MERCY BOADI', 'BOADI']::TEXT[], NULL, '{"staff":["Charlotte Caitoe","Dr. Mrs. Mercy Boadi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1426,7 +1428,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-033-cbt-13', 'usted-ksi', '35', '033 , CBT 13', 0, 'Staff Office – Claudia Miakimeni Pumpuni (Department of Hospitality and Tourism Education)', '"CLAUDIA MIAKIMENI PUMPUNI","PUMPUNI","CBT 033 , CBT 13","CBT ROOM 033 , CBT 13","ROOM 033 , CBT 13","033 , CBT 13","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING"'::TEXT[], NULL, '{"staff":["Claudia Miakimeni Pumpuni"]}'::jsonb)
+VALUES ('35-033-cbt-13', 'usted-ksi', '35', '033 , CBT 13', 0, 'Staff Office – Claudia Miakimeni Pumpuni (Department of Hospitality and Tourism Education)', ARRAY['CLAUDIA MIAKIMENI PUMPUNI', 'PUMPUNI', 'CBT 033 , CBT 13', 'CBT ROOM 033 , CBT 13', 'ROOM 033 , CBT 13', '033 , CBT 13', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING']::TEXT[], NULL, '{"staff":["Claudia Miakimeni Pumpuni"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1436,7 +1438,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-12', 'usted-ksi', '35', '12', 0, 'Staff Office – Doreen Dedo Adi (Department of Hospitality and Tourism Education)', '"DOREEN DEDO ADI","ADI","CBT ROOM 12","CBT 12","ROOM 12","12","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING"'::TEXT[], NULL, '{"staff":["Doreen Dedo Adi"]}'::jsonb)
+VALUES ('35-12', 'usted-ksi', '35', '12', 0, 'Staff Office – Doreen Dedo Adi (Department of Hospitality and Tourism Education)', ARRAY['DOREEN DEDO ADI', 'ADI', 'CBT ROOM 12', 'CBT 12', 'ROOM 12', '12', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING']::TEXT[], NULL, '{"staff":["Doreen Dedo Adi"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1446,7 +1448,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-007', 'usted-ksi', '35', '007', 0, 'Staff Office – Dr Daniel Kwabena Danso (Department of Fashion Design and Textiles Education)', '"DR DANIEL KWABENA DANSO","DANSO","CBT 007","CBT ROOM 007","ROOM 007","007","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Dr Daniel Kwabena Danso"]}'::jsonb)
+VALUES ('35-007', 'usted-ksi', '35', '007', 0, 'Staff Office – Dr Daniel Kwabena Danso (Department of Fashion Design and Textiles Education)', ARRAY['DR DANIEL KWABENA DANSO', 'DANSO', 'CBT 007', 'CBT ROOM 007', 'ROOM 007', '007', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Dr Daniel Kwabena Danso"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1456,7 +1458,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-005', 'usted-ksi', '35', '005', 0, 'Staff Office – Dr. Haruna Ibrahim (Department of Fashion Design and Textiles Education)', '"DR. HARUNA IBRAHIM","IBRAHIM","CBT ROOM 005","CBT 005","ROOM 005","005","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Dr. Haruna Ibrahim"]}'::jsonb)
+VALUES ('35-005', 'usted-ksi', '35', '005', 0, 'Staff Office – Dr. Haruna Ibrahim (Department of Fashion Design and Textiles Education)', ARRAY['DR. HARUNA IBRAHIM', 'IBRAHIM', 'CBT ROOM 005', 'CBT 005', 'ROOM 005', '005', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Dr. Haruna Ibrahim"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1466,7 +1468,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-034', 'usted-ksi', '35', '034', 0, 'Staff Office – Dr. Mrs. Florence Brenyah (Department of Hospitality and Tourism Education)', '"DR. MRS. FLORENCE BRENYAH","BRENYAH","CBT 034","CBT ROOM 034","ROOM 034","034","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING","MISS NAFISATU SALAM","SALAM"'::TEXT[], NULL, '{"staff":["Dr. Mrs. Florence Brenyah","Miss Nafisatu Salam"]}'::jsonb)
+VALUES ('35-034', 'usted-ksi', '35', '034', 0, 'Staff Office – Dr. Mrs. Florence Brenyah (Department of Hospitality and Tourism Education)', ARRAY['DR. MRS. FLORENCE BRENYAH', 'BRENYAH', 'CBT 034', 'CBT ROOM 034', 'ROOM 034', '034', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING', 'MISS NAFISATU SALAM', 'SALAM']::TEXT[], NULL, '{"staff":["Dr. Mrs. Florence Brenyah","Miss Nafisatu Salam"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1476,7 +1478,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-006', 'usted-ksi', '35', '006', 0, 'Staff Office – Dr. Ninette Afi Appiah (Department of Fashion Design and Textiles Education)', '"DR. NINETTE AFI APPIAH","APPIAH","CBT 006","CBT ROOM 006","ROOM 006","006","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Dr. Ninette Afi Appiah"]}'::jsonb)
+VALUES ('35-006', 'usted-ksi', '35', '006', 0, 'Staff Office – Dr. Ninette Afi Appiah (Department of Fashion Design and Textiles Education)', ARRAY['DR. NINETTE AFI APPIAH', 'APPIAH', 'CBT 006', 'CBT ROOM 006', 'ROOM 006', '006', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Dr. Ninette Afi Appiah"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1486,7 +1488,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-032', 'usted-ksi', '35', '032', 0, 'Staff Office – Mrs. Abena Sekyere (Department of Hospitality and Tourism Education)', '"MRS. ABENA SEKYERE","SEKYERE","CBT 032","CBT ROOM 032","ROOM 032","032","DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION","DHTE","HOSPITALITY","TOURISM","CATERING"'::TEXT[], NULL, '{"staff":["Mrs. Abena Sekyere"]}'::jsonb)
+VALUES ('35-032', 'usted-ksi', '35', '032', 0, 'Staff Office – Mrs. Abena Sekyere (Department of Hospitality and Tourism Education)', ARRAY['MRS. ABENA SEKYERE', 'SEKYERE', 'CBT 032', 'CBT ROOM 032', 'ROOM 032', '032', 'DEPARTMENT OF HOSPITALITY AND TOURISM EDUCATION', 'DHTE', 'HOSPITALITY', 'TOURISM', 'CATERING']::TEXT[], NULL, '{"staff":["Mrs. Abena Sekyere"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1496,7 +1498,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-r5', 'usted-ksi', '35', 'R5', 0, 'Staff Office – Prof. Dr. Isaac Abraham (Department of Fashion Design and Textiles Education (DFDTE))', '"PROF. DR. ISAAC ABRAHAM","ABRAHAM","CBT R5","CBT ROOM R5","ROOM R5","R5","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION (DFDTE)","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Prof. Dr. Isaac Abraham"]}'::jsonb)
+VALUES ('35-r5', 'usted-ksi', '35', 'R5', 0, 'Staff Office – Prof. Dr. Isaac Abraham (Department of Fashion Design and Textiles Education (DFDTE))', ARRAY['PROF. DR. ISAAC ABRAHAM', 'ABRAHAM', 'CBT R5', 'CBT ROOM R5', 'ROOM R5', 'R5', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION (DFDTE)', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Prof. Dr. Isaac Abraham"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1506,7 +1508,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('35-025', 'usted-ksi', '35', '025', 0, 'Staff Office – Prof. Josephine Aboagyewaa-Ntiri (Department of Fashion Design and Textiles Education)', '"PROF. JOSEPHINE ABOAGYEWAA-NTIRI","ABOAGYEWAA-NTIRI","CBT 025","CBT ROOM 025","ROOM 025","025","DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION","DFDTE","FASHION","TEXTILES"'::TEXT[], NULL, '{"staff":["Prof. Josephine Aboagyewaa-Ntiri"]}'::jsonb)
+VALUES ('35-025', 'usted-ksi', '35', '025', 0, 'Staff Office – Prof. Josephine Aboagyewaa-Ntiri (Department of Fashion Design and Textiles Education)', ARRAY['PROF. JOSEPHINE ABOAGYEWAA-NTIRI', 'ABOAGYEWAA-NTIRI', 'CBT 025', 'CBT ROOM 025', 'ROOM 025', '025', 'DEPARTMENT OF FASHION DESIGN AND TEXTILES EDUCATION', 'DFDTE', 'FASHION', 'TEXTILES']::TEXT[], NULL, '{"staff":["Prof. Josephine Aboagyewaa-Ntiri"]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1516,7 +1518,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('21-esa', 'usted-ksi', '21', 'ESA', 1, 'Sawan Dankyi Office (Department of Hospitality and Tourism Education)', '"ESA","SAWAN DANKYI"'::TEXT[], NULL, '{"auto_created_from_staff":"Sawan Dankyi"}'::jsonb)
+VALUES ('21-esa', 'usted-ksi', '21', 'ESA', 1, 'Sawan Dankyi Office (Department of Hospitality and Tourism Education)', ARRAY['ESA', 'SAWAN DANKYI']::TEXT[], NULL, '{"auto_created_from_staff":"Sawan Dankyi"}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,

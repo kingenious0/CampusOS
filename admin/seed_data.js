@@ -1,6 +1,6 @@
 window.CAMPUS_SEED_DATA = {
   "org_id": "usted-ksi",
-  "generated_at": "2026-09-24T18:30:13.456Z",
+  "generated_at": "2026-09-25T03:29:30.652Z",
   "buildings": [
     {
       "id": "1",

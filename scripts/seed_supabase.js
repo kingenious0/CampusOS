@@ -244,24 +244,34 @@ const seedData = {
 };
 
 fs.writeFileSync(path.join(adminDir, 'seed_data.json'), JSON.stringify(seedData, null, 2), 'utf8');
-console.log(`[Seed] Successfully saved admin/seed_data.json for Local Sandbox mode.`);
+fs.writeFileSync(path.join(adminDir, 'seed_data.js'), `window.CAMPUS_SEED_DATA = ${JSON.stringify(seedData, null, 2)};\n`, 'utf8');
+console.log(`[Seed] Successfully saved admin/seed_data.json and admin/seed_data.js for Local Sandbox mode.`);
 
 // 9. Generate SQL Insert/Upsert statements
+function formatPostgresTextArray(arr) {
+    if (!Array.isArray(arr) || arr.length === 0) {
+        return 'ARRAY[]::TEXT[]';
+    }
+    const escaped = arr.map(item => {
+        const str = String(item !== null && item !== undefined ? item : '');
+        return `'${str.replace(/'/g, "''")}'`;
+    });
+    return `ARRAY[${escaped.join(', ')}]::TEXT[]`;
+}
+
 function escapeSql(val) {
     if (val === null || val === undefined) return 'NULL';
     if (typeof val === 'number') return val;
     if (typeof val === 'boolean') return val ? 'TRUE' : 'FALSE';
-    if (Array.isArray(val) && typeof val[0] === 'string') {
-        const arr = val.map(s => `"${s.replace(/"/g, '\\"')}"`).join(',');
-        return `'${arr.replace(/'/g, "''")}'::TEXT[]`;
-    }
     if (typeof val === 'object') {
         return `'${JSON.stringify(val).replace(/'/g, "''")}'::jsonb`;
     }
     return `'${String(val).replace(/'/g, "''")}'`;
 }
 
-let sqlContent = `-- ==============================================================================
+let sqlContent = `SET search_path TO usted_nav, public;
+
+-- ==============================================================================
 -- CampusOS Studio - Automated Data Seed Script
 -- Generated at: ${new Date().toISOString()}
 -- Org: ${ORG_ID}
@@ -291,7 +301,7 @@ ON CONFLICT (id) DO UPDATE SET
 sqlContent += `\n-- 2. Insert Rooms\n`;
 rooms.forEach(r => {
     sqlContent += `INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES (${escapeSql(r.id)}, ${escapeSql(r.org_id)}, ${escapeSql(r.building_id)}, ${escapeSql(r.room_number)}, ${r.floor}, ${escapeSql(r.description)}, ${escapeSql(r.keywords)}, ${escapeSql(r.coordinates)}, ${escapeSql(r.metadata)})
+VALUES (${escapeSql(r.id)}, ${escapeSql(r.org_id)}, ${escapeSql(r.building_id)}, ${escapeSql(r.room_number)}, ${r.floor}, ${escapeSql(r.description)}, ${formatPostgresTextArray(r.keywords)}, ${escapeSql(r.coordinates)}, ${escapeSql(r.metadata)})
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
