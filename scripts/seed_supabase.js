@@ -350,7 +350,9 @@ if (SUPABASE_URL && SUPABASE_KEY) {
                     'Content-Type': 'application/json',
                     'apikey': SUPABASE_KEY,
                     'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Prefer': 'resolution=merge-duplicates'
+                    'Prefer': 'resolution=merge-duplicates',
+                    'Accept-Profile': 'usted_nav',
+                    'Content-Profile': 'usted_nav'
                 },
                 body: JSON.stringify(chunk)
             });

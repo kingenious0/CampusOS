@@ -8,7 +8,9 @@
 const CampusSync = (() => {
     const DB_NAME = 'CampusOS_Studio_DB';
     const DB_VERSION = 1;
+    const DB_SCHEMA = 'usted_nav';
     let db = null;
+    let supabaseClient = null;
 
     // Config storage keys
     const STORAGE_KEY_CONFIG = 'campusos_supabase_config';
@@ -28,6 +30,30 @@ const CampusSync = (() => {
     let currentUser = null;
     let isSyncing = false;
 
+    // Initialize Supabase Client with isolated schema and profile headers
+    function getSupabaseClient() {
+        if (supabaseClient) return supabaseClient;
+        const sb = (typeof window !== 'undefined' && window.supabase) || 
+                   (typeof globalThis !== 'undefined' && globalThis.supabase) ||
+                   (typeof global !== 'undefined' && global.supabase);
+
+        if (sb && typeof sb.createClient === 'function' && config.supabaseUrl && config.supabaseAnonKey) {
+            supabaseClient = sb.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+                db: {
+                    schema: DB_SCHEMA
+                },
+                global: {
+                    headers: {
+                        'Accept-Profile': DB_SCHEMA,
+                        'Content-Profile': DB_SCHEMA
+                    }
+                }
+            });
+            return supabaseClient;
+        }
+        return null;
+    }
+
     // Initialize configuration from localStorage
     function loadConfig() {
         try {
@@ -43,11 +69,13 @@ const CampusSync = (() => {
             console.warn('[Sync] Failed to read saved config from localStorage', e);
         }
         config.isSandbox = !config.supabaseUrl || !config.supabaseAnonKey;
+        supabaseClient = null;
     }
 
     function saveConfig(newConfig) {
         config = { ...config, ...newConfig };
         config.isSandbox = !config.supabaseUrl || !config.supabaseAnonKey;
+        supabaseClient = null;
         localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
         notifyListeners();
     }
@@ -398,23 +426,41 @@ const CampusSync = (() => {
     // =========================================================================
 
     async function triggerSync() {
-        if (isSyncing || config.isSandbox || !navigator.onLine) return;
+        if (isSyncing || config.isSandbox || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
         isSyncing = true;
         notifyListeners();
 
         try {
             const pending = await getPendingMutations();
-            console.log(`[Sync] Processing ${pending.length} pending mutations to Supabase...`);
+            console.log(`[Sync] Processing ${pending.length} pending mutations to Supabase (${DB_SCHEMA} schema)...`);
 
             const token = currentUser?.access_token || config.supabaseAnonKey;
             const headers = {
                 'Content-Type': 'application/json',
                 'apikey': config.supabaseAnonKey,
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Accept-Profile': DB_SCHEMA,
+                'Content-Profile': DB_SCHEMA
             };
+
+            const client = getSupabaseClient();
 
             for (const item of pending) {
                 try {
+                    if (client && typeof client.schema === 'function') {
+                        const target = client.schema(DB_SCHEMA).from(item.table);
+                        if (item.action === 'UPSERT') {
+                            const { error } = await target.upsert(item.payload, { onConflict: 'id' });
+                            if (error) throw error;
+                        } else if (item.action === 'DELETE') {
+                            const { error } = await target.delete().eq('id', item.record_id);
+                            if (error) throw error;
+                        }
+                        await markMutationSynced(item.queue_id);
+                        continue;
+                    }
+
+                    // Raw REST API fallback with PostgREST schema headers
                     const endpoint = `${config.supabaseUrl}/rest/v1/${item.table}`;
                     if (item.action === 'UPSERT') {
                         const res = await fetch(`${endpoint}?on_conflict=id`, {
@@ -463,12 +509,29 @@ const CampusSync = (() => {
     async function pullRemoteRecords(tableName) {
         if (config.isSandbox || !config.supabaseUrl) return;
         try {
+            const client = getSupabaseClient();
+            if (client && typeof client.schema === 'function') {
+                const { data, error } = await client
+                    .schema(DB_SCHEMA)
+                    .from(tableName)
+                    .select('*')
+                    .eq('org_id', config.orgId);
+                if (error) throw error;
+                if (data && data.length) {
+                    await bulkPut(tableName, data);
+                }
+                return;
+            }
+
+            // Raw REST API fallback with PostgREST schema headers
             const url = `${config.supabaseUrl}/rest/v1/${tableName}?org_id=eq.${encodeURIComponent(config.orgId)}&select=*`;
             const token = currentUser?.access_token || config.supabaseAnonKey;
             const res = await fetch(url, {
                 headers: {
                     'apikey': config.supabaseAnonKey,
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Accept-Profile': DB_SCHEMA,
+                    'Content-Profile': DB_SCHEMA
                 }
             });
             if (res.ok) {
@@ -476,6 +539,9 @@ const CampusSync = (() => {
                 if (records && records.length) {
                     await bulkPut(tableName, records);
                 }
+            } else {
+                const errBody = await res.text();
+                console.warn(`[Sync] Pull returned ${res.status} for ${tableName}:`, errBody);
             }
         } catch (e) {
             console.warn(`[Sync] Pull failed for table ${tableName}:`, e);
@@ -520,6 +586,7 @@ const CampusSync = (() => {
 
     function logout() {
         currentUser = null;
+        supabaseClient = null;
         localStorage.removeItem(STORAGE_KEY_AUTH);
         notifyListeners();
     }
@@ -587,6 +654,13 @@ const CampusSync = (() => {
         logout,
         subscribe,
         getStatus,
-        bulkPut
+        bulkPut,
+        getSupabaseClient: () => getSupabaseClient(),
+        getSchema: () => DB_SCHEMA,
+        pullRemoteRecords
     };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CampusSync;
+}
