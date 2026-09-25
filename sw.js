@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1.0.2';
+const CACHE_NAME  = 'ustednav-v1.1.0';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install (Deduplicated clean paths)
@@ -11,6 +11,15 @@ const APP_SHELL = [
     './',
     './index.html',
     './map.html',
+    './config.js',
+    './admin/',
+    './admin/index.html',
+    './admin/app.js',
+    './admin/sync.js',
+    './admin/config.js',
+    './admin/seed_data.js',
+    './admin/seed_data.json',
+    './admin/manifest.webmanifest',
     './logo.png',
     './manifest.json',
     './icons/icon-192.png',
@@ -86,8 +95,8 @@ self.addEventListener('fetch', e => {
     const url = new URL(e.request.url);
     if (!url.protocol.startsWith('http')) return;
 
-    // Bypass root service worker for /admin dashboard entirely
-    if (url.pathname.startsWith('/admin')) return;
+    // Bypass Supabase API requests (handled directly by offline-first IndexedDB queue)
+    if (url.hostname.includes('supabase.co')) return;
 
     // Skip Mapbox events/telemetry
     if (url.hostname.includes('events.mapbox.com')) return;
@@ -125,6 +134,10 @@ self.addEventListener('fetch', e => {
 
             // Offline document fallback
             if (e.request.destination === 'document' || e.request.mode === 'navigate') {
+                if (url.pathname.startsWith('/admin')) {
+                    const adminFallback = await cache.match('./admin/index.html') || await cache.match('/admin/index.html') || await cache.match('./admin/');
+                    if (adminFallback) return adminFallback;
+                }
                 const fallback = await cache.match('./map.html') || await cache.match('/map.html') || await cache.match('./index.html');
                 if (fallback) return fallback;
             }

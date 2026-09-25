@@ -37,18 +37,20 @@ const CampusSync = (() => {
                    (typeof globalThis !== 'undefined' && globalThis.supabase) ||
                    (typeof global !== 'undefined' && global.supabase);
 
-        if (sb && typeof sb.createClient === 'function' && config.supabaseUrl && config.supabaseAnonKey) {
+        const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+        const cleanKey = (config.supabaseAnonKey || '').trim();
+
+        if (sb && typeof sb.createClient === 'function' && cleanUrl && cleanKey) {
+            const token = currentUser?.access_token || cleanKey;
             const headers = {
+                'apikey': cleanKey,
+                'Authorization': `Bearer ${token}`,
                 'Accept-Profile': DB_SCHEMA,
-                'Content-Profile': DB_SCHEMA
+                'Content-Profile': DB_SCHEMA,
+                'Prefer': 'return=representation,resolution=merge-duplicates'
             };
 
-            // If authenticated user token is present, bind it to global headers
-            if (currentUser?.access_token) {
-                headers['Authorization'] = `Bearer ${currentUser.access_token}`;
-            }
-
-            supabaseClient = sb.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+            supabaseClient = sb.createClient(cleanUrl, cleanKey, {
                 db: {
                     schema: DB_SCHEMA
                 },
@@ -117,13 +119,27 @@ const CampusSync = (() => {
         return currentUser.access_token;
     }
 
-    // Initialize configuration from localStorage
+    function getActiveEnv() {
+        return (typeof window !== 'undefined' && window.ENV) ||
+               (typeof globalThis !== 'undefined' && globalThis.ENV) ||
+               (typeof global !== 'undefined' && global.ENV) || null;
+    }
+
+    // Initialize configuration from localStorage and window.ENV defaults
     function loadConfig() {
         try {
+            const env = getActiveEnv();
             const saved = localStorage.getItem(STORAGE_KEY_CONFIG);
-            if (saved) {
-                config = { ...config, ...JSON.parse(saved) };
-            }
+            let parsed = saved ? JSON.parse(saved) : {};
+
+            const rawUrl = parsed.supabaseUrl || (env ? env.supabaseUrl : '') || (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.SUPABASE_URL : '');
+            const rawKey = parsed.supabaseAnonKey || (env ? env.supabaseKey : '') || (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.SUPABASE_ANON_KEY : '');
+            const rawOrg = parsed.orgId || (env ? env.orgId : '') || (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.DEFAULT_ORG_ID : 'usted-ksi');
+
+            config.supabaseUrl = (rawUrl || '').trim().replace(/\/+$/, '');
+            config.supabaseAnonKey = (rawKey || '').trim();
+            config.orgId = (rawOrg || 'usted-ksi').trim();
+
             const authSaved = localStorage.getItem(STORAGE_KEY_AUTH);
             if (authSaved) {
                 currentUser = JSON.parse(authSaved);
@@ -136,10 +152,28 @@ const CampusSync = (() => {
     }
 
     function saveConfig(newConfig) {
-        config = { ...config, ...newConfig };
+        if (newConfig) {
+            if (newConfig.supabaseUrl !== undefined) {
+                config.supabaseUrl = (newConfig.supabaseUrl || '').trim().replace(/\/+$/, '');
+                try { localStorage.setItem('supabase_url', config.supabaseUrl); } catch (e) {}
+            }
+            if (newConfig.supabaseAnonKey !== undefined) {
+                config.supabaseAnonKey = (newConfig.supabaseAnonKey || '').trim();
+                try { localStorage.setItem('supabase_anon_key', config.supabaseAnonKey); } catch (e) {}
+            }
+            if (newConfig.orgId !== undefined) {
+                config.orgId = (newConfig.orgId || 'usted-ksi').trim();
+                try { localStorage.setItem('campus_org_id', config.orgId); } catch (e) {}
+            }
+            if (newConfig.isSandbox !== undefined) {
+                config.isSandbox = !!newConfig.isSandbox;
+            }
+        }
         config.isSandbox = !config.supabaseUrl || !config.supabaseAnonKey;
         supabaseClient = null;
-        localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+        try {
+            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+        } catch (e) {}
         notifyListeners();
     }
 
@@ -380,7 +414,8 @@ const CampusSync = (() => {
         notifyListeners();
 
         // 3. Attempt immediate sync if connected
-        if (!config.isSandbox && navigator.onLine) {
+        const isOnline = typeof navigator === 'undefined' || navigator.onLine;
+        if (!config.isSandbox && isOnline) {
             triggerSync();
         }
 
@@ -413,7 +448,8 @@ const CampusSync = (() => {
         notifyListeners();
 
         // 3. Attempt sync
-        if (!config.isSandbox && navigator.onLine) {
+        const isOnline = typeof navigator === 'undefined' || navigator.onLine;
+        if (!config.isSandbox && isOnline) {
             triggerSync();
         }
     }
@@ -475,12 +511,21 @@ const CampusSync = (() => {
     }
 
     async function markMutationSynced(queueId) {
+        const idx = memoryStore.mutation_queue.findIndex(m => m.queue_id === queueId);
+        if (idx > -1) memoryStore.mutation_queue.splice(idx, 1);
+
+        if (!db) return;
+
         return new Promise((resolve, reject) => {
-            const tx = db.transaction(['mutation_queue'], 'readwrite');
-            const store = tx.objectStore('mutation_queue');
-            const req = store.delete(queueId);
-            req.onsuccess = () => resolve();
-            req.onerror = (e) => reject(e);
+            try {
+                const tx = db.transaction(['mutation_queue'], 'readwrite');
+                const store = tx.objectStore('mutation_queue');
+                const req = store.delete(queueId);
+                req.onsuccess = () => resolve();
+                req.onerror = (e) => reject(e);
+            } catch (e) {
+                resolve();
+            }
         });
     }
 
@@ -489,7 +534,7 @@ const CampusSync = (() => {
     // =========================================================================
 
     async function triggerSync() {
-        if (isSyncing || config.isSandbox || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
+        if (isSyncing || config.isSandbox || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
         isSyncing = true;
         notifyListeners();
 
@@ -498,13 +543,16 @@ const CampusSync = (() => {
             const pending = await getPendingMutations();
             console.log(`[Sync] Processing ${pending.length} pending mutations to Supabase (${DB_SCHEMA} schema)...`);
 
-            const token = currentUser?.access_token || config.supabaseAnonKey;
+            const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+            const cleanKey = (config.supabaseAnonKey || '').trim();
+            const token = currentUser?.access_token || cleanKey;
             const headers = {
                 'Content-Type': 'application/json',
-                'apikey': config.supabaseAnonKey,
+                'apikey': cleanKey,
                 'Authorization': `Bearer ${token}`,
                 'Accept-Profile': DB_SCHEMA,
-                'Content-Profile': DB_SCHEMA
+                'Content-Profile': DB_SCHEMA,
+                'Prefer': 'return=representation,resolution=merge-duplicates'
             };
 
             const client = getSupabaseClient();
@@ -531,14 +579,11 @@ const CampusSync = (() => {
                     }
 
                     // Raw REST API fallback with PostgREST schema headers
-                    const endpoint = `${config.supabaseUrl}/rest/v1/${item.table}`;
+                    const endpoint = `${cleanUrl}/rest/v1/${item.table}`;
                     if (item.action === 'UPSERT') {
                         const res = await fetch(`${endpoint}?on_conflict=id`, {
                             method: 'POST',
-                            headers: {
-                                ...headers,
-                                'Prefer': 'resolution=merge-duplicates'
-                            },
+                            headers,
                             body: JSON.stringify(item.payload)
                         });
                         if (!res.ok) {
@@ -550,7 +595,13 @@ const CampusSync = (() => {
                     } else if (item.action === 'DELETE') {
                         const res = await fetch(`${endpoint}?id=eq.${encodeURIComponent(item.record_id)}`, {
                             method: 'DELETE',
-                            headers
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': cleanKey,
+                                'Authorization': `Bearer ${token}`,
+                                'Accept-Profile': DB_SCHEMA,
+                                'Content-Profile': DB_SCHEMA
+                            }
                         });
                         if (!res.ok) {
                             const errBody = await res.text();
@@ -610,11 +661,13 @@ const CampusSync = (() => {
             }
 
             // Raw REST API fallback with PostgREST schema headers
-            const url = `${config.supabaseUrl}/rest/v1/${tableName}?org_id=eq.${encodeURIComponent(config.orgId)}&select=*`;
-            const token = currentUser?.access_token || config.supabaseAnonKey;
+            const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+            const cleanKey = (config.supabaseAnonKey || '').trim();
+            const url = `${cleanUrl}/rest/v1/${tableName}?org_id=eq.${encodeURIComponent(config.orgId)}&select=*`;
+            const token = currentUser?.access_token || cleanKey;
             const res = await fetch(url, {
                 headers: {
-                    'apikey': config.supabaseAnonKey,
+                    'apikey': cleanKey,
                     'Authorization': `Bearer ${token}`,
                     'Accept-Profile': DB_SCHEMA,
                     'Content-Profile': DB_SCHEMA
@@ -643,11 +696,14 @@ const CampusSync = (() => {
             throw new Error('Configure Supabase Project URL and Anon Key in Settings before logging in.');
         }
 
-        const res = await fetch(`${config.supabaseUrl}/auth/v1/token?grant_type=password`, {
+        const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+        const cleanKey = (config.supabaseAnonKey || '').trim();
+
+        const res = await fetch(`${cleanUrl}/auth/v1/token?grant_type=password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'apikey': config.supabaseAnonKey
+                'apikey': cleanKey
             },
             body: JSON.stringify({ email, password })
         });
@@ -691,7 +747,7 @@ const CampusSync = (() => {
     async function getStatus() {
         const pending = await getPendingMutations();
         return {
-            isOnline: navigator.onLine,
+            isOnline: typeof navigator === 'undefined' ? true : !!navigator.onLine,
             isSandbox: config.isSandbox,
             isSyncing,
             pendingCount: pending.length,
@@ -738,6 +794,7 @@ const CampusSync = (() => {
         deleteRecord,
         getPendingMutations,
         triggerSync,
+        processPendingQueue: triggerSync,
         login,
         logout,
         subscribe,

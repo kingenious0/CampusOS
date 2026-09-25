@@ -198,12 +198,13 @@ function openSettings() {
     const inputSupabaseUrl = document.getElementById('input-supabase-url');
     const inputSupabaseKey = document.getElementById('input-supabase-key');
 
-    if (typeof CampusSync !== 'undefined' && CampusSync.getConfig) {
-        const cfg = CampusSync.getConfig();
-        if (inputOrgId) inputOrgId.value = cfg.orgId || 'usted-ksi';
-        if (inputSupabaseUrl) inputSupabaseUrl.value = cfg.supabaseUrl || '';
-        if (inputSupabaseKey) inputSupabaseKey.value = cfg.supabaseAnonKey || '';
-    }
+    const env = (typeof window !== 'undefined' && window.ENV) ||
+                (typeof globalThis !== 'undefined' && globalThis.ENV) || null;
+    const cfg = (typeof CampusSync !== 'undefined' && CampusSync.getConfig) ? CampusSync.getConfig() : {};
+
+    if (inputOrgId) inputOrgId.value = cfg.orgId || (env?.orgId) || 'usted-ksi';
+    if (inputSupabaseUrl) inputSupabaseUrl.value = cfg.supabaseUrl || (env?.supabaseUrl) || '';
+    if (inputSupabaseKey) inputSupabaseKey.value = cfg.supabaseAnonKey || (env?.supabaseKey) || '';
 
     if (settingsDrawer) {
         settingsDrawer.classList.remove('hidden', 'pointer-events-none');
@@ -1328,16 +1329,59 @@ document.addEventListener('click', (e) => {
         const inputOrgId = document.getElementById('input-org-id');
         const inputSupabaseUrl = document.getElementById('input-supabase-url');
         const inputSupabaseKey = document.getElementById('input-supabase-key');
+        const cleanUrl = inputSupabaseUrl ? inputSupabaseUrl.value.trim().replace(/\/+$/, '') : '';
+        const cleanKey = inputSupabaseKey ? inputSupabaseKey.value.trim() : '';
+        const cleanOrg = inputOrgId ? inputOrgId.value.trim() || 'usted-ksi' : 'usted-ksi';
+
         if (typeof CampusSync !== 'undefined' && CampusSync.saveConfig) {
             CampusSync.saveConfig({
-                orgId: inputOrgId ? inputOrgId.value.trim() || 'usted-ksi' : 'usted-ksi',
-                supabaseUrl: inputSupabaseUrl ? inputSupabaseUrl.value.trim().replace(/\/+$/, '') : '',
-                supabaseAnonKey: inputSupabaseKey ? inputSupabaseKey.value.trim() : ''
+                orgId: cleanOrg,
+                supabaseUrl: cleanUrl,
+                supabaseAnonKey: cleanKey
             });
             showToast('Connection settings saved', 'success');
-            CampusSync.triggerSync();
+            if (typeof CampusSync.processPendingQueue === 'function') {
+                CampusSync.processPendingQueue();
+            } else if (typeof CampusSync.triggerSync === 'function') {
+                CampusSync.triggerSync();
+            }
         }
         closeSettings();
+        return;
+    }
+
+    // 9b. Reset Connection to Defaults in Drawer
+    if (e.target.closest('#btn-reset-connection-defaults')) {
+        if (typeof window !== 'undefined' && window.ENV && typeof window.ENV.resetDefaults === 'function') {
+            window.ENV.resetDefaults();
+        } else {
+            try {
+                localStorage.removeItem('supabase_url');
+                localStorage.removeItem('supabase_anon_key');
+                localStorage.removeItem('supabase_schema');
+                localStorage.removeItem('campus_org_id');
+                localStorage.removeItem('campusos_supabase_config');
+            } catch (err) {}
+        }
+        const appCfg = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG : {};
+        if (typeof CampusSync !== 'undefined' && CampusSync.saveConfig) {
+            CampusSync.saveConfig({
+                orgId: appCfg.DEFAULT_ORG_ID || 'usted-ksi',
+                supabaseUrl: appCfg.SUPABASE_URL || '',
+                supabaseAnonKey: appCfg.SUPABASE_ANON_KEY || ''
+            });
+        }
+        const inputOrgId = document.getElementById('input-org-id');
+        const inputSupabaseUrl = document.getElementById('input-supabase-url');
+        const inputSupabaseKey = document.getElementById('input-supabase-key');
+        const env = (typeof window !== 'undefined' && window.ENV) || null;
+        if (inputOrgId) inputOrgId.value = env?.orgId || appCfg.DEFAULT_ORG_ID || 'usted-ksi';
+        if (inputSupabaseUrl) inputSupabaseUrl.value = env?.supabaseUrl || appCfg.SUPABASE_URL || '';
+        if (inputSupabaseKey) inputSupabaseKey.value = env?.supabaseKey || appCfg.SUPABASE_ANON_KEY || '';
+        showToast('Reset connection to default project credentials', 'info');
+        if (typeof CampusSync !== 'undefined' && CampusSync.processPendingQueue) {
+            CampusSync.processPendingQueue();
+        }
         return;
     }
 
@@ -1563,13 +1607,13 @@ async function initApp() {
         const userDisplayEmail = document.getElementById('user-display-email');
 
         CampusSync.subscribe((status) => {
-            if (envBadge && envText) {
+            if (envBadge) {
                 if (status.isSandbox) {
                     envBadge.className = 'px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-amber-500/10 text-amber-300 border border-amber-500/30';
-                    envText.textContent = 'Local Sandbox Mode';
+                    envBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span id="env-text" class="hidden xs:inline">Local Sandbox Mode</span><span class="xs:hidden">Sandbox</span>';
                 } else {
                     envBadge.className = 'px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30';
-                    envText.textContent = 'Supabase Connected';
+                    envBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span id="env-text" class="hidden xs:inline font-semibold">● Synced</span><span class="xs:hidden font-semibold">● Synced</span>';
                 }
             }
 
@@ -1593,6 +1637,30 @@ async function initApp() {
             if (activeTab === 'sync-queue') {
                 renderSyncQueue();
             }
+        });
+    }
+
+    // Standalone PWA Installation Support for CampusOS Studio
+    let deferredStudioInstallPrompt = null;
+    const btnInstallStudio = document.getElementById('btn-install-studio');
+
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            deferredStudioInstallPrompt = e;
+            if (btnInstallStudio) {
+                btnInstallStudio.classList.remove('hidden');
+                btnInstallStudio.classList.add('flex');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('[Studio PWA] CampusOS Studio installed successfully');
+            if (btnInstallStudio) {
+                btnInstallStudio.classList.add('hidden');
+                btnInstallStudio.classList.remove('flex');
+            }
+            showToast('CampusOS Studio installed successfully', 'success');
         });
     }
 

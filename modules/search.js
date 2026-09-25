@@ -170,6 +170,107 @@ const SearchModule = (() => {
             }
         }
 
+        // 3. Live Cloud Sync: Query Supabase schema ('usted_nav') using baked-in APP_CONFIG / window.ENV
+        const fetchRemoteSupabase = async () => {
+            if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+            const env = (typeof window !== 'undefined' && window.ENV) ||
+                        (typeof globalThis !== 'undefined' && globalThis.ENV) || null;
+            const appCfg = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG : {
+                SUPABASE_URL: 'https://mzxmbkulgrehujpvwadt.supabase.co',
+                SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eG1ia3VsZ3JlaHVqcHZ3YWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1Njk5NjQsImV4cCI6MjEwMDE0NTk2NH0.PQMuAN1Hr82re8sgIJCbwwU09u6594UC3oIdTGoJfaE',
+                DEFAULT_SCHEMA: 'usted_nav',
+                DEFAULT_ORG_ID: 'usted-ksi'
+            };
+
+            const cleanUrl = (env?.supabaseUrl || appCfg.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+            const cleanKey = (env?.supabaseKey || appCfg.SUPABASE_ANON_KEY || '').trim();
+            const schema = (env?.schema || appCfg.DEFAULT_SCHEMA || 'usted_nav').trim();
+            const orgId = (env?.orgId || appCfg.DEFAULT_ORG_ID || 'usted-ksi').trim();
+
+            if (!cleanUrl || !cleanKey) return;
+
+            const headers = {
+                'apikey': cleanKey,
+                'Authorization': `Bearer ${cleanKey}`,
+                'Accept-Profile': schema,
+                'Content-Profile': schema
+            };
+
+            try {
+                const [bRes, rRes, sRes] = await Promise.all([
+                    fetch(`${cleanUrl}/rest/v1/buildings?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null),
+                    fetch(`${cleanUrl}/rest/v1/rooms?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null),
+                    fetch(`${cleanUrl}/rest/v1/staff_directory?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null)
+                ]);
+
+                if (bRes && bRes.ok) {
+                    const bList = await bRes.json();
+                    const rList = (rRes && rRes.ok) ? await rRes.json() : [];
+                    const sList = (sRes && sRes.ok) ? await sRes.json() : [];
+
+                    if (bList && bList.length > 0) {
+                        const bMap = new Map(bList.map(b => [String(b.id), b]));
+                        const roomsByBldg = new Map();
+                        if (rList) {
+                            rList.forEach(r => {
+                                const arr = roomsByBldg.get(String(r.building_id)) || [];
+                                arr.push({
+                                    number: r.room_number,
+                                    floor: r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st' : `${r.floor}th`),
+                                    description: r.description,
+                                    keywords: r.keywords || []
+                                });
+                                roomsByBldg.set(String(r.building_id), arr);
+                            });
+                        }
+
+                        buildingsData = buildingsData.map(b => {
+                            const updated = bMap.get(String(b.id));
+                            if (updated) {
+                                return {
+                                    ...b,
+                                    ...updated,
+                                    rooms: roomsByBldg.get(String(b.id)) || b.rooms || []
+                                };
+                            }
+                            return b;
+                        });
+                    }
+
+                    if (sList && sList.length > 0) {
+                        const updatedPeople = sList.map(s => ({
+                            id: s.id,
+                            name: s.name,
+                            title: s.title || '',
+                            position: s.position || '',
+                            department: s.department || '',
+                            faculty: s.faculty || '',
+                            location: {
+                                building: s.building_id || '',
+                                room: s.room_id || '',
+                                floor: s.floor !== undefined ? String(s.floor) : '',
+                                status: s.location_status || 'exact'
+                            },
+                            contact: {
+                                email: s.email || '',
+                                phone: s.phone || ''
+                            }
+                        }));
+                        if (updatedPeople.length > 0) {
+                            peopleData = updatedPeople;
+                        }
+                    }
+                }
+            } catch (netErr) {
+                // Silently fallback to bundled / cached data
+            }
+        };
+
+        if (typeof window !== 'undefined') {
+            fetchRemoteSupabase();
+            window.addEventListener('online', fetchRemoteSupabase);
+        }
+
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 clearTimeout(debounceTimer);
