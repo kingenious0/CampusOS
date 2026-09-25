@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1.1.0';
+const CACHE_NAME  = 'ustednav-v1.2.0';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install (Deduplicated clean paths)
@@ -12,6 +12,9 @@ const APP_SHELL = [
     './index.html',
     './map.html',
     './config.js',
+    './modules/data-loader.js',
+    './modules/search.js',
+    './modules/map.js',
     './admin/',
     './admin/index.html',
     './admin/app.js',
@@ -107,6 +110,28 @@ self.addEventListener('fetch', e => {
         url.hostname.includes('tiles.mapbox.com') ||
         url.hostname.includes('api.mapbox.com')) {
         e.respondWith(cacheTile(e.request));
+        return;
+    }
+
+    // Network-First for dynamic JSON data endpoints (e.g. data/people.json, data/buildings.json)
+    // Ensures cache busting for local fetches while preserving 100% offline fallback
+    if (url.pathname.endsWith('.json') || url.pathname.includes('/data/')) {
+        e.respondWith(
+            fetch(e.request).then(networkResponse => {
+                if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+                    const cloned = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, cloned));
+                }
+                return networkResponse;
+            }).catch(async () => {
+                const cached = await caches.match(e.request);
+                if (cached) return cached;
+                return new Response(JSON.stringify([]), {
+                    headers: { 'Content-Type': 'application/json' },
+                    status: 200
+                });
+            })
+        );
         return;
     }
 

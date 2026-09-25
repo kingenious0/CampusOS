@@ -17,6 +17,10 @@
     <!-- Mapbox GL JS (The Premium Choice) -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+    <!-- CampusOS Config, Supabase SDK & Stale-While-Revalidate Data Loader -->
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="modules/data-loader.js"></script>
     <!-- CesiumJS 1.145 (Official Release) -->
     <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Widgets/widgets.css">
     <script>window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/';</script>
@@ -2152,26 +2156,76 @@
         }
     }
 
-    // Load markers and staff data
+    // Load markers and staff data using Stale-While-Revalidate DataLoader
     async function loadBuildings() {
         try {
-            const [bRes, pRes] = await Promise.all([
-                fetch('data/buildings.json'),
-                fetch('data/people.json').catch(e => {
-                    console.warn('Failed to fetch data/people.json', e);
-                    return null;
-                })
-            ]);
-            buildingsData = await bRes.json();
-            if (pRes && pRes.ok) {
-                peopleData = await pRes.json();
-            } else if (window.USTED_PEOPLE) {
-                peopleData = window.USTED_PEOPLE;
+            const handleDataReady = (data, isBackground) => {
+                buildingsData = data.buildingsData || [];
+                peopleData = data.peopleData || [];
+
+                // 1. Refresh Map Markers dynamically
+                if (markers && Object.keys(markers).length > 0) {
+                    Object.values(markers).forEach(item => {
+                        if (item && item.marker && typeof item.marker.remove === 'function') {
+                            item.marker.remove();
+                        }
+                    });
+                    markers = {};
+                }
+                buildingsData.forEach(addMarker);
+
+                // 2. Setup or refresh Campus Labels GeoJSON Layer
+                if (map && map.getSource && map.getSource('campus-places')) {
+                    map.getSource('campus-places').setData({
+                        type: 'FeatureCollection',
+                        features: buildingsData.map(b => ({
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [b.lng, b.lat] },
+                            properties: { name: b.name.toUpperCase(), type: b.type }
+                        }))
+                    });
+                } else if (map && map.isStyleLoaded && map.isStyleLoaded()) {
+                    addCampusLabels();
+                } else if (map) {
+                    map.once('load', addCampusLabels);
+                }
+
+                // 3. Keep Cesium 3D viewer building dataset in sync
+                if (window.CampusOS) {
+                    window.CampusOS.buildingsData = buildingsData;
+                }
+
+                // 4. Re-evaluate active search query dynamically without full refresh
+                const sInput = document.getElementById('searchInput');
+                if (sInput && sInput.value && sInput.value.trim().length > 0) {
+                    doSearch(sInput.value.trim());
+                }
+
+                console.log(`[CampusOS Map] ${isBackground ? 'Live background revalidated' : 'Loaded'} ${buildingsData.length} buildings, ${peopleData.length} staff records (${data.source || 'default'}).`);
+            };
+
+            if (typeof DataLoader !== 'undefined' && typeof DataLoader.loadCampusData === 'function') {
+                const initial = await DataLoader.loadCampusData((updated) => {
+                    handleDataReady(updated, true);
+                });
+                handleDataReady(initial, false);
+            } else {
+                // Fallback bundled fetch if DataLoader is unavailable
+                const [bRes, pRes] = await Promise.all([
+                    fetch('data/buildings.json'),
+                    fetch('data/people.json').catch(e => {
+                        console.warn('Failed to fetch data/people.json', e);
+                        return null;
+                    })
+                ]);
+                buildingsData = await bRes.json();
+                if (pRes && pRes.ok) {
+                    peopleData = await pRes.json();
+                } else if (window.USTED_PEOPLE) {
+                    peopleData = window.USTED_PEOPLE;
+                }
+                handleDataReady({ buildingsData, peopleData, source: 'bundled-fallback' }, false);
             }
-            buildingsData.forEach(addMarker);
-            // After data is loaded, setup labels layer
-            if (map.isStyleLoaded()) addCampusLabels();
-            else map.on('load', addCampusLabels);
 
             // Handle incoming search query parameter (e.g. ?q=rob or ?search=library)
             const urlParams = new URLSearchParams(window.location.search);
@@ -2217,6 +2271,7 @@
                 }
             }
         } catch(e) {
+            console.error('[CampusOS Map] Error in loadBuildings:', e);
             showToast('Could not load campus data');
         }
     }
@@ -2244,15 +2299,17 @@
 
     function getBuildingForCode(code, person) {
         if (person?.location?.targetBuildingId && buildingsData && buildingsData.length) {
-            const b = buildingsData.find(x => x.id === person.location.targetBuildingId);
+            const b = buildingsData.find(x => x.id === person.location.targetBuildingId || String(x.id) === String(person.location.targetBuildingId));
             if (b) return b;
         }
         if (!code || !buildingsData || !buildingsData.length) return null;
         const norm = String(code).trim().toUpperCase();
         if (CODE_TO_BUILDING_ID[norm]) {
-            const b = buildingsData.find(x => x.id === CODE_TO_BUILDING_ID[norm]);
+            const b = buildingsData.find(x => x.id === CODE_TO_BUILDING_ID[norm] || String(x.id) === String(CODE_TO_BUILDING_ID[norm]));
             if (b) return b;
         }
+        const directMatch = buildingsData.find(x => String(x.id) === norm || String(x.id) === String(person?.location?.targetBuildingId));
+        if (directMatch) return directMatch;
         return buildingsData.find(b => {
             const sn = (b.shortName || '').toUpperCase();
             const nm = (b.name || '').toUpperCase();

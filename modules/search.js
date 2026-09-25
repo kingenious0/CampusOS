@@ -70,205 +70,73 @@ const SearchModule = (() => {
         "sgs": "School of Graduate Studies"
     };
 
+    const tryRequireDataLoader = () => {
+        try {
+            if (typeof require !== 'undefined') return require('./data-loader.js');
+        } catch (e) {}
+        return null;
+    };
+
     const init = async () => {
         searchInput = document.getElementById('searchInput');
         searchResults = document.getElementById('searchResults');
 
-        // 1. Primary: Load bundled static JSON for guaranteed instant offline availability
-        if (typeof MapModule !== 'undefined' && MapModule.getBuildingsData) {
-            buildingsData = MapModule.getBuildingsData() || [];
+        // Stale-While-Revalidate Data Loading via DataLoader
+        const loader = (typeof DataLoader !== 'undefined') ? DataLoader : tryRequireDataLoader();
+
+        if (loader && typeof loader.loadCampusData === 'function') {
+            try {
+                const res = await loader.loadCampusData((updated) => {
+                    buildingsData = updated.buildingsData;
+                    peopleData = updated.peopleData;
+                    if (searchInput && searchInput.value && searchInput.value.trim().length > 0) {
+                        handleSearch(searchInput.value.trim());
+                    }
+                });
+                if (res) {
+                    buildingsData = res.buildingsData || [];
+                    peopleData = res.peopleData || [];
+                }
+            } catch (loadErr) {
+                console.warn('[SearchModule] DataLoader notice:', loadErr);
+            }
         }
 
+        // Bundled fallback if DataLoader was unavailable or returned empty
         if (!buildingsData || buildingsData.length === 0) {
+            if (typeof MapModule !== 'undefined' && MapModule.getBuildingsData) {
+                buildingsData = MapModule.getBuildingsData() || [];
+            }
+            if (!buildingsData || buildingsData.length === 0) {
+                try {
+                    const res = await fetch('data/buildings.json');
+                    buildingsData = await res.json();
+                } catch (err) {
+                    console.warn('SearchModule: Failed to fetch bundled data/buildings.json', err);
+                }
+            }
+        }
+
+        if (!peopleData || peopleData.length === 0) {
             try {
-                const res = await fetch('data/buildings.json');
-                buildingsData = await res.json();
+                const res = await fetch('data/people.json');
+                peopleData = await res.json();
             } catch (err) {
-                console.warn('SearchModule: Failed to fetch bundled data/buildings.json', err);
+                console.warn('SearchModule: Failed to fetch bundled data/people.json', err);
             }
         }
 
-        try {
-            const res = await fetch('data/people.json');
-            peopleData = await res.json();
-        } catch (err) {
-            console.warn('SearchModule: Failed to fetch bundled data/people.json', err);
-        }
-
-        // 2. Optional: Stale-While-Revalidate from local IndexedDB if updated via Studio
-        if (typeof indexedDB !== 'undefined') {
-            try {
-                const openReq = indexedDB.open('CampusOS_Studio_DB', 1);
-                openReq.onsuccess = (e) => {
-                    const db = e.target.result;
-                    if (db.objectStoreNames.contains('buildings') && db.objectStoreNames.contains('staff_directory')) {
-                        const tx = db.transaction(['buildings', 'staff_directory', 'rooms'], 'readonly');
-                        const bReq = tx.objectStore('buildings').getAll();
-                        const sReq = tx.objectStore('staff_directory').getAll();
-                        const rReq = tx.objectStore('rooms').getAll();
-
-                        tx.oncomplete = () => {
-                            if (bReq.result && bReq.result.length > 0) {
-                                // Overlay any entrance updates or new buildings
-                                const bMap = new Map(bReq.result.map(b => [String(b.id), b]));
-                                const roomsByBldg = new Map();
-                                if (rReq.result) {
-                                    rReq.result.forEach(r => {
-                                        const arr = roomsByBldg.get(String(r.building_id)) || [];
-                                        arr.push({
-                                            number: r.room_number,
-                                            floor: r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st' : `${r.floor}th`),
-                                            description: r.description,
-                                            keywords: r.keywords || []
-                                        });
-                                        roomsByBldg.set(String(r.building_id), arr);
-                                    });
-                                }
-
-                                buildingsData = buildingsData.map(b => {
-                                    const updated = bMap.get(String(b.id));
-                                    if (updated) {
-                                        return {
-                                            ...b,
-                                            ...updated,
-                                            rooms: roomsByBldg.get(String(b.id)) || b.rooms || []
-                                        };
-                                    }
-                                    return b;
-                                });
-                            }
-
-                            if (sReq.result && sReq.result.length > 0) {
-                                // Merge staff
-                                const updatedPeople = sReq.result.map(s => ({
-                                    id: s.id,
-                                    name: s.name,
-                                    title: s.title || '',
-                                    position: s.position || '',
-                                    department: s.department || '',
-                                    faculty: s.faculty || '',
-                                    location: {
-                                        building: s.building_id || '',
-                                        room: s.room_id || '',
-                                        floor: s.floor !== undefined ? String(s.floor) : '',
-                                        status: s.location_status || 'exact'
-                                    },
-                                    contact: {
-                                        email: s.email || '',
-                                        phone: s.phone || ''
-                                    }
-                                }));
-                                if (updatedPeople.length > 0) {
-                                    peopleData = updatedPeople;
-                                }
-                            }
-                        };
-                    }
-                };
-            } catch (idbErr) {
-                // Silently ignore IDB overlay failures; static JSON remains active
-            }
-        }
-
-        // 3. Live Cloud Sync: Query Supabase schema ('usted_nav') using baked-in APP_CONFIG / window.ENV
-        const fetchRemoteSupabase = async () => {
-            if (typeof navigator !== 'undefined' && !navigator.onLine) return;
-            const env = (typeof window !== 'undefined' && window.ENV) ||
-                        (typeof globalThis !== 'undefined' && globalThis.ENV) || null;
-            const appCfg = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG : {
-                SUPABASE_URL: 'https://mzxmbkulgrehujpvwadt.supabase.co',
-                SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eG1ia3VsZ3JlaHVqcHZ3YWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1Njk5NjQsImV4cCI6MjEwMDE0NTk2NH0.PQMuAN1Hr82re8sgIJCbwwU09u6594UC3oIdTGoJfaE',
-                DEFAULT_SCHEMA: 'usted_nav',
-                DEFAULT_ORG_ID: 'usted-ksi'
-            };
-
-            const cleanUrl = (env?.supabaseUrl || appCfg.SUPABASE_URL || '').trim().replace(/\/+$/, '');
-            const cleanKey = (env?.supabaseKey || appCfg.SUPABASE_ANON_KEY || '').trim();
-            const schema = (env?.schema || appCfg.DEFAULT_SCHEMA || 'usted_nav').trim();
-            const orgId = (env?.orgId || appCfg.DEFAULT_ORG_ID || 'usted-ksi').trim();
-
-            if (!cleanUrl || !cleanKey) return;
-
-            const headers = {
-                'apikey': cleanKey,
-                'Authorization': `Bearer ${cleanKey}`,
-                'Accept-Profile': schema,
-                'Content-Profile': schema
-            };
-
-            try {
-                const [bRes, rRes, sRes] = await Promise.all([
-                    fetch(`${cleanUrl}/rest/v1/buildings?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null),
-                    fetch(`${cleanUrl}/rest/v1/rooms?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null),
-                    fetch(`${cleanUrl}/rest/v1/staff_directory?org_id=eq.${encodeURIComponent(orgId)}&select=*`, { headers }).catch(() => null)
-                ]);
-
-                if (bRes && bRes.ok) {
-                    const bList = await bRes.json();
-                    const rList = (rRes && rRes.ok) ? await rRes.json() : [];
-                    const sList = (sRes && sRes.ok) ? await sRes.json() : [];
-
-                    if (bList && bList.length > 0) {
-                        const bMap = new Map(bList.map(b => [String(b.id), b]));
-                        const roomsByBldg = new Map();
-                        if (rList) {
-                            rList.forEach(r => {
-                                const arr = roomsByBldg.get(String(r.building_id)) || [];
-                                arr.push({
-                                    number: r.room_number,
-                                    floor: r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st' : `${r.floor}th`),
-                                    description: r.description,
-                                    keywords: r.keywords || []
-                                });
-                                roomsByBldg.set(String(r.building_id), arr);
-                            });
-                        }
-
-                        buildingsData = buildingsData.map(b => {
-                            const updated = bMap.get(String(b.id));
-                            if (updated) {
-                                return {
-                                    ...b,
-                                    ...updated,
-                                    rooms: roomsByBldg.get(String(b.id)) || b.rooms || []
-                                };
-                            }
-                            return b;
-                        });
-                    }
-
-                    if (sList && sList.length > 0) {
-                        const updatedPeople = sList.map(s => ({
-                            id: s.id,
-                            name: s.name,
-                            title: s.title || '',
-                            position: s.position || '',
-                            department: s.department || '',
-                            faculty: s.faculty || '',
-                            location: {
-                                building: s.building_id || '',
-                                room: s.room_id || '',
-                                floor: s.floor !== undefined ? String(s.floor) : '',
-                                status: s.location_status || 'exact'
-                            },
-                            contact: {
-                                email: s.email || '',
-                                phone: s.phone || ''
-                            }
-                        }));
-                        if (updatedPeople.length > 0) {
-                            peopleData = updatedPeople;
-                        }
+        // Listen for global data updates (e.g. from map or studio sync)
+        if (typeof window !== 'undefined') {
+            window.addEventListener('campusos:data-updated', (e) => {
+                if (e.detail) {
+                    if (e.detail.buildingsData) buildingsData = e.detail.buildingsData;
+                    if (e.detail.peopleData) peopleData = e.detail.peopleData;
+                    if (searchInput && searchInput.value && searchInput.value.trim().length > 0) {
+                        handleSearch(searchInput.value.trim());
                     }
                 }
-            } catch (netErr) {
-                // Silently fallback to bundled / cached data
-            }
-        };
-
-        if (typeof window !== 'undefined') {
-            fetchRemoteSupabase();
-            window.addEventListener('online', fetchRemoteSupabase);
+            });
         }
 
         if (searchInput) {
@@ -337,11 +205,13 @@ const SearchModule = (() => {
     const getBuildingForCode = (code, customBData) => {
         const pool = customBData || buildingsData;
         if (!code || !pool) return null;
-        const c = code.toUpperCase().trim();
+        const c = String(code).toUpperCase().trim();
         if (CODE_TO_BUILDING_ID[c]) {
-            const b = pool.find(x => x.id === CODE_TO_BUILDING_ID[c]);
+            const b = pool.find(x => x.id === CODE_TO_BUILDING_ID[c] || String(x.id) === String(CODE_TO_BUILDING_ID[c]));
             if (b) return b;
         }
+        const direct = pool.find(x => String(x.id) === c);
+        if (direct) return direct;
         return pool.find(b => {
             const s = (b.shortName || '').toUpperCase();
             const n = (b.name || '').toUpperCase();
@@ -437,9 +307,12 @@ const SearchModule = (() => {
     const formatBreadcrumb = (buildingObjOrPerson, personOrBuilding) => {
         let b = buildingObjOrPerson;
         let p = personOrBuilding;
-        if (buildingObjOrPerson && buildingObjOrPerson.department !== undefined && buildingObjOrPerson.faculty !== undefined) {
-            p = buildingObjOrPerson;
-            b = personOrBuilding;
+        if (buildingObjOrPerson && (buildingObjOrPerson.type === 'staff' || buildingObjOrPerson.data?.department !== undefined || (buildingObjOrPerson.department !== undefined && buildingObjOrPerson.faculty !== undefined))) {
+            p = buildingObjOrPerson.data || buildingObjOrPerson;
+            b = personOrBuilding || buildingObjOrPerson.building;
+        } else if (personOrBuilding && (personOrBuilding.type === 'staff' || personOrBuilding.data?.department !== undefined)) {
+            p = personOrBuilding.data || personOrBuilding;
+            b = buildingObjOrPerson || personOrBuilding.building;
         }
         const bName = b ? b.name : (p?.location?.building ? `${p.location.building} Building` : 'Campus Building');
         const floor = p?.location?.floor;
@@ -647,6 +520,7 @@ const SearchModule = (() => {
                 const bObj = (p.location?.targetBuildingId ? bData.find(b => b.id === p.location.targetBuildingId) : null) || getBuildingForCode(p.location?.building, bData);
                 results.push({
                     type: 'staff',
+                    id: p.id,
                     data: p,
                     name: p.name,
                     building: bObj,
@@ -681,6 +555,7 @@ const SearchModule = (() => {
             if (maxScore > 0) {
                 results.push({
                     type: 'building',
+                    id: b.id,
                     data: b,
                     name: b.name,
                     building: b,
@@ -700,6 +575,7 @@ const SearchModule = (() => {
                 if (sScore > 0) {
                     results.push({
                         type: 'service',
+                        id: s.id || `${b.id}-${s.name}`,
                         data: s,
                         name: s.name,
                         building: b,
@@ -726,6 +602,7 @@ const SearchModule = (() => {
                 if (rScore > 0) {
                     results.push({
                         type: 'room',
+                        id: r.id || `${b.id}-${r.number}`,
                         data: r,
                         name: r.number,
                         building: b,
@@ -1159,6 +1036,11 @@ const SearchModule = (() => {
         formatOutdoorHandoff,
         getPeopleData: () => peopleData,
         getBuildingsData: () => buildingsData,
+        updateData: (b, p) => {
+            if (b) buildingsData = b;
+            if (p) peopleData = p;
+        },
+        DataLoader: (typeof DataLoader !== 'undefined') ? DataLoader : tryRequireDataLoader(),
         getBuildingForCode,
         SYNONYMS,
         typeLabels

@@ -94,8 +94,23 @@ const MapModule = (() => {
 
     const loadBuildingsData = async () => {
         try {
-            const response = await fetch('data/buildings.json');
-            buildingsData = await response.json();
+            const loader = (typeof DataLoader !== 'undefined') ? DataLoader : null;
+            if (loader && typeof loader.loadCampusData === 'function') {
+                const initial = await loader.loadCampusData((updated) => {
+                    buildingsData = updated.buildingsData || [];
+                    if (map) {
+                        Object.values(markers).forEach(m => {
+                            if (map.hasLayer(m)) map.removeLayer(m);
+                        });
+                        markers = {};
+                        addMarkers();
+                    }
+                });
+                buildingsData = initial.buildingsData || [];
+            } else {
+                const response = await fetch('data/buildings.json');
+                buildingsData = await response.json();
+            }
         } catch (error) {
             console.error('Error loading buildings data:', error);
             showMapError('Could not load campus data. Please refresh.');
