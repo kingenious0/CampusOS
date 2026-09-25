@@ -148,7 +148,7 @@ ON CONFLICT (id) DO UPDATE SET
   services = EXCLUDED.services,
   metadata = EXCLUDED.metadata;
 INSERT INTO buildings (id, org_id, code, name, short_name, type, lat, lng, entrance, description, hours, services, metadata)
-VALUES ('11', 'usted-ksi', 'OW HALL', 'Opoku Ware Hall', 'OW Hall', 'hostel', 6.69784309227766, -1.682883903599286, '[-1.682884, 6.697843]'::jsonb, 'Student residential hall with study rooms and recreational facilities.', '24 hours', '[]'::jsonb, '{"source_id":11, "height": 9, "levels": 3, "min_height": 0, "base_height": 0, "polygon": [[-1.683050, 6.698080], [-1.682660, 6.698080], [-1.682650, 6.697630], [-1.683020, 6.697614], [-1.683050, 6.698080]]}'::jsonb)
+VALUES ('11', 'usted-ksi', 'OW HALL', 'Opoku Ware Hall', 'OW Hall', 'hostel', 6.69784309227766, -1.682883903599286, '[-1.682884, 6.697843]'::jsonb, 'Student residential hall with study rooms and recreational facilities.', '24 hours', '[]'::jsonb, '{"source_id":11, "height": 8, "levels": 2, "min_height": 0, "base_height": 0, "polygon": [[-1.683050, 6.698080], [-1.682550, 6.698080], [-1.682550, 6.697600], [-1.683050, 6.697600], [-1.683050, 6.697720], [-1.682670, 6.697720], [-1.682670, 6.697960], [-1.683050, 6.697960], [-1.683050, 6.698080]]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,
   name = EXCLUDED.name,
@@ -442,7 +442,7 @@ ON CONFLICT (id) DO UPDATE SET
   services = EXCLUDED.services,
   metadata = EXCLUDED.metadata;
 INSERT INTO buildings (id, org_id, code, name, short_name, type, lat, lng, entrance, description, hours, services, metadata)
-VALUES ('32', 'usted-ksi', 'OW II HALL', 'Opoku Ware II Hall', 'OW II Hall', 'hostel', 6.69762, -1.68356, '[-1.68356, 6.69762]'::jsonb, 'Second Opoku Ware residential hall with modern student accommodation and amenities.', '24 hours', '[]'::jsonb, '{"source_id":32, "height": 9, "levels": 3, "min_height": 0, "base_height": 0, "polygon": [[[-1.683863, 6.697860], [-1.683421, 6.697784], [-1.683390, 6.697785], [-1.683293, 6.697765], [-1.683293, 6.697396], [-1.683310, 6.697309], [-1.683443, 6.697334], [-1.683491, 6.697340], [-1.683647, 6.697279], [-1.683768, 6.697302], [-1.683840, 6.697209], [-1.683887, 6.697294], [-1.683867, 6.697422], [-1.683812, 6.697414], [-1.683795, 6.697484], [-1.683863, 6.697770], [-1.683863, 6.697860]]]}'::jsonb)
+VALUES ('32', 'usted-ksi', 'OW II HALL', 'Opoku Ware II Hall', 'OW II Hall', 'hostel', 6.69762, -1.68356, '[-1.68356, 6.69762]'::jsonb, 'Second Opoku Ware residential hall with modern student accommodation and amenities.', '24 hours', '[]'::jsonb, '{"source_id":32, "height": 8, "levels": 2, "min_height": 0, "base_height": 0, "polygon": [[-1.683860, 6.697840], [-1.683740, 6.697840], [-1.683740, 6.697680], [-1.683560, 6.697680], [-1.683560, 6.697780], [-1.683320, 6.697780], [-1.683320, 6.697420], [-1.683560, 6.697420], [-1.683560, 6.697580], [-1.683740, 6.697580], [-1.683740, 6.697420], [-1.683860, 6.697420], [-1.683860, 6.697840]]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,
   name = EXCLUDED.name,

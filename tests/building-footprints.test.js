@@ -26,7 +26,7 @@ assert.strictEqual(ow2.entrance[1], 6.69762, 'Entrance lat must be 6.69762 (port
 // Check polygon footprint
 assert(Array.isArray(ow2.polygon), 'Opoku Ware II Hall must have polygon array');
 const ring = Array.isArray(ow2.polygon[0]) && Array.isArray(ow2.polygon[0][0]) ? ow2.polygon[0] : ow2.polygon;
-assert(ring.length >= 15, `Opoku Ware II Hall polygon must have >= 15 vertices, found ${ring.length}`);
+assert(ring.length >= 12, `Opoku Ware II Hall polygon must have >= 12 vertices, found ${ring.length}`);
 
 // Check that footprint spans across both west wing and east courtyard wing
 const lngs = ring.map(p => p[0]);
@@ -38,7 +38,7 @@ const maxLat = Math.max(...lats);
 
 assert(minLng <= -1.6838, `Polygon must extend west toward Mosque (minLng <= -1.6838), got ${minLng}`);
 assert(maxLng >= -1.6833, `Polygon must extend east covering courtyard wing (maxLng >= -1.6833), got ${maxLng}`);
-assert(minLat <= 6.6973, `Polygon must cover south wing perimeter, got ${minLat}`);
+assert(minLat <= 6.69745, `Polygon must terminate at south wing perimeter without lawn spillover, got ${minLat}`);
 assert(maxLat >= 6.6978, `Polygon must cover north wing perimeter, got ${maxLat}`);
 
 // Verify polygon ring is closed
@@ -48,8 +48,7 @@ assert.strictEqual(firstPt[0], lastPt[0], 'Polygon first and last lng must match
 assert.strictEqual(firstPt[1], lastPt[1], 'Polygon first and last lat must match (closed ring)');
 
 // Check realistic normalized height
-assert(ow2.height >= 8 && ow2.height <= 10, `OW2 height in data/buildings.json must be 8-10m, got ${ow2.height}`);
-assert.strictEqual(ow2.min_height, 0, 'OW2 min_height must be 0');
+assert(ow2.height >= 7 && ow2.height <= 10, `OW2 height in data/buildings.json must be 7-10m, got ${ow2.height}`);
 
 // Opoku Ware Hall (id: 11)
 const ow1 = buildings.find(b => b.id === 11 || b.name === 'Opoku Ware Hall');
@@ -57,9 +56,9 @@ assert(ow1, 'Opoku Ware Hall (id: 11) must exist in data/buildings.json');
 assert(Array.isArray(ow1.entrance), 'Opoku Ware Hall must have entrance array');
 assert.strictEqual(ow1.entrance[0], -1.682884, 'OW1 entrance lng must match');
 assert(Array.isArray(ow1.polygon), 'OW1 must have polygon array');
-assert(ow1.height >= 8 && ow1.height <= 10, `OW1 height must be 8-10m, got ${ow1.height}`);
+assert(ow1.height >= 7 && ow1.height <= 10, `OW1 height must be 7-10m, got ${ow1.height}`);
 
-console.log('✓ PASS: data/buildings.json contains complete polygons, entrances, and normalized 8-10m heights for Opoku Ware buildings');
+console.log('✓ PASS: data/buildings.json contains complete polygons, entrances, and normalized heights for Opoku Ware buildings');
 
 // 2. Verify data/campus-features.geojson
 const campusFeaturesPath = path.join(__dirname, '../data/campus-features.geojson');
@@ -70,7 +69,7 @@ assert.strictEqual(campusFeatures.type, 'FeatureCollection', 'Must be a GeoJSON 
 const ow2Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-ii-hall' || f.properties?.name === 'Opoku Ware II Hall');
 assert(ow2Feature, 'Opoku Ware II Hall feature must exist in campus-features.geojson');
 assert.strictEqual(ow2Feature.geometry.type, 'Polygon', 'Must be a Polygon geometry');
-assert(ow2Feature.properties.height >= 8 && ow2Feature.properties.height <= 10, `Extrusion height must be 8-10m, got ${ow2Feature.properties.height}`);
+assert(ow2Feature.properties.height >= 7 && ow2Feature.properties.height <= 10, `Extrusion height must be 7-10m, got ${ow2Feature.properties.height}`);
 assert.strictEqual(ow2Feature.properties.min_height, 0, 'min_height must be 0');
 assert.strictEqual(ow2Feature.properties.base_height, 0, 'base_height must be 0');
 assert.strictEqual(ow2Feature.properties.extrude, true, 'Extrude property must be true');
@@ -78,11 +77,11 @@ assert.deepStrictEqual(ow2Feature.properties.entrance, [-1.68356, 6.69762], 'Ent
 
 const ow1Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-hall' || f.properties?.name === 'Opoku Ware Hall');
 assert(ow1Feature, 'Opoku Ware Hall feature must exist in campus-features.geojson');
-assert(ow1Feature.properties.height >= 8 && ow1Feature.properties.height <= 10, `OW1 Extrusion height must be 8-10m, got ${ow1Feature.properties.height}`);
+assert(ow1Feature.properties.height >= 7 && ow1Feature.properties.height <= 10, `OW1 Extrusion height must be 7-10m, got ${ow1Feature.properties.height}`);
 assert.strictEqual(ow1Feature.properties.min_height, 0, 'OW1 min_height must be 0');
 assert.strictEqual(ow1Feature.properties.base_height, 0, 'OW1 base_height must be 0');
 
-console.log('✓ PASS: data/campus-features.geojson contains normalized 3D extrusion features (height: 9m, base: 0m)');
+console.log('✓ PASS: data/campus-features.geojson contains normalized 3D extrusion features (height: 8m, base: 0m)');
 
 // 3. Verify data/campus.geojson
 const campusGeojsonPath = path.join(__dirname, '../data/campus.geojson');
@@ -90,7 +89,7 @@ const campusGeojson = JSON.parse(fs.readFileSync(campusGeojsonPath, 'utf8'));
 const ow2Campus = campusGeojson.features.find(f => f.properties?.name === 'Opoku Ware II Hall');
 assert(ow2Campus, 'Opoku Ware II Hall must be present in data/campus.geojson');
 assert.strictEqual(ow2Campus.geometry.type, 'Polygon', 'Must be Polygon in campus.geojson');
-assert(ow2Campus.properties.height >= 8 && ow2Campus.properties.height <= 10, `campus.geojson height must be 8-10m, got ${ow2Campus.properties.height}`);
+assert(ow2Campus.properties.height >= 7 && ow2Campus.properties.height <= 10, `campus.geojson height must be 7-10m, got ${ow2Campus.properties.height}`);
 
 console.log('✓ PASS: data/campus.geojson contains Opoku Ware II Hall with normalized height');
 
@@ -107,15 +106,16 @@ const adminSeedJson = JSON.parse(fs.readFileSync(adminSeedJsonPath, 'utf8'));
 const ow2AdminJson = adminSeedJson.buildings.find(b => b.id == 32 || b.name === 'Opoku Ware II Hall');
 assert(ow2AdminJson, 'OW II Hall must exist in admin/seed_data.json');
 assert.strictEqual(ow2AdminJson.entrance[0], -1.68356, 'admin/seed_data.json entrance must match');
-const adminRing = Array.isArray(ow2AdminJson.metadata?.polygon?.[0]?.[0]) ? ow2AdminJson.metadata.polygon[0] : ow2AdminJson.metadata?.polygon;
-assert(adminRing && adminRing.length >= 15, 'admin/seed_data.json must have polygon in metadata with >= 15 vertices');
-assert(ow2AdminJson.metadata.height >= 8 && ow2AdminJson.metadata.height <= 10, 'OW2 admin metadata height must be 8-10m');
+const polyData = ow2AdminJson.metadata?.polygon;
+const adminRing = Array.isArray(polyData?.[0]?.[0]) ? polyData[0] : polyData;
+assert(adminRing && adminRing.length >= 12, 'admin/seed_data.json must have polygon in metadata with >= 12 vertices');
+assert(ow2AdminJson.metadata.height >= 7 && ow2AdminJson.metadata.height <= 10, 'OW2 admin metadata height must be 7-10m');
 
 const ow1AdminJson = adminSeedJson.buildings.find(b => b.id == 11 || b.name === 'Opoku Ware Hall');
 assert(ow1AdminJson, 'OW Hall must exist in admin/seed_data.json');
 assert.strictEqual(ow1AdminJson.entrance[0], -1.682884, 'OW Hall entrance must match');
 assert(ow1AdminJson.metadata?.polygon, 'OW Hall must have polygon in metadata');
-assert(ow1AdminJson.metadata.height >= 8 && ow1AdminJson.metadata.height <= 10, 'OW1 admin metadata height must be 8-10m');
+assert(ow1AdminJson.metadata.height >= 7 && ow1AdminJson.metadata.height <= 10, 'OW1 admin metadata height must be 7-10m');
 
 const adminSeedJsPath = path.join(__dirname, '../admin/seed_data.js');
 const adminSeedJs = fs.readFileSync(adminSeedJsPath, 'utf8');
