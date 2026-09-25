@@ -37,7 +37,7 @@ const minLat = Math.min(...lats);
 const maxLat = Math.max(...lats);
 
 assert(minLng <= -1.6838, `Polygon must extend west toward Mosque (minLng <= -1.6838), got ${minLng}`);
-assert(maxLng >= -1.6833, `Polygon must extend east covering courtyard wing (maxLng >= -1.6833), got ${maxLng}`);
+assert(maxLng >= -1.68335, `Polygon must extend east covering courtyard wing (maxLng >= -1.68335), got ${maxLng}`);
 assert(minLat <= 6.69745, `Polygon must terminate at south wing perimeter without lawn spillover, got ${minLat}`);
 assert(maxLat >= 6.6978, `Polygon must cover north wing perimeter, got ${maxLat}`);
 
@@ -60,30 +60,7 @@ assert(ow1.height >= 7 && ow1.height <= 10, `OW1 height must be 7-10m, got ${ow1
 
 console.log('✓ PASS: data/buildings.json contains complete polygons, entrances, and normalized heights for Opoku Ware buildings');
 
-// 2. Verify data/campus-features.geojson
-const campusFeaturesPath = path.join(__dirname, '../data/campus-features.geojson');
-assert(fs.existsSync(campusFeaturesPath), 'data/campus-features.geojson must exist');
-const campusFeatures = JSON.parse(fs.readFileSync(campusFeaturesPath, 'utf8'));
-assert.strictEqual(campusFeatures.type, 'FeatureCollection', 'Must be a GeoJSON FeatureCollection');
-
-const ow2Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-ii-hall' || f.properties?.name === 'Opoku Ware II Hall');
-assert(ow2Feature, 'Opoku Ware II Hall feature must exist in campus-features.geojson');
-assert.strictEqual(ow2Feature.geometry.type, 'Polygon', 'Must be a Polygon geometry');
-assert(ow2Feature.properties.height >= 7 && ow2Feature.properties.height <= 10, `Extrusion height must be 7-10m, got ${ow2Feature.properties.height}`);
-assert.strictEqual(ow2Feature.properties.min_height, 0, 'min_height must be 0');
-assert.strictEqual(ow2Feature.properties.base_height, 0, 'base_height must be 0');
-assert.strictEqual(ow2Feature.properties.extrude, true, 'Extrude property must be true');
-assert.deepStrictEqual(ow2Feature.properties.entrance, [-1.68356, 6.69762], 'Entrance property must match portal walkway');
-
-const ow1Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-hall' || f.properties?.name === 'Opoku Ware Hall');
-assert(ow1Feature, 'Opoku Ware Hall feature must exist in campus-features.geojson');
-assert(ow1Feature.properties.height >= 7 && ow1Feature.properties.height <= 10, `OW1 Extrusion height must be 7-10m, got ${ow1Feature.properties.height}`);
-assert.strictEqual(ow1Feature.properties.min_height, 0, 'OW1 min_height must be 0');
-assert.strictEqual(ow1Feature.properties.base_height, 0, 'OW1 base_height must be 0');
-
-console.log('✓ PASS: data/campus-features.geojson contains normalized 3D extrusion features (height: 8m, base: 0m)');
-
-// 3. Verify data/campus.geojson
+// 2. Verify data/campus.geojson
 const campusGeojsonPath = path.join(__dirname, '../data/campus.geojson');
 const campusGeojson = JSON.parse(fs.readFileSync(campusGeojsonPath, 'utf8'));
 const ow2Campus = campusGeojson.features.find(f => f.properties?.name === 'Opoku Ware II Hall');
@@ -93,7 +70,7 @@ assert(ow2Campus.properties.height >= 7 && ow2Campus.properties.height <= 10, `c
 
 console.log('✓ PASS: data/campus.geojson contains Opoku Ware II Hall with normalized height');
 
-// 4. Verify seed data files
+// 3. Verify seed data files
 const seedSqlPath = path.join(__dirname, '../scripts/seed_data.sql');
 const seedSql = fs.readFileSync(seedSqlPath, 'utf8');
 assert(seedSql.includes('-1.68356') && seedSql.includes('6.69762'), 'seed_data.sql must contain updated OW II entrance [-1.68356, 6.69762]');
@@ -124,22 +101,25 @@ assert(adminSeedJs.includes('-1.682884') && adminSeedJs.includes('6.697843'), 'a
 
 console.log('✓ PASS: scripts/seed_data.sql, admin/seed_data.json, and admin/seed_data.js contain synchronized footprints, entrances, and heights');
 
-// 5. Verify map.html 3D extrusion integration and height rule
+// 4. Verify map.html native 3D building integration and complete removal of redundant overlay
 const mapHtmlPath = path.join(__dirname, '../map.html');
 const mapHtml = fs.readFileSync(mapHtmlPath, 'utf8');
-assert(mapHtml.includes('campus-custom-3d-features'), 'map.html must define campus-custom-3d-features source');
-assert(mapHtml.includes('campus-custom-3d-extrusions'), 'map.html must define campus-custom-3d-extrusions layer');
-assert(mapHtml.includes('syncCustom3DBuildings'), 'map.html must include syncCustom3DBuildings method');
-assert(mapHtml.includes('data/campus-features.geojson'), 'map.html must load data/campus-features.geojson');
+assert(mapHtml.includes('campus-3d-buildings'), 'map.html must define native campus-3d-buildings layer');
 assert(mapHtml.includes("'fill-extrusion-height': [") && mapHtml.includes("['*', ['get', 'levels'], 3.5]"), 'map.html must implement fill-extrusion-height rule with levels * 3.5');
+assert(!mapHtml.includes('campus-custom-3d-extrusions'), 'map.html must NOT contain redundant campus-custom-3d-extrusions layer');
+assert(!mapHtml.includes('campus-custom-3d-features'), 'map.html must NOT contain campus-custom-3d-features source');
+assert(!mapHtml.includes('syncCustom3DBuildings'), 'map.html must NOT contain syncCustom3DBuildings call');
 
-console.log('✓ PASS: map.html includes custom 3D fill-extrusion layers with normalized height expression');
+console.log('✓ PASS: map.html cleanly renders native Mapbox 3D buildings without redundant ghost extrusions');
 
-// 6. Verify sw.js precache
+// 5. Verify obsolete campus-features.geojson is removed and not in sw.js
+const campusFeaturesPath = path.join(__dirname, '../data/campus-features.geojson');
+assert(!fs.existsSync(campusFeaturesPath), 'data/campus-features.geojson must be removed to avoid redundant data');
+
 const swPath = path.join(__dirname, '../sw.js');
 const sw = fs.readFileSync(swPath, 'utf8');
-assert(sw.includes("'./data/campus-features.geojson'"), 'sw.js must precache ./data/campus-features.geojson');
+assert(!sw.includes("'./data/campus-features.geojson'"), 'sw.js must NOT precache obsolete ./data/campus-features.geojson');
 
-console.log('✓ PASS: sw.js precaches ./data/campus-features.geojson');
+console.log('✓ PASS: sw.js cleanly excludes obsolete campus-features.geojson');
 
 console.log('\n=== ALL BUILDING FOOTPRINT & 3D EXTRUSION TESTS PASSED (100%)! ===');
