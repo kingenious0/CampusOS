@@ -87,6 +87,7 @@ window.normalizeEntrances = normalizeEntrances;
 let editorMap = null;
 let selectedBuildingId = null;
 let buildingMarker = null;
+let buildingPolygonLayer = null;
 let entranceMarkers = []; // Array of L.marker instances
 let editingEntrances = []; // Array of normalized entrance objects [{ id, label, coords: [lng, lat], isPrimary }]
 let isAddingEntrance = false;
@@ -691,12 +692,25 @@ function updateStaffRoomDropdown(buildingId, selectedRoomId = '') {
     if (!staffRoomSelect) return;
     staffRoomSelect.innerHTML = '<option value="">(No Room Assigned)</option>';
     if (!buildingId) return;
-    const bldgRooms = rooms.filter(r => r.building_id === buildingId);
+    const bldgRooms = rooms.filter(r => r.building_id === buildingId || String(r.building_id) === String(buildingId));
     bldgRooms.forEach(r => {
         const opt = document.createElement('option');
         opt.value = r.id;
-        opt.textContent = `Room ${r.room_number} (Floor ${r.floor})`;
-        if (r.id === selectedRoomId) opt.selected = true;
+
+        const floorStr = (r.floor === 0 || r.floor === '0') ? 'Ground' : r.floor;
+        const meta = r.metadata;
+        const desc = r.description || '';
+
+        if (meta && (meta.wing || meta.type)) {
+            const wingStr = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
+            const typeStr = meta.type || desc;
+            const parts = [floorStr, wingStr, typeStr].filter(Boolean);
+            opt.textContent = `Room ${r.room_number} (${parts.join(' · ')})`;
+        } else {
+            opt.textContent = `Room ${r.room_number} (Floor ${r.floor}${desc ? ' - ' + desc : ''})`;
+        }
+
+        if (r.id === selectedRoomId || String(r.id) === String(selectedRoomId)) opt.selected = true;
         staffRoomSelect.appendChild(opt);
     });
 }
@@ -1063,10 +1077,14 @@ function selectEditorBuilding(id) {
     isAddingEntrance = false;
     updateAddEntranceButtonUI();
 
-    // Clear existing markers
+    // Clear existing markers & polygons
     if (buildingMarker) {
         editorMap.removeLayer(buildingMarker);
         buildingMarker = null;
+    }
+    if (buildingPolygonLayer) {
+        editorMap.removeLayer(buildingPolygonLayer);
+        buildingPolygonLayer = null;
     }
     clearEntranceMarkers();
 
@@ -1075,6 +1093,25 @@ function selectEditorBuilding(id) {
 
     const btnSaveEntrance = document.getElementById('btn-save-entrance');
     if (btnSaveEntrance) btnSaveEntrance.disabled = true;
+
+    // Render building polygon footprint if present
+    const polyCoords = b.polygon || (b.metadata && b.metadata.polygon);
+    if (polyCoords && Array.isArray(polyCoords) && polyCoords.length > 0 && typeof L !== 'undefined') {
+        try {
+            // Support GeoJSON [[[lng, lat], ...]] -> Leaflet [[lat, lng], ...]
+            const rings = Array.isArray(polyCoords[0][0]) ? polyCoords[0] : polyCoords;
+            const latLngRings = rings.map(pt => [pt[1], pt[0]]);
+            buildingPolygonLayer = L.polygon(latLngRings, {
+                color: '#6366f1',
+                fillColor: '#818cf8',
+                fillOpacity: 0.25,
+                weight: 2,
+                dashArray: '4, 4'
+            }).addTo(editorMap).bindPopup(`<b>${escapeHtml(b.name)}</b><br><span class="text-slate-500 text-xs">Surveyed Roofline Boundary</span>`);
+        } catch (polyErr) {
+            console.warn('Error rendering building polygon on editor map:', polyErr);
+        }
+    }
 
     // Centroid marker (Blue pin)
     if (typeof L !== 'undefined') {
@@ -1556,6 +1593,7 @@ document.addEventListener('submit', async (e) => {
         const staffRoomSelect = document.getElementById('staff-room-select');
         const bId = staffBuildingSelect ? staffBuildingSelect.value || null : null;
         const rId = staffRoomSelect ? staffRoomSelect.value || null : null;
+        const selRoom = rId ? rooms.find(r => r.id === rId || String(r.id) === String(rId)) : null;
 
         const record = {
             ...existing,
@@ -1566,6 +1604,7 @@ document.addEventListener('submit', async (e) => {
             department: document.getElementById('staff-department').value.trim(),
             building_id: bId,
             room_id: rId,
+            floor: selRoom ? selRoom.floor : (existing.floor !== undefined ? existing.floor : null),
             email: document.getElementById('staff-email').value.trim(),
             phone: document.getElementById('staff-phone').value.trim(),
             location_status: (bId && rId) ? 'exact' : (bId ? 'building_only' : 'unresolved')

@@ -2093,12 +2093,100 @@
     // ══════════════════════════════════════════
     //  3D BUILDINGS LAYER
     // ══════════════════════════════════════════
+    let cachedCampusFeatures = null;
+
+    async function loadCampusFeaturesData() {
+        if (!cachedCampusFeatures) {
+            try {
+                const res = await fetch('data/campus-features.geojson');
+                if (res.ok) {
+                    cachedCampusFeatures = await res.json();
+                }
+            } catch (err) {
+                console.warn('[CampusOS Map] Notice loading campus-features.geojson:', err);
+            }
+        }
+        return cachedCampusFeatures;
+    }
+
+    function buildMergedCustomFeaturesGeoJson() {
+        const baseFeatures = (cachedCampusFeatures && cachedCampusFeatures.features) ? [...cachedCampusFeatures.features] : [];
+        const seenBuildingIds = new Set();
+        baseFeatures.forEach(f => {
+            const bId = f.properties?.building_id || f.properties?.id;
+            if (bId) seenBuildingIds.add(String(bId));
+        });
+
+        // Also incorporate any dynamic polygon footprints from buildingsData (e.g., from Supabase/IndexedDB DataLoader)
+        if (buildingsData && buildingsData.length) {
+            buildingsData.forEach(b => {
+                const poly = b.polygon || (b.metadata && b.metadata.polygon);
+                if (poly && poly.length >= 3) {
+                    const bIdStr = String(b.id);
+                    const ring = [...poly];
+                    const first = ring[0];
+                    const last = ring[ring.length - 1];
+                    if (first[0] !== last[0] || first[1] !== last[1]) {
+                        ring.push([first[0], first[1]]);
+                    }
+                    const feature = {
+                        type: 'Feature',
+                        id: 'campus-bld-' + b.id,
+                        properties: {
+                            id: String(b.id),
+                            building_id: b.id,
+                            name: b.name,
+                            short_name: b.shortName || b.name,
+                            type: b.type,
+                            height: (b.metadata && b.metadata.height) || 16,
+                            min_height: 0,
+                            base_height: 0,
+                            color: (TYPE_CFG[b.type] && TYPE_CFG[b.type].color) || '#818cf8',
+                            extrude: true,
+                            entrance: b.entrance,
+                            entrances: b.entrances
+                        },
+                        geometry: {
+                            type: 'Polygon',
+                            coordinates: [ring]
+                        }
+                    };
+                    const existingIndex = baseFeatures.findIndex(f => String(f.properties?.building_id || f.properties?.id) === bIdStr);
+                    if (existingIndex >= 0) {
+                        baseFeatures[existingIndex] = feature;
+                    } else {
+                        baseFeatures.push(feature);
+                    }
+                }
+            });
+        }
+
+        return {
+            type: 'FeatureCollection',
+            features: baseFeatures
+        };
+    }
+
+    async function syncCustom3DBuildings() {
+        if (!map || !map.getSource) return;
+        await loadCampusFeaturesData();
+        const data = buildMergedCustomFeaturesGeoJson();
+
+        if (map.getSource('campus-custom-3d-features')) {
+            map.getSource('campus-custom-3d-features').setData(data);
+        } else if (map.isStyleLoaded && map.isStyleLoaded()) {
+            add3DBuildings();
+        }
+    }
+
     function add3DBuildings() {
         const layers = map.getStyle().layers;
         let firstSymbolId;
         for (const layer of layers) {
             if (layer.type === 'symbol') { firstSymbolId = layer.id; break; }
         }
+
+        // 1. Standard composite Mapbox 3D buildings
         if (!map.getLayer('campus-3d-buildings')) {
             map.addLayer({
                 id: 'campus-3d-buildings',
@@ -2114,6 +2202,63 @@
                     'fill-extrusion-opacity': 0.65
                 }
             }, firstSymbolId);
+        }
+
+        // 2. Authoritative CampusOS High-Fidelity 3D Custom Feature Extrusions
+        // Traces complete Opoku Ware II Hall footprint, courtyard, west wing, and surveyed landmarks
+        const initialData = buildMergedCustomFeaturesGeoJson();
+        if (!map.getSource('campus-custom-3d-features')) {
+            map.addSource('campus-custom-3d-features', {
+                type: 'geojson',
+                data: initialData.features.length ? initialData : 'data/campus-features.geojson'
+            });
+        } else if (initialData.features.length) {
+            map.getSource('campus-custom-3d-features').setData(initialData);
+        }
+
+        if (!map.getLayer('campus-custom-3d-extrusions')) {
+            map.addLayer({
+                id: 'campus-custom-3d-extrusions',
+                source: 'campus-custom-3d-features',
+                type: 'fill-extrusion',
+                minzoom: 14,
+                paint: {
+                    'fill-extrusion-color': [
+                        'coalesce',
+                        ['get', 'color'],
+                        ['interpolate', ['linear'], ['get', 'height'], 0, '#c7d2fe', 10, '#818cf8', 30, '#4338ca']
+                    ],
+                    'fill-extrusion-height': [
+                        'interpolate', ['linear'], ['zoom'],
+                        14, 0,
+                        16, ['coalesce', ['get', 'height'], 16]
+                    ],
+                    'fill-extrusion-base': [
+                        'coalesce', ['get', 'base_height'], ['get', 'min_height'], 0
+                    ],
+                    'fill-extrusion-opacity': 0.85
+                }
+            }, firstSymbolId);
+
+            // Add interactive click and hover handlers on the 3D custom extrusions
+            map.on('click', 'campus-custom-3d-extrusions', (e) => {
+                if (!e.features || !e.features.length) return;
+                const feat = e.features[0];
+                const props = feat.properties || {};
+                const bId = props.id || props.building_id;
+                const b = buildingsData.find(x => String(x.id) === String(bId) || x.name === props.name);
+                if (b) {
+                    map.flyTo({ center: [b.lng, b.lat], zoom: 19, duration: 700, essential: true });
+                    setTimeout(() => showBuilding(b), 500);
+                }
+            });
+
+            map.on('mouseenter', 'campus-custom-3d-extrusions', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'campus-custom-3d-extrusions', () => {
+                map.getCanvas().style.cursor = '';
+            });
         }
     }
 
@@ -2195,7 +2340,10 @@
                     window.CampusOS.buildingsData = buildingsData;
                 }
 
-                // 4. Re-evaluate active search query dynamically without full refresh
+                // 4. Sync custom 3D buildings (including Opoku Ware II Hall full roofline)
+                syncCustom3DBuildings();
+
+                // 5. Re-evaluate active search query dynamically without full refresh
                 const sInput = document.getElementById('searchInput');
                 if (sInput && sInput.value && sInput.value.trim().length > 0) {
                     doSearch(sInput.value.trim());
@@ -2487,14 +2635,14 @@
             }
         });
 
-        // Filter 3D buildings layer if exists
+        // Filter 3D buildings layers if they exist
         try {
+            const filterVal = currentFilter === 'all' ? null : ['==', 'type', currentFilter];
             if (map.getLayer('campus-3d-buildings')) {
-                if (currentFilter === 'all') {
-                    map.setFilter('campus-3d-buildings', null);
-                } else {
-                    map.setFilter('campus-3d-buildings', ['==', 'type', currentFilter]);
-                }
+                map.setFilter('campus-3d-buildings', filterVal);
+            }
+            if (map.getLayer('campus-custom-3d-extrusions')) {
+                map.setFilter('campus-custom-3d-extrusions', filterVal);
             }
         } catch(err) { console.warn('Filter logic error:', err); }
     });
@@ -3359,9 +3507,16 @@
         meta += metaRow('fa-location-dot', `<strong>${formatDist(distToUser)}</strong> away`);
         meta += metaRow('fa-building', `<strong>Building:</strong> ${b.name}`);
         if (person.location?.status !== 'building_only') {
-            if (person.location?.floor) meta += metaRow('fa-stairs', `<strong>Floor:</strong> ${person.location.floor}`);
-            if (person.location?.room) {
-                const rDisplay = formatRoomNumber(person.location.room);
+            if (person.location?.floor !== undefined && person.location?.floor !== null && person.location?.floor !== '') {
+                const rawFloor = person.location.floor;
+                const floorDisplay = (rawFloor === 0 || rawFloor === '0' || String(rawFloor).toLowerCase() === 'ground')
+                    ? 'Ground Floor'
+                    : (String(rawFloor).toLowerCase().includes('floor') ? rawFloor : `${rawFloor} Floor`);
+                meta += metaRow('fa-stairs', `<strong>Floor:</strong> ${floorDisplay}`);
+            }
+            if (person.location?.room || person.location?.description) {
+                const roomDesc = person.location?.description || person.location?.room_description;
+                const rDisplay = roomDesc ? roomDesc : formatRoomNumber(person.location.room);
                 meta += metaRow('fa-door-open', `<strong>Precise Room:</strong> ${rDisplay}`);
             }
         }
@@ -3371,11 +3526,15 @@
         if (person.contact?.phone) meta += metaRow('fa-phone', `<a href="tel:${person.contact.phone}">${person.contact.phone}</a>`);
 
         // Crisp outdoor hand-off copy
-        if (person.location?.status === 'building_only' || !person.location?.room) {
+        if (person.location?.status === 'building_only' || (!person.location?.room && !person.location?.description)) {
             meta += metaRow('fa-person-walking', `<span style="color:var(--primary);font-weight:600">🚶 Routes directly to building entrance</span>`);
         } else {
-            const floorStr = person.location.floor ? (person.location.floor.toLowerCase().includes('floor') ? person.location.floor : person.location.floor + ' Floor') : 'Ground Floor';
-            const roomStr = formatRoomNumber(person.location.room);
+            const rawFloor = person.location.floor;
+            const floorStr = (rawFloor === 0 || rawFloor === '0' || String(rawFloor).toLowerCase() === 'ground')
+                ? 'Ground Floor'
+                : (String(rawFloor).toLowerCase().includes('floor') ? rawFloor : `${rawFloor} Floor`);
+            const roomDesc = person.location?.description || person.location?.room_description;
+            const roomStr = roomDesc ? roomDesc : formatRoomNumber(person.location.room);
             meta += metaRow('fa-person-walking', `<span style="color:var(--primary);font-weight:600">🚶 Routes to main entrance • Head inside for ${floorStr}, ${roomStr}</span>`);
         }
 
@@ -4253,6 +4412,7 @@
             // ELITE RE-RENDER: setStyle wipes all data, we must restore route and buildings
             map.once('styledata', () => {
                 add3DBuildings();
+                addCampusLabels();
                 // Restore active route if it exists
                 if (_route.geometry) {
                     if (map.getSource('route')) {

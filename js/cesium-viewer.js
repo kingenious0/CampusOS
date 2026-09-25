@@ -215,8 +215,9 @@ const CesiumViewerModule = (() => {
 
                     const coords = geom.coordinates[0];
                     const hierarchy = coords.map(pt => Cesium.Cartesian3.fromDegrees(pt[0], pt[1]));
-                    const height = 16;
-                    const buildingColor = Cesium.Color.fromCssColorString('#6366f1').withAlpha(0.70);
+                    const height = props.height || 16;
+                    const hexColor = props.color || '#6366f1';
+                    const buildingColor = Cesium.Color.fromCssColorString(hexColor).withAlpha(0.75);
                     const outlineColor = Cesium.Color.fromCssColorString('#a5b4fc');
 
                     const entity = viewer.entities.add({
@@ -331,6 +332,8 @@ const CesiumViewerModule = (() => {
                     if (window.CampusOS && typeof window.CampusOS.getBuildingsData === 'function') {
                         const allBuildings = window.CampusOS.getBuildingsData();
                         bData = allBuildings.find(b =>
+                            (feature.id && (String(b.id) === String(feature.id) || String(b.id) === String(feature.building_id))) ||
+                            (feature.building_id && String(b.id) === String(feature.building_id)) ||
                             b.name.toLowerCase() === featureName ||
                             (b.shortName && b.shortName.toLowerCase() === featureName)
                         );

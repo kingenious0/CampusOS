@@ -262,6 +262,10 @@ const DataLoader = (() => {
                 lat: typeof b.lat === 'number' ? b.lat : (parseFloat(b.lat) || existing.lat || 0),
                 lng: typeof b.lng === 'number' ? b.lng : (parseFloat(b.lng) || existing.lng || 0),
                 entrance: b.entrance !== undefined ? b.entrance : existing.entrance,
+                entrances: b.entrances || existing.entrances || (Array.isArray(b.entrance) && typeof b.entrance[0] === 'object' ? b.entrance : null),
+                polygon: b.polygon || existing.polygon || (b.metadata && b.metadata.polygon) || null,
+                coordinates: b.coordinates || existing.coordinates || (b.metadata && b.metadata.coordinates) || null,
+                metadata: b.metadata || existing.metadata || {},
                 description: b.description || existing.description || '',
                 hours: b.hours || existing.hours || '',
                 services: b.services || existing.services || [],
@@ -334,12 +338,14 @@ const DataLoader = (() => {
             // Resolve precise room details
             let roomDisplay = '';
             let floorDisplay = '';
+            let roomDesc = '';
             if (s.room_id) {
                 const rStr = String(s.room_id);
                 const rMatch = roomsById.get(rStr) || roomsById.get(`${bIdStr}-${rStr}`.toLowerCase());
                 if (rMatch) {
                     roomDisplay = rMatch.room || rMatch.number;
                     floorDisplay = rMatch.floor;
+                    roomDesc = rMatch.description || '';
                 } else {
                     roomDisplay = rStr.replace(new RegExp(`^${bIdStr}-`, 'i'), '').replace(/^Room\s+/i, '');
                 }
@@ -366,7 +372,8 @@ const DataLoader = (() => {
                     targetBuildingId: targetBuildingId || existing.location?.targetBuildingId,
                     floor: floorDisplay || existing.location?.floor || '',
                     room: roomDisplay || existing.location?.room || '',
-                    status: s.location_status || existing.location?.status || (bCode && roomDisplay ? 'exact' : (bCode ? 'building_only' : 'unresolved'))
+                    description: roomDesc || existing.location?.description || '',
+                    status: s.location_status || existing.location?.status || (bCode && (roomDisplay || roomDesc) ? 'exact' : (bCode ? 'building_only' : 'unresolved'))
                 },
                 contact: {
                     email: s.email || existing.contact?.email || '',

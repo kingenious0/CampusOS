@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1.2.0';
+const CACHE_NAME  = 'ustednav-v1.2.1';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install (Deduplicated clean paths)
@@ -34,6 +34,7 @@ const APP_SHELL = [
     './data/buildings.json',
     './data/people.json',
     './data/campus.geojson',
+    './data/campus-features.geojson',
     './data/roads.geojson',
     './js/cesium-viewer.js',
     './js/view-controller.js',

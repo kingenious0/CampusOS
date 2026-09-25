@@ -442,7 +442,7 @@ ON CONFLICT (id) DO UPDATE SET
   services = EXCLUDED.services,
   metadata = EXCLUDED.metadata;
 INSERT INTO buildings (id, org_id, code, name, short_name, type, lat, lng, entrance, description, hours, services, metadata)
-VALUES ('32', 'usted-ksi', 'OW II HALL', 'Opoku Ware II Hall', 'OW II Hall', 'hostel', 6.69762, -1.68356, NULL, 'Second Opoku Ware residential hall with modern student accommodation and amenities.', '24 hours', '[]'::jsonb, '{"source_id":32}'::jsonb)
+VALUES ('32', 'usted-ksi', 'OW II HALL', 'Opoku Ware II Hall', 'OW II Hall', 'hostel', 6.69762, -1.68356, '[-1.68356, 6.69762]'::jsonb, 'Second Opoku Ware residential hall with modern student accommodation and amenities.', '24 hours', '[]'::jsonb, '{"source_id":32, "polygon": [[[-1.683863, 6.697860], [-1.683421, 6.697784], [-1.683390, 6.697785], [-1.683293, 6.697765], [-1.683293, 6.697396], [-1.683310, 6.697309], [-1.683443, 6.697334], [-1.683491, 6.697340], [-1.683647, 6.697279], [-1.683768, 6.697302], [-1.683840, 6.697209], [-1.683887, 6.697294], [-1.683867, 6.697422], [-1.683812, 6.697414], [-1.683795, 6.697484], [-1.683863, 6.697770], [-1.683863, 6.697860]]]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,
   name = EXCLUDED.name,
