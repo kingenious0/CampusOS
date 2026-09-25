@@ -1,6 +1,7 @@
 /**
  * Building Footprints & 3D Extrusion Test Suite
- * Verifies geometry completeness for Opoku Ware II Hall and custom 3D extrusion pipeline.
+ * Verifies geometry completeness and realistic normalized heights for Opoku Ware Hall,
+ * Opoku Ware II Hall, and the 3D fill-extrusion pipeline.
  */
 
 const fs = require('fs');
@@ -13,6 +14,7 @@ console.log('=== RUNNING BUILDING FOOTPRINTS & 3D EXTRUSIONS TEST SUITE ===\n');
 const buildingsPath = path.join(__dirname, '../data/buildings.json');
 const buildings = JSON.parse(fs.readFileSync(buildingsPath, 'utf8'));
 
+// Opoku Ware II Hall (id: 32)
 const ow2 = buildings.find(b => b.id === 32 || b.name === 'Opoku Ware II Hall');
 assert(ow2, 'Opoku Ware II Hall (id: 32) must exist in data/buildings.json');
 
@@ -45,7 +47,19 @@ const lastPt = ring[ring.length - 1];
 assert.strictEqual(firstPt[0], lastPt[0], 'Polygon first and last lng must match (closed ring)');
 assert.strictEqual(firstPt[1], lastPt[1], 'Polygon first and last lat must match (closed ring)');
 
-console.log('✓ PASS: data/buildings.json contains complete Opoku Ware II Hall polygon spanning west and east wings with quadrangle entrance [-1.68356, 6.69762]');
+// Check realistic normalized height
+assert(ow2.height >= 8 && ow2.height <= 10, `OW2 height in data/buildings.json must be 8-10m, got ${ow2.height}`);
+assert.strictEqual(ow2.min_height, 0, 'OW2 min_height must be 0');
+
+// Opoku Ware Hall (id: 11)
+const ow1 = buildings.find(b => b.id === 11 || b.name === 'Opoku Ware Hall');
+assert(ow1, 'Opoku Ware Hall (id: 11) must exist in data/buildings.json');
+assert(Array.isArray(ow1.entrance), 'Opoku Ware Hall must have entrance array');
+assert.strictEqual(ow1.entrance[0], -1.682884, 'OW1 entrance lng must match');
+assert(Array.isArray(ow1.polygon), 'OW1 must have polygon array');
+assert(ow1.height >= 8 && ow1.height <= 10, `OW1 height must be 8-10m, got ${ow1.height}`);
+
+console.log('✓ PASS: data/buildings.json contains complete polygons, entrances, and normalized 8-10m heights for Opoku Ware buildings');
 
 // 2. Verify data/campus-features.geojson
 const campusFeaturesPath = path.join(__dirname, '../data/campus-features.geojson');
@@ -56,11 +70,19 @@ assert.strictEqual(campusFeatures.type, 'FeatureCollection', 'Must be a GeoJSON 
 const ow2Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-ii-hall' || f.properties?.name === 'Opoku Ware II Hall');
 assert(ow2Feature, 'Opoku Ware II Hall feature must exist in campus-features.geojson');
 assert.strictEqual(ow2Feature.geometry.type, 'Polygon', 'Must be a Polygon geometry');
-assert.strictEqual(ow2Feature.properties.height, 16, 'Extrusion height must be 16');
+assert(ow2Feature.properties.height >= 8 && ow2Feature.properties.height <= 10, `Extrusion height must be 8-10m, got ${ow2Feature.properties.height}`);
+assert.strictEqual(ow2Feature.properties.min_height, 0, 'min_height must be 0');
+assert.strictEqual(ow2Feature.properties.base_height, 0, 'base_height must be 0');
 assert.strictEqual(ow2Feature.properties.extrude, true, 'Extrude property must be true');
 assert.deepStrictEqual(ow2Feature.properties.entrance, [-1.68356, 6.69762], 'Entrance property must match portal walkway');
 
-console.log('✓ PASS: data/campus-features.geojson contains 3D extrusion feature for Opoku Ware II Hall');
+const ow1Feature = campusFeatures.features.find(f => f.id === 'opoku-ware-hall' || f.properties?.name === 'Opoku Ware Hall');
+assert(ow1Feature, 'Opoku Ware Hall feature must exist in campus-features.geojson');
+assert(ow1Feature.properties.height >= 8 && ow1Feature.properties.height <= 10, `OW1 Extrusion height must be 8-10m, got ${ow1Feature.properties.height}`);
+assert.strictEqual(ow1Feature.properties.min_height, 0, 'OW1 min_height must be 0');
+assert.strictEqual(ow1Feature.properties.base_height, 0, 'OW1 base_height must be 0');
+
+console.log('✓ PASS: data/campus-features.geojson contains normalized 3D extrusion features (height: 9m, base: 0m)');
 
 // 3. Verify data/campus.geojson
 const campusGeojsonPath = path.join(__dirname, '../data/campus.geojson');
@@ -68,38 +90,50 @@ const campusGeojson = JSON.parse(fs.readFileSync(campusGeojsonPath, 'utf8'));
 const ow2Campus = campusGeojson.features.find(f => f.properties?.name === 'Opoku Ware II Hall');
 assert(ow2Campus, 'Opoku Ware II Hall must be present in data/campus.geojson');
 assert.strictEqual(ow2Campus.geometry.type, 'Polygon', 'Must be Polygon in campus.geojson');
+assert(ow2Campus.properties.height >= 8 && ow2Campus.properties.height <= 10, `campus.geojson height must be 8-10m, got ${ow2Campus.properties.height}`);
 
-console.log('✓ PASS: data/campus.geojson contains Opoku Ware II Hall');
+console.log('✓ PASS: data/campus.geojson contains Opoku Ware II Hall with normalized height');
 
 // 4. Verify seed data files
 const seedSqlPath = path.join(__dirname, '../scripts/seed_data.sql');
 const seedSql = fs.readFileSync(seedSqlPath, 'utf8');
-assert(seedSql.includes('-1.68356') && seedSql.includes('6.69762'), 'seed_data.sql must contain updated entrance [-1.68356, 6.69762]');
+assert(seedSql.includes('-1.68356') && seedSql.includes('6.69762'), 'seed_data.sql must contain updated OW II entrance [-1.68356, 6.69762]');
+assert(seedSql.includes('-1.682884') && seedSql.includes('6.697843'), 'seed_data.sql must contain updated OW entrance');
 assert(seedSql.includes('"polygon":'), 'seed_data.sql must contain polygon in metadata');
 
 const adminSeedJsonPath = path.join(__dirname, '../admin/seed_data.json');
 const adminSeedJson = JSON.parse(fs.readFileSync(adminSeedJsonPath, 'utf8'));
-const ow2AdminJson = adminSeedJson.buildings.find(b => b.id === 32 || b.name === 'Opoku Ware II Hall');
+
+const ow2AdminJson = adminSeedJson.buildings.find(b => b.id == 32 || b.name === 'Opoku Ware II Hall');
 assert(ow2AdminJson, 'OW II Hall must exist in admin/seed_data.json');
 assert.strictEqual(ow2AdminJson.entrance[0], -1.68356, 'admin/seed_data.json entrance must match');
 const adminRing = Array.isArray(ow2AdminJson.metadata?.polygon?.[0]?.[0]) ? ow2AdminJson.metadata.polygon[0] : ow2AdminJson.metadata?.polygon;
-assert(adminRing && adminRing.length >= 15, 'admin/seed_data.json must have polygon in metadata');
+assert(adminRing && adminRing.length >= 15, 'admin/seed_data.json must have polygon in metadata with >= 15 vertices');
+assert(ow2AdminJson.metadata.height >= 8 && ow2AdminJson.metadata.height <= 10, 'OW2 admin metadata height must be 8-10m');
+
+const ow1AdminJson = adminSeedJson.buildings.find(b => b.id == 11 || b.name === 'Opoku Ware Hall');
+assert(ow1AdminJson, 'OW Hall must exist in admin/seed_data.json');
+assert.strictEqual(ow1AdminJson.entrance[0], -1.682884, 'OW Hall entrance must match');
+assert(ow1AdminJson.metadata?.polygon, 'OW Hall must have polygon in metadata');
+assert(ow1AdminJson.metadata.height >= 8 && ow1AdminJson.metadata.height <= 10, 'OW1 admin metadata height must be 8-10m');
 
 const adminSeedJsPath = path.join(__dirname, '../admin/seed_data.js');
 const adminSeedJs = fs.readFileSync(adminSeedJsPath, 'utf8');
-assert(adminSeedJs.includes('-1.68356') && adminSeedJs.includes('6.69762'), 'admin/seed_data.js must contain updated entrance');
+assert(adminSeedJs.includes('-1.68356') && adminSeedJs.includes('6.69762'), 'admin/seed_data.js must contain updated OW2 entrance');
+assert(adminSeedJs.includes('-1.682884') && adminSeedJs.includes('6.697843'), 'admin/seed_data.js must contain updated OW1 entrance');
 
-console.log('✓ PASS: scripts/seed_data.sql, admin/seed_data.json, and admin/seed_data.js contain synchronized footprint & entrance');
+console.log('✓ PASS: scripts/seed_data.sql, admin/seed_data.json, and admin/seed_data.js contain synchronized footprints, entrances, and heights');
 
-// 5. Verify map.html 3D extrusion integration
+// 5. Verify map.html 3D extrusion integration and height rule
 const mapHtmlPath = path.join(__dirname, '../map.html');
 const mapHtml = fs.readFileSync(mapHtmlPath, 'utf8');
 assert(mapHtml.includes('campus-custom-3d-features'), 'map.html must define campus-custom-3d-features source');
 assert(mapHtml.includes('campus-custom-3d-extrusions'), 'map.html must define campus-custom-3d-extrusions layer');
 assert(mapHtml.includes('syncCustom3DBuildings'), 'map.html must include syncCustom3DBuildings method');
 assert(mapHtml.includes('data/campus-features.geojson'), 'map.html must load data/campus-features.geojson');
+assert(mapHtml.includes("'fill-extrusion-height': [") && mapHtml.includes("['*', ['get', 'levels'], 3.5]"), 'map.html must implement fill-extrusion-height rule with levels * 3.5');
 
-console.log('✓ PASS: map.html includes custom 3D fill-extrusion layers and dynamic polygon synchronization');
+console.log('✓ PASS: map.html includes custom 3D fill-extrusion layers with normalized height expression');
 
 // 6. Verify sw.js precache
 const swPath = path.join(__dirname, '../sw.js');

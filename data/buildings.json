@@ -302,6 +302,38 @@
           "OW HALL ROOM 25"
         ]
       }
+    ],
+    "height": 9,
+    "levels": 3,
+    "min_height": 0,
+    "base_height": 0,
+    "entrance": [
+      -1.682884,
+      6.697843
+    ],
+    "polygon": [
+      [
+        [
+          -1.68305,
+          6.69808
+        ],
+        [
+          -1.68266,
+          6.69808
+        ],
+        [
+          -1.68265,
+          6.69763
+        ],
+        [
+          -1.68302,
+          6.697614
+        ],
+        [
+          -1.68305,
+          6.69808
+        ]
+      ]
     ]
   },
   {
@@ -709,7 +741,10 @@
     "type": "academic",
     "lat": 6.701263320240392,
     "lng": -1.6831062195613589,
-    "entrance": [-1.683106, 6.702000],
+    "entrance": [
+      -1.683106,
+      6.702
+    ],
     "description": "Lecture Block housing lecture auditoriums and faculty offices.",
     "hours": "8:00 AM – 5:00 PM",
     "rooms": [
@@ -923,57 +958,81 @@
     "hours": "7:00 AM – 6:00 PM",
     "services": [
       {
-        "name": "FBE Dean's Office",
-        "room": "050",
-        "floor": "Second Floor",
-        "description": "Office of the Dean, Faculty of Business Education.",
+        "name": "FBE Management Studies HOD Office",
+        "category": "Department Office",
+        "floor": "2nd Floor",
+        "room": "Room 039",
+        "description": "Head of Department Office for Management Studies Education",
         "keywords": [
-          "DEAN",
-          "ROB SF",
-          "FBE",
-          "BUSINESS EDUCATION",
-          "ROB FBE DEAN'S OFFICE"
+          "HOD",
+          "MANAGEMENT HOD",
+          "ROB 039",
+          "ROB HOD",
+          "MANAGEMENT STUDIES HOD"
         ]
       },
       {
-        "name": "Guidance and Counselling Centre",
-        "room": "030",
-        "floor": "First Floor",
-        "description": "Professional counseling and psychological support services for students.",
+        "name": "FBE Accounting Studies HOD Office",
+        "category": "Department Office",
+        "floor": "2nd Floor",
+        "room": "Room 040",
+        "description": "Head of Department Office for Accounting Studies Education",
         "keywords": [
-          "COUNSELLING",
-          "PSYCHOLOGY",
-          "GUIDANCE",
-          "ROB FF",
-          "ROB GUIDANCE AND COUNSELLING CENTRE",
-          "SUPPORT"
+          "HOD",
+          "ACCOUNTING HOD",
+          "ROB 040",
+          "ROB HOD",
+          "ACCOUNTING STUDIES HOD"
         ]
       },
       {
-        "name": "CCBTR",
-        "room": "058-060",
-        "floor": "Fourth Floor",
-        "description": "Centre for Competency Based Training and Research.",
+        "name": "DEL HOD Office (Languages)",
+        "category": "Department Office",
+        "floor": "1st Floor",
+        "room": "Room 022",
+        "description": "Head of Department Office for Languages Education",
         "keywords": [
-          "RESEARCH",
-          "CCBTR",
-          "ROB 4F",
-          "ROB CCBTR",
-          "TRAINING"
+          "HOD",
+          "DEL",
+          "LANGUAGES HOD",
+          "ROB 022"
         ]
       },
       {
-        "name": "Graduate School",
-        "room": "051-053",
-        "floor": "Third Floor",
-        "description": "Administrative offices for the University's Graduate School.",
+        "name": "DIS HOD Office (Interdisciplinary)",
+        "category": "Department Office",
+        "floor": "1st Floor",
+        "room": "Room 023",
+        "description": "Head of Department Office for Interdisciplinary Studies",
         "keywords": [
-          "POSTGRADUATE",
-          "GRADUATE",
-          "PHD",
-          "ROB TF",
-          "ROB GRADUATE SCHOOL",
-          "MASTERS"
+          "HOD",
+          "DIS",
+          "INTERDISCIPLINARY HOD",
+          "ROB 023"
+        ]
+      },
+      {
+        "name": "Accounting Exams Office",
+        "category": "Exams Office",
+        "floor": "2nd Floor",
+        "room": "Room 046",
+        "description": "Department of Accounting Examination Office",
+        "keywords": [
+          "ACCOUNTING EXAMS",
+          "EXAMS OFFICE",
+          "ROB 046"
+        ]
+      },
+      {
+        "name": "Management Exams Office",
+        "category": "Exams Office",
+        "floor": "2nd Floor",
+        "room": "Room 047",
+        "description": "Department of Management Examination Office",
+        "keywords": [
+          "MANAGEMENT EXAMS",
+          "EXAMS OFFICE",
+          "ROB 047"
         ]
       }
     ],
@@ -1888,86 +1947,6 @@
       "DEPARTMENT OF INTERDISCIPLINARY STUDIES",
       "DIS",
       "INTERDISCIPLINARY"
-    ],
-    "services": [
-      {
-        "name": "FBE Management Studies HOD Office",
-        "category": "Department Office",
-        "floor": "2nd Floor",
-        "room": "Room 039",
-        "description": "Head of Department Office for Management Studies Education",
-        "keywords": [
-          "HOD",
-          "MANAGEMENT HOD",
-          "ROB 039",
-          "ROB HOD",
-          "MANAGEMENT STUDIES HOD"
-        ]
-      },
-      {
-        "name": "FBE Accounting Studies HOD Office",
-        "category": "Department Office",
-        "floor": "2nd Floor",
-        "room": "Room 040",
-        "description": "Head of Department Office for Accounting Studies Education",
-        "keywords": [
-          "HOD",
-          "ACCOUNTING HOD",
-          "ROB 040",
-          "ROB HOD",
-          "ACCOUNTING STUDIES HOD"
-        ]
-      },
-      {
-        "name": "DEL HOD Office (Languages)",
-        "category": "Department Office",
-        "floor": "1st Floor",
-        "room": "Room 022",
-        "description": "Head of Department Office for Languages Education",
-        "keywords": [
-          "HOD",
-          "DEL",
-          "LANGUAGES HOD",
-          "ROB 022"
-        ]
-      },
-      {
-        "name": "DIS HOD Office (Interdisciplinary)",
-        "category": "Department Office",
-        "floor": "1st Floor",
-        "room": "Room 023",
-        "description": "Head of Department Office for Interdisciplinary Studies",
-        "keywords": [
-          "HOD",
-          "DIS",
-          "INTERDISCIPLINARY HOD",
-          "ROB 023"
-        ]
-      },
-      {
-        "name": "Accounting Exams Office",
-        "category": "Exams Office",
-        "floor": "2nd Floor",
-        "room": "Room 046",
-        "description": "Department of Accounting Examination Office",
-        "keywords": [
-          "ACCOUNTING EXAMS",
-          "EXAMS OFFICE",
-          "ROB 046"
-        ]
-      },
-      {
-        "name": "Management Exams Office",
-        "category": "Exams Office",
-        "floor": "2nd Floor",
-        "room": "Room 047",
-        "description": "Department of Management Examination Office",
-        "keywords": [
-          "MANAGEMENT EXAMS",
-          "EXAMS OFFICE",
-          "ROB 047"
-        ]
-      }
     ]
   },
   {
@@ -2334,40 +2313,100 @@
     "type": "hostel",
     "lat": 6.69762,
     "lng": -1.68356,
-    "entrance": [-1.683560, 6.697620],
+    "entrance": [
+      -1.68356,
+      6.69762
+    ],
     "entrances": [
       {
         "id": "ow2-ent-main",
         "label": "Main Entrance (Quadrangle)",
-        "coords": [-1.683560, 6.697620],
+        "coords": [
+          -1.68356,
+          6.69762
+        ],
         "isPrimary": true
       },
       {
         "id": "ow2-ent-west",
         "label": "West Gate (Mosque Path)",
-        "coords": [-1.683850, 6.697770],
+        "coords": [
+          -1.68385,
+          6.69777
+        ],
         "isPrimary": false
       }
     ],
     "polygon": [
       [
-        [-1.683863, 6.697860],
-        [-1.683421, 6.697784],
-        [-1.683390, 6.697785],
-        [-1.683293, 6.697765],
-        [-1.683293, 6.697396],
-        [-1.683310, 6.697309],
-        [-1.683443, 6.697334],
-        [-1.683491, 6.697340],
-        [-1.683647, 6.697279],
-        [-1.683768, 6.697302],
-        [-1.683840, 6.697209],
-        [-1.683887, 6.697294],
-        [-1.683867, 6.697422],
-        [-1.683812, 6.697414],
-        [-1.683795, 6.697484],
-        [-1.683863, 6.697770],
-        [-1.683863, 6.697860]
+        [
+          -1.683863,
+          6.69786
+        ],
+        [
+          -1.683421,
+          6.697784
+        ],
+        [
+          -1.68339,
+          6.697785
+        ],
+        [
+          -1.683293,
+          6.697765
+        ],
+        [
+          -1.683293,
+          6.697396
+        ],
+        [
+          -1.68331,
+          6.697309
+        ],
+        [
+          -1.683443,
+          6.697334
+        ],
+        [
+          -1.683491,
+          6.69734
+        ],
+        [
+          -1.683647,
+          6.697279
+        ],
+        [
+          -1.683768,
+          6.697302
+        ],
+        [
+          -1.68384,
+          6.697209
+        ],
+        [
+          -1.683887,
+          6.697294
+        ],
+        [
+          -1.683867,
+          6.697422
+        ],
+        [
+          -1.683812,
+          6.697414
+        ],
+        [
+          -1.683795,
+          6.697484
+        ],
+        [
+          -1.683863,
+          6.69777
+        ],
+        [
+          -1.683863,
+          6.69786
+        ]
       ]
     ],
     "description": "Second Opoku Ware residential hall with modern student accommodation and amenities.",
@@ -2383,7 +2422,11 @@
           "OW II HALL ROOM 15"
         ]
       }
-    ]
+    ],
+    "height": 9,
+    "levels": 3,
+    "min_height": 0,
+    "base_height": 0
   },
   {
     "id": 33,
