@@ -171,7 +171,45 @@ console.log('✓ Verified isolated schema name is "usted_nav"');
     assert.strictEqual(data[0].name, 'Executive Students Association (ESA)');
     console.log('✓ Confirmed 404 Not Found resolves to 200 OK when Accept-Profile: usted_nav is set');
 
-    // 5. Verify local sandbox / offline functionality
+    // 5. Verify Leaflet TileLayer maxNativeZoom & maxZoom configuration in admin/app.js
+    const fs = require('fs');
+    const appJsContent = fs.readFileSync('admin/app.js', 'utf8');
+    assert(appJsContent.includes('maxZoom: 22'), 'admin/app.js must configure maxZoom: 22');
+    assert(appJsContent.includes('maxNativeZoom: 19'), 'admin/app.js must configure maxNativeZoom: 19');
+    console.log('✓ Leaflet editor map correctly configured with maxZoom: 22 and maxNativeZoom: 19 (prevents blank tiles)');
+
+    // 6. Verify Auth Session binding on login
+    let loginCalled = false;
+    global.fetch = async (url, opts) => {
+        if (url.includes('/auth/v1/token')) {
+            loginCalled = true;
+            return {
+                ok: true,
+                status: 200,
+                json: async () => ({
+                    access_token: 'auth-jwt-token-xyz',
+                    refresh_token: 'refresh-token-123',
+                    expires_at: Math.floor(Date.now() / 1000) + 3600,
+                    user: { id: 'u1', email: 'admin@aamusted.edu.gh' }
+                })
+            };
+        }
+        return { ok: true, status: 200, json: async () => [] };
+    };
+
+    CampusSync.saveConfig({
+        supabaseUrl: 'https://mzxmbkulgrehujpvwadt.supabase.co',
+        supabaseAnonKey: 'test-anon-key-123',
+        orgId: 'usted-ksi',
+        isSandbox: false
+    });
+
+    const user = await CampusSync.login('admin@aamusted.edu.gh', 'secret');
+    assert.strictEqual(user.email, 'admin@aamusted.edu.gh');
+    assert.strictEqual(user.access_token, 'auth-jwt-token-xyz');
+    console.log('✓ Supabase login correctly saves session and updates client credentials');
+
+    // 7. Verify local sandbox / offline functionality
     CampusSync.saveConfig({
         supabaseUrl: '',
         supabaseAnonKey: '',
@@ -182,5 +220,5 @@ console.log('✓ Verified isolated schema name is "usted_nav"');
     assert.strictEqual(status.isSandbox, true, 'Sandbox flag must be true');
     console.log('✓ Offline / Local Sandbox mode remains 100% operational');
 
-    console.log('\nALL SYNC SCHEMA TESTS PASSED SUCCESSFULLY! ✓✓✓');
+    console.log('\nALL SYNC SCHEMA & TILE LAYER TESTS PASSED SUCCESSFULLY! ✓✓✓');
 })();

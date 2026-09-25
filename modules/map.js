@@ -57,7 +57,8 @@ const MapModule = (() => {
 
         tileLayer = L.tileLayer(url, {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            maxZoom: 20
+            maxZoom: 22,
+            maxNativeZoom: 19
         }).addTo(map);
     };
 

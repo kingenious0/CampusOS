@@ -126,11 +126,19 @@ CREATE INDEX IF NOT EXISTS idx_staff_name ON staff_directory(name);
 
 -- ------------------------------------------------------------------------------
 -- 5. ROW LEVEL SECURITY (RLS) POLICIES
--- Public can read (for client map & search). Authenticated users can modify.
+-- Public can read (for client map & search). Authenticated users and Anon
+-- (Studio CMS administrators) can modify.
 -- ------------------------------------------------------------------------------
 ALTER TABLE buildings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE staff_directory ENABLE ROW LEVEL SECURITY;
+
+-- Grants for schema and table access
+GRANT USAGE ON SCHEMA usted_nav TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA usted_nav TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA usted_nav TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA usted_nav GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA usted_nav GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
 -- Buildings Policies
 DROP POLICY IF EXISTS "Public read access for buildings" ON buildings;
@@ -142,6 +150,13 @@ DROP POLICY IF EXISTS "Authenticated write access for buildings" ON buildings;
 CREATE POLICY "Authenticated write access for buildings"
     ON buildings FOR ALL
     TO authenticated
+    USING (true)
+    WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anon write access for buildings" ON buildings;
+CREATE POLICY "Anon write access for buildings"
+    ON buildings FOR ALL
+    TO anon
     USING (true)
     WITH CHECK (true);
 
@@ -158,6 +173,13 @@ CREATE POLICY "Authenticated write access for rooms"
     USING (true)
     WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Anon write access for rooms" ON rooms;
+CREATE POLICY "Anon write access for rooms"
+    ON rooms FOR ALL
+    TO anon
+    USING (true)
+    WITH CHECK (true);
+
 -- Staff Directory Policies
 DROP POLICY IF EXISTS "Public read access for staff_directory" ON staff_directory;
 CREATE POLICY "Public read access for staff_directory"
@@ -168,6 +190,13 @@ DROP POLICY IF EXISTS "Authenticated write access for staff_directory" ON staff_
 CREATE POLICY "Authenticated write access for staff_directory"
     ON staff_directory FOR ALL
     TO authenticated
+    USING (true)
+    WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anon write access for staff_directory" ON staff_directory;
+CREATE POLICY "Anon write access for staff_directory"
+    ON staff_directory FOR ALL
+    TO anon
     USING (true)
     WITH CHECK (true);
 

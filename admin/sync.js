@@ -38,20 +38,83 @@ const CampusSync = (() => {
                    (typeof global !== 'undefined' && global.supabase);
 
         if (sb && typeof sb.createClient === 'function' && config.supabaseUrl && config.supabaseAnonKey) {
+            const headers = {
+                'Accept-Profile': DB_SCHEMA,
+                'Content-Profile': DB_SCHEMA
+            };
+
+            // If authenticated user token is present, bind it to global headers
+            if (currentUser?.access_token) {
+                headers['Authorization'] = `Bearer ${currentUser.access_token}`;
+            }
+
             supabaseClient = sb.createClient(config.supabaseUrl, config.supabaseAnonKey, {
                 db: {
                     schema: DB_SCHEMA
                 },
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true
+                },
                 global: {
-                    headers: {
-                        'Accept-Profile': DB_SCHEMA,
-                        'Content-Profile': DB_SCHEMA
-                    }
+                    headers
                 }
             });
+
+            if (currentUser?.access_token && typeof supabaseClient.auth?.setSession === 'function') {
+                supabaseClient.auth.setSession({
+                    access_token: currentUser.access_token,
+                    refresh_token: currentUser.refresh_token || ''
+                }).catch(e => console.warn('[Sync] Set session notice:', e));
+            }
+
             return supabaseClient;
         }
         return null;
+    }
+
+    // Refresh Supabase auth token if expiring or expired
+    async function refreshAuthToken() {
+        if (!currentUser?.refresh_token || !config.supabaseUrl || !config.supabaseAnonKey) return null;
+        try {
+            const res = await fetch(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': config.supabaseAnonKey
+                },
+                body: JSON.stringify({ refresh_token: currentUser.refresh_token })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                currentUser.access_token = data.access_token;
+                currentUser.refresh_token = data.refresh_token || currentUser.refresh_token;
+                currentUser.expires_at = data.expires_at || (Math.floor(Date.now() / 1000) + (data.expires_in || 3600));
+                localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(currentUser));
+                supabaseClient = null;
+                notifyListeners();
+                return currentUser.access_token;
+            } else {
+                console.warn('[Sync] Stale auth session cleared (refresh rejected with status ' + res.status + ')');
+                currentUser = null;
+                supabaseClient = null;
+                localStorage.removeItem(STORAGE_KEY_AUTH);
+                notifyListeners();
+                return null;
+            }
+        } catch (e) {
+            console.warn('[Sync] Failed to refresh auth token:', e);
+            return null;
+        }
+    }
+
+    async function ensureValidAuthToken() {
+        if (!currentUser) return null;
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (currentUser.expires_at && currentUser.expires_at <= nowSec + 60) {
+            return await refreshAuthToken();
+        }
+        return currentUser.access_token;
     }
 
     // Initialize configuration from localStorage
@@ -431,6 +494,7 @@ const CampusSync = (() => {
         notifyListeners();
 
         try {
+            await ensureValidAuthToken();
             const pending = await getPendingMutations();
             console.log(`[Sync] Processing ${pending.length} pending mutations to Supabase (${DB_SCHEMA} schema)...`);
 
@@ -451,10 +515,16 @@ const CampusSync = (() => {
                         const target = client.schema(DB_SCHEMA).from(item.table);
                         if (item.action === 'UPSERT') {
                             const { error } = await target.upsert(item.payload, { onConflict: 'id' });
-                            if (error) throw error;
+                            if (error) {
+                                error.status = error.status || (error.code === '42501' || error.message?.includes('401') ? 401 : null);
+                                throw error;
+                            }
                         } else if (item.action === 'DELETE') {
                             const { error } = await target.delete().eq('id', item.record_id);
-                            if (error) throw error;
+                            if (error) {
+                                error.status = error.status || (error.code === '42501' || error.message?.includes('401') ? 401 : null);
+                                throw error;
+                            }
                         }
                         await markMutationSynced(item.queue_id);
                         continue;
@@ -473,7 +543,9 @@ const CampusSync = (() => {
                         });
                         if (!res.ok) {
                             const errBody = await res.text();
-                            throw new Error(`${res.status}: ${errBody}`);
+                            const err = new Error(`${res.status}: ${errBody}`);
+                            err.status = res.status;
+                            throw err;
                         }
                     } else if (item.action === 'DELETE') {
                         const res = await fetch(`${endpoint}?id=eq.${encodeURIComponent(item.record_id)}`, {
@@ -482,14 +554,28 @@ const CampusSync = (() => {
                         });
                         if (!res.ok) {
                             const errBody = await res.text();
-                            throw new Error(`${res.status}: ${errBody}`);
+                            const err = new Error(`${res.status}: ${errBody}`);
+                            err.status = res.status;
+                            throw err;
                         }
                     }
                     await markMutationSynced(item.queue_id);
                 } catch (itemErr) {
-                    console.error(`[Sync] Failed mutation #${item.queue_id}:`, itemErr);
+                    const status = itemErr.status || 
+                                   (itemErr.message && itemErr.message.includes('401') ? 401 : null) ||
+                                   (itemErr.code === '401' ? 401 : null);
+
+                    if (status === 401 || (itemErr.message && itemErr.message.includes('JWT'))) {
+                        console.error(`[Sync] Mutation #${item.queue_id} failed with 401 Unauthorized:`, itemErr);
+                        console.warn('[Sync] Supabase rejected write operation. If using Anon key without login, enable Anon write policy in Supabase RLS (see scripts/schema.sql), or sign in with an Administrator account in Settings.');
+                        if (typeof window !== 'undefined' && typeof window.showToast === 'function') {
+                            window.showToast('Supabase write 401: Sign in under Settings or enable Anon write policy', 'error');
+                        }
+                    } else {
+                        console.error(`[Sync] Failed mutation #${item.queue_id}:`, itemErr);
+                    }
                     item.attempts = (item.attempts || 0) + 1;
-                    item.last_error = itemErr.message;
+                    item.last_error = itemErr.message || String(itemErr);
                 }
             }
 
@@ -575,9 +661,11 @@ const CampusSync = (() => {
             email: data.user?.email,
             id: data.user?.id,
             access_token: data.access_token,
-            expires_at: data.expires_at
+            expires_at: data.expires_at || (Math.floor(Date.now() / 1000) + (data.expires_in || 3600)),
+            refresh_token: data.refresh_token || ''
         };
 
+        supabaseClient = null; // Re-instantiate client with authenticated credentials
         localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(currentUser));
         notifyListeners();
         triggerSync();

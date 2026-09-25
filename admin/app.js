@@ -701,10 +701,12 @@ function initOrResizeEditorMap() {
         editorMap = L.map('editor-map', {
             center: [6.6985, -1.6815],
             zoom: 17,
-            maxZoom: 20
+            maxZoom: 22
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 22,         // Allows zooming right into doorways
+            maxNativeZoom: 19,   // Tells Leaflet that tiles stop at 19 and to scale/stretch them rather than requesting 404 tiles
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(editorMap);
 
