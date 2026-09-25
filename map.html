@@ -3631,15 +3631,40 @@
             (b.shortName && destName?.toLowerCase().includes(b.shortName.toLowerCase())) ||
             (Math.abs(b.lat - destLat) < 0.0005 && Math.abs(b.lng - destLng) < 0.0005)
         );
+        const normEntrances = (typeof window.normalizeEntrances === 'function')
+            ? window.normalizeEntrances(destBuilding?.entrance)
+            : (typeof RoutingEngineV2 !== 'undefined' && RoutingEngineV2.normalizeEntrances)
+                ? RoutingEngineV2.normalizeEntrances(destBuilding?.entrance)
+                : (Array.isArray(destBuilding?.entrance) && destBuilding.entrance.length >= 2 && typeof destBuilding.entrance[0] === 'number'
+                    ? [{ id: 'ent-1', label: 'Main Entrance', coords: destBuilding.entrance, isPrimary: true }]
+                    : (Array.isArray(destBuilding?.entrance) ? destBuilding.entrance : []));
+
+        // Evaluate closest entrance for online/fallback targets
+        let chosenEntrance = null;
+        if (normEntrances.length > 0) {
+            let minDist = Infinity;
+            for (const ent of normEntrances) {
+                const c = Array.isArray(ent.coords) ? ent.coords : ent;
+                const d = Math.hypot((c[1] - origin.lat), (c[0] - origin.lng));
+                if (d < minDist) {
+                    minDist = d;
+                    chosenEntrance = ent;
+                }
+            }
+        }
+
+        const targetLng = chosenEntrance ? (Array.isArray(chosenEntrance.coords) ? chosenEntrance.coords[0] : chosenEntrance[0]) : destLng;
+        const targetLat = chosenEntrance ? (Array.isArray(chosenEntrance.coords) ? chosenEntrance.coords[1] : chosenEntrance[1]) : destLat;
+
         const computeOptions = {
             buildings: buildingsData,
             entrance: destBuilding?.entrance,
+            entrances: normEntrances,
+            selectedEntrance: chosenEntrance,
             destName: destName || destBuilding?.name
         };
 
         let routeData = null;
-        const targetLng = (destBuilding?.entrance && destBuilding.entrance.length >= 2) ? destBuilding.entrance[0] : destLng;
-        const targetLat = (destBuilding?.entrance && destBuilding.entrance.length >= 2) ? destBuilding.entrance[1] : destLat;
 
         // 1. When online, ALWAYS query Mapbox Directions API first for real-world surveyed walkways and roads
         const isOnline = navigator.onLine !== false;

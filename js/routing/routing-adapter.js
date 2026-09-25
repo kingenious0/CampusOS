@@ -51,7 +51,13 @@
          */
         compute: (slat, slng, dlat, dlng, options = {}) => {
             const start = { lat: slat, lng: slng };
-            const dest = { lat: dlat, lng: dlng };
+            const dest = {
+                lat: dlat,
+                lng: dlng,
+                name: options.destName,
+                entrance: options.entrance,
+                entrances: options.entrances
+            };
 
             const result = engine.calculateRoute(start, dest, options);
 
@@ -66,6 +72,8 @@
                 geometry: result.geometry,
                 steps: result.maneuvers,
                 status: result.status,
+                selectedEntrance: result.selectedEntrance,
+                entranceName: result.entranceName,
                 diagnostics: result.diagnostics
             };
         }

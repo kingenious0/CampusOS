@@ -25,12 +25,71 @@ let staff = (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.
     : [];
 let activeTab = 'buildings';
 
+// Helper for safe HTML escaping in popups and lists
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+window.escapeHtml = escapeHtml;
+
+// Multi-Entrance schema normalizer (supports legacy [lng, lat] and multi-entrance object array)
+function normalizeEntrances(raw) {
+    if (!raw) return [];
+    // Legacy format: [lng, lat]
+    if (Array.isArray(raw) && raw.length === 2 && typeof raw[0] === 'number' && typeof raw[1] === 'number') {
+        return [{
+            id: 'ent-1',
+            label: 'Main Entrance',
+            coords: [raw[0], raw[1]],
+            isPrimary: true
+        }];
+    }
+    // Multi format: array of objects or coordinate pairs
+    if (Array.isArray(raw)) {
+        let hasPrimary = false;
+        const normalized = raw.map((item, idx) => {
+            if (!item) return null;
+            if (Array.isArray(item.coords) && item.coords.length >= 2) {
+                const isPrimary = item.isPrimary === true;
+                if (isPrimary && !hasPrimary) hasPrimary = true;
+                return {
+                    id: String(item.id || `ent-${idx + 1}`),
+                    label: String(item.label || (idx === 0 ? 'Main Entrance' : `Entrance ${idx + 1}`)),
+                    coords: [Number(item.coords[0]), Number(item.coords[1])],
+                    isPrimary: isPrimary
+                };
+            } else if (Array.isArray(item) && item.length >= 2 && typeof item[0] === 'number') {
+                return {
+                    id: `ent-${idx + 1}`,
+                    label: idx === 0 ? 'Main Entrance' : `Entrance ${idx + 1}`,
+                    coords: [Number(item[0]), Number(item[1])],
+                    isPrimary: idx === 0
+                };
+            }
+            return null;
+        }).filter(Boolean);
+
+        if (normalized.length > 0 && !hasPrimary) {
+            normalized[0].isPrimary = true;
+        }
+        return normalized;
+    }
+    return [];
+}
+window.normalizeEntrances = normalizeEntrances;
+
 // Entrance editor state
 let editorMap = null;
 let selectedBuildingId = null;
 let buildingMarker = null;
-let entranceMarker = null;
-let pendingEntranceCoords = null; // [lng, lat]
+let entranceMarkers = []; // Array of L.marker instances
+let editingEntrances = []; // Array of normalized entrance objects [{ id, label, coords: [lng, lat], isPrimary }]
+let isAddingEntrance = false;
 
 // =============================================================================
 // TOAST NOTIFICATIONS HELPER
@@ -717,7 +776,29 @@ function initOrResizeEditorMap() {
             }
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            setPendingEntrance(lng, lat);
+
+            // If in Add Entrance mode OR if there are currently no entrances
+            if (isAddingEntrance || editingEntrances.length === 0) {
+                const isFirst = editingEntrances.length === 0;
+                const newEnt = {
+                    id: 'ent-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                    label: isFirst ? 'Main Entrance' : `Entrance ${editingEntrances.length + 1}`,
+                    coords: [Number(lng.toFixed(6)), Number(lat.toFixed(6))],
+                    isPrimary: isFirst
+                };
+                editingEntrances.push(newEnt);
+                isAddingEntrance = false;
+                updateAddEntranceButtonUI();
+                renderEntranceMarkers();
+                markEntranceDirty();
+
+                // Auto-open popup on newly created marker
+                const lastMarker = entranceMarkers[entranceMarkers.length - 1];
+                if (lastMarker) lastMarker.openPopup();
+                showToast(`Placed ${newEnt.label}. Click the pin to edit label or set as primary.`, 'success');
+            } else {
+                showToast('Click "Add Another Entrance" to place a new doorway, or drag existing pins to reposition.', 'info');
+            }
         });
     }
 
@@ -726,6 +807,196 @@ function initOrResizeEditorMap() {
     }, 200);
 }
 window.initOrResizeEditorMap = initOrResizeEditorMap;
+
+function updateAddEntranceButtonUI() {
+    const btn = document.getElementById('btn-add-entrance');
+    const textEl = document.getElementById('btn-add-entrance-text');
+    if (!btn) return;
+
+    if (!selectedBuildingId) {
+        btn.disabled = true;
+        btn.className = 'px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1.5 shrink-0 touch-btn cursor-pointer';
+        if (textEl) textEl.textContent = 'Add Another Entrance';
+        return;
+    }
+
+    btn.disabled = false;
+    if (isAddingEntrance) {
+        btn.className = 'px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white ring-2 ring-emerald-400 transition flex items-center justify-center gap-1.5 shrink-0 touch-btn cursor-pointer animate-pulse';
+        if (textEl) textEl.textContent = 'Cancel Adding';
+    } else {
+        btn.className = 'px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1.5 shrink-0 touch-btn cursor-pointer';
+        if (textEl) textEl.textContent = 'Add Another Entrance';
+    }
+}
+window.updateAddEntranceButtonUI = updateAddEntranceButtonUI;
+
+function updateInstructionPill() {
+    const pill = document.getElementById('editor-instruction-pill');
+    if (!pill) return;
+    const inner = pill.firstElementChild;
+    if (!inner) return;
+
+    if (!selectedBuildingId) {
+        inner.textContent = 'Select a building from the list to view or edit doorway pins.';
+        return;
+    }
+
+    const b = buildings.find(x => x.id === selectedBuildingId);
+    const bName = b ? b.name : 'Selected Building';
+
+    if (isAddingEntrance) {
+        inner.innerHTML = `<span class="text-emerald-400 font-semibold">📍 Click anywhere on the map</span> to place Entrance #${editingEntrances.length + 1} for <strong>${escapeHtml(bName)}</strong>.`;
+    } else if (editingEntrances.length === 0) {
+        inner.innerHTML = `No doorway set for <strong>${escapeHtml(bName)}</strong>. Click map to place its first entrance pin.`;
+    } else {
+        const count = editingEntrances.length;
+        inner.innerHTML = `<strong>${escapeHtml(bName)}</strong>: ${count} entrance${count === 1 ? '' : 's'} configured. Click a pin to edit, drag to reposition, or click "Add Another Entrance".`;
+    }
+}
+window.updateInstructionPill = updateInstructionPill;
+
+function markEntranceDirty() {
+    const btnSaveEntrance = document.getElementById('btn-save-entrance');
+    if (btnSaveEntrance) btnSaveEntrance.disabled = false;
+    updateInstructionPill();
+}
+window.markEntranceDirty = markEntranceDirty;
+
+function clearEntranceMarkers() {
+    if (!editorMap) return;
+    entranceMarkers.forEach(m => {
+        try { editorMap.removeLayer(m); } catch (e) {}
+    });
+    entranceMarkers = [];
+}
+window.clearEntranceMarkers = clearEntranceMarkers;
+
+function getEntrancePopupHtml(ent, badgeNumber) {
+    const isPrimary = ent.isPrimary === true;
+    return `
+        <div class="p-2 min-w-[220px] text-slate-800 text-xs">
+            <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-200">
+                <span class="font-bold text-slate-900 text-sm">Doorway #${badgeNumber}</span>
+                ${isPrimary ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-emerald-300">★ Primary</span>' : ''}
+            </div>
+            <div class="mb-2">
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Entrance Name / Label</label>
+                <input type="text"
+                    id="ent-input-${ent.id}"
+                    value="${escapeHtml(ent.label)}"
+                    placeholder="e.g. Main Entrance, Car Park Gate"
+                    class="w-full px-2 py-1 text-xs border border-slate-300 rounded focus:border-emerald-500 focus:outline-none"
+                    oninput="window.updateEntranceLabel('${ent.id}', this.value)"
+                />
+            </div>
+            <div class="mb-2.5">
+                <label class="flex items-center gap-1.5 text-[11px] text-slate-700 cursor-pointer select-none">
+                    <input type="radio"
+                        name="primary-entrance"
+                        ${isPrimary ? 'checked' : ''}
+                        onchange="window.setPrimaryEntrance('${ent.id}')"
+                        class="text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <span class="font-medium">Primary / Default Doorway</span>
+                </label>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono mb-2.5">
+                Coords: [${ent.coords[1].toFixed(6)}, ${ent.coords[0].toFixed(6)}]
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-slate-100">
+                <button type="button"
+                    onclick="window.deleteEntrance('${ent.id}')"
+                    class="w-full py-1.5 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-semibold flex items-center justify-center gap-1 transition cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete Entrance
+                </button>
+            </div>
+        </div>
+    `;
+}
+window.getEntrancePopupHtml = getEntrancePopupHtml;
+
+function updateEntranceLabel(id, val) {
+    const ent = editingEntrances.find(x => x.id === id);
+    if (!ent) return;
+    ent.label = val.trim() || 'Entrance';
+    markEntranceDirty();
+}
+window.updateEntranceLabel = updateEntranceLabel;
+
+function setPrimaryEntrance(id) {
+    editingEntrances.forEach(ent => {
+        ent.isPrimary = (ent.id === id);
+    });
+    markEntranceDirty();
+    renderEntranceMarkers();
+    // Reopen popup for this entrance
+    const idx = editingEntrances.findIndex(x => x.id === id);
+    if (idx > -1 && entranceMarkers[idx]) {
+        entranceMarkers[idx].openPopup();
+    }
+}
+window.setPrimaryEntrance = setPrimaryEntrance;
+
+function deleteEntrance(id) {
+    const idx = editingEntrances.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    const deleted = editingEntrances.splice(idx, 1)[0];
+    if (deleted.isPrimary && editingEntrances.length > 0) {
+        editingEntrances[0].isPrimary = true;
+    }
+    markEntranceDirty();
+    renderEntranceMarkers();
+    showToast(`Deleted ${deleted.label || 'entrance pin'}.`, 'info');
+    updateInstructionPill();
+}
+window.deleteEntrance = deleteEntrance;
+
+function renderEntranceMarkers() {
+    if (!editorMap || typeof L === 'undefined') return;
+    clearEntranceMarkers();
+
+    editingEntrances.forEach((ent, idx) => {
+        const badgeNumber = idx + 1;
+        const isPrimary = ent.isPrimary === true;
+
+        const pinHtml = `
+            <div class="relative flex items-center justify-center cursor-pointer group">
+                <div class="w-8 h-8 rounded-full ${isPrimary ? 'bg-emerald-600 ring-2 ring-emerald-300 shadow-emerald-500/50' : 'bg-teal-700 ring-2 ring-teal-400 shadow-teal-700/50'} border-2 border-white flex items-center justify-center text-xs font-black text-white shadow-xl transition-transform group-hover:scale-110">
+                    ${badgeNumber}
+                </div>
+                ${isPrimary ? '<span class="absolute -top-1 -right-1 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span></span>' : ''}
+            </div>
+        `;
+
+        const marker = L.marker([ent.coords[1], ent.coords[0]], {
+            draggable: true,
+            zIndexOffset: isPrimary ? 1000 : 500,
+            icon: L.divIcon({
+                className: 'custom-entrance-pin',
+                html: pinHtml,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            })
+        }).addTo(editorMap);
+
+        marker.bindPopup(() => getEntrancePopupHtml(ent, badgeNumber));
+
+        marker.on('dragend', (e) => {
+            const pos = e.target.getLatLng();
+            ent.coords = [Number(pos.lng.toFixed(6)), Number(pos.lat.toFixed(6))];
+            marker.setPopupContent(getEntrancePopupHtml(ent, badgeNumber));
+            markEntranceDirty();
+            showToast(`Moved ${ent.label} to [${ent.coords[1].toFixed(5)}, ${ent.coords[0].toFixed(5)}]`, 'info');
+        });
+
+        entranceMarkers.push(marker);
+    });
+}
+window.renderEntranceMarkers = renderEntranceMarkers;
 
 function renderEditorBuildingList() {
     const listEl = document.getElementById('editor-building-list');
@@ -744,16 +1015,20 @@ function renderEditorBuildingList() {
         } else {
             listEl.innerHTML = filtered.map(b => {
                 const isSelected = b.id === selectedBuildingId;
-                const hasEntrance = Array.isArray(b.entrance) && b.entrance.length >= 2;
+                const norm = normalizeEntrances(b.entrance);
+                const count = norm.length;
+                const hasEntrance = count > 0;
+                const statusText = count > 1 ? `${count} Entrances` : (count === 1 ? (norm[0].label || '1 Entrance') : 'Centroid only');
+
                 return `
                     <div data-action="select-editor-building" data-id="${b.id}" onclick="window.selectEditorBuilding('${b.id}')" class="p-2.5 rounded-xl cursor-pointer transition border ${isSelected ? 'bg-brand-600/20 border-brand-500 text-white' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50 text-slate-300'}">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs">${b.name}</span>
-                            ${hasEntrance ? '<span class="w-2 h-2 rounded-full bg-emerald-400" title="Entrance pin set"></span>' : '<span class="w-2 h-2 rounded-full bg-slate-600" title="No entrance set"></span>'}
+                            <span class="font-bold text-xs">${escapeHtml(b.name)}</span>
+                            ${hasEntrance ? `<span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold ${count > 1 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-emerald-400 w-2 h-2 rounded-full'}" title="${count} doorway pin(s) set">${count > 1 ? count : ''}</span>` : '<span class="w-2 h-2 rounded-full bg-slate-600" title="No entrance set"></span>'}
                         </div>
                         <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                            <span class="font-mono">${b.code || b.id}</span>
-                            <span>${hasEntrance ? 'Doorway Set' : 'Centroid only'}</span>
+                            <span class="font-mono">${escapeHtml(b.code || b.id)}</span>
+                            <span class="${count > 0 ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${statusText}</span>
                         </div>
                     </div>
                 `;
@@ -763,7 +1038,7 @@ function renderEditorBuildingList() {
 
     if (mobileSelect) {
         mobileSelect.innerHTML = '<option value="">Select Building to Pin...</option>' + 
-            buildings.map(b => `<option value="${b.id}" ${b.id === selectedBuildingId ? 'selected' : ''}>${b.name} (${b.code || b.id})</option>`).join('');
+            buildings.map(b => `<option value="${b.id}" ${b.id === selectedBuildingId ? 'selected' : ''}>${escapeHtml(b.name)} (${escapeHtml(b.code || b.id)})</option>`).join('');
     }
 }
 window.renderEditorBuildingList = renderEditorBuildingList;
@@ -783,10 +1058,20 @@ function selectEditorBuilding(id) {
     initOrResizeEditorMap();
     if (!editorMap) return;
 
+    // Reset entrance editor state
+    isAddingEntrance = false;
+    updateAddEntranceButtonUI();
+
     // Clear existing markers
-    if (buildingMarker) editorMap.removeLayer(buildingMarker);
-    if (entranceMarker) editorMap.removeLayer(entranceMarker);
-    pendingEntranceCoords = null;
+    if (buildingMarker) {
+        editorMap.removeLayer(buildingMarker);
+        buildingMarker = null;
+    }
+    clearEntranceMarkers();
+
+    // Parse entrances using schema normalizer
+    editingEntrances = normalizeEntrances(b.entrance);
+
     const btnSaveEntrance = document.getElementById('btn-save-entrance');
     if (btnSaveEntrance) btnSaveEntrance.disabled = true;
 
@@ -799,47 +1084,17 @@ function selectEditorBuilding(id) {
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             })
-        }).addTo(editorMap).bindPopup(`<b>${b.name}</b><br>Geometric Centroid`);
+        }).addTo(editorMap).bindPopup(`<b>${escapeHtml(b.name)}</b><br><span class="text-slate-500 text-xs">Geometric Centroid</span>`);
 
-        // If entrance already exists, place green doorway pin
-        if (Array.isArray(b.entrance) && b.entrance.length >= 2) {
-            placeEntranceMarker(b.entrance[0], b.entrance[1], false);
-        }
+        // Render all entrance doorway pins
+        renderEntranceMarkers();
 
         editorMap.flyTo([b.lat, b.lng], 18, { duration: 0.8 });
     }
+
+    updateInstructionPill();
 }
 window.selectEditorBuilding = selectEditorBuilding;
-
-function setPendingEntrance(lng, lat) {
-    pendingEntranceCoords = [lng, lat];
-    placeEntranceMarker(lng, lat, true);
-    const btnSaveEntrance = document.getElementById('btn-save-entrance');
-    if (btnSaveEntrance) btnSaveEntrance.disabled = false;
-    showToast('Entrance position picked. Click "Save Entrance Pin" to commit.', 'info');
-}
-
-function placeEntranceMarker(lng, lat, isDraggable) {
-    if (!editorMap || typeof L === 'undefined') return;
-    if (entranceMarker) editorMap.removeLayer(entranceMarker);
-
-    entranceMarker = L.marker([lat, lng], {
-        draggable: true,
-        icon: L.divIcon({
-            className: 'custom-entrance-pin',
-            html: `<div class="w-7 h-7 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-xl animate-bounce">🚪</div>`,
-            iconSize: [28, 28],
-            iconAnchor: [14, 14]
-        })
-    }).addTo(editorMap).bindPopup(`<b>Entrance Doorway</b><br>[${lat.toFixed(6)}, ${lng.toFixed(6)}]`).openPopup();
-
-    entranceMarker.on('dragend', (e) => {
-        const pos = e.target.getLatLng();
-        pendingEntranceCoords = [pos.lng, pos.lat];
-        const btnSaveEntrance = document.getElementById('btn-save-entrance');
-        if (btnSaveEntrance) btnSaveEntrance.disabled = false;
-    });
-}
 
 // =============================================================================
 // 5. SYNC QUEUE VIEW
@@ -1011,16 +1266,35 @@ document.addEventListener('click', (e) => {
         return;
     }
 
-    // 7. Doorway Save Button
+    // 7. Doorway Add / Save Buttons
+    if (e.target.closest('#btn-add-entrance')) {
+        if (!selectedBuildingId) {
+            showToast('Please select a building from the list first', 'info');
+            return;
+        }
+        isAddingEntrance = !isAddingEntrance;
+        updateAddEntranceButtonUI();
+        updateInstructionPill();
+        if (isAddingEntrance) {
+            showToast(`Click anywhere on map near doorway to place Entrance #${editingEntrances.length + 1}`, 'info');
+        }
+        return;
+    }
+
     if (e.target.closest('#btn-save-entrance')) {
         (async () => {
-            if (!selectedBuildingId || !pendingEntranceCoords) return;
+            if (!selectedBuildingId) return;
             const b = buildings.find(x => x.id === selectedBuildingId);
             if (!b) return;
 
+            // Ensure at least one entrance is primary if entrances exist
+            if (editingEntrances.length > 0 && !editingEntrances.some(x => x.isPrimary)) {
+                editingEntrances[0].isPrimary = true;
+            }
+
             const updated = {
                 ...b,
-                entrance: pendingEntranceCoords
+                entrance: editingEntrances
             };
 
             if (typeof CampusSync !== 'undefined' && CampusSync.saveRecord) {
@@ -1031,7 +1305,10 @@ document.addEventListener('click', (e) => {
 
             const btnSave = document.getElementById('btn-save-entrance');
             if (btnSave) btnSave.disabled = true;
-            showToast(`Entrance pin saved for ${b.name}!`, 'success');
+            showToast(`Saved ${editingEntrances.length} entrance pin(s) for ${b.name}!`, 'success');
+            renderEditorBuildingList();
+            renderEntranceMarkers();
+            updateInstructionPill();
             await refreshData();
         })();
         return;

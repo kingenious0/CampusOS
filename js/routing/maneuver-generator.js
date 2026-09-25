@@ -227,13 +227,17 @@
         // 3. Arrive maneuver
         const lastNode = nodeMap.get(pathNodeIds[pathNodeIds.length - 1]);
         const finalDestName = options.destName || (lastNode && lastNode.name) || destName;
+        let arrivalName = `Arrive at ${destName}`;
+        if (options.entranceLabel && !destName.toLowerCase().includes(options.entranceLabel.toLowerCase())) {
+            arrivalName = `Arrive at ${destName} (${options.entranceLabel})`;
+        }
         steps.push({
             maneuver: {
                 type: 'arrive',
                 modifier: '',
                 location: lastNode && lastNode.lng !== null ? [lastNode.lng, lastNode.lat] : [0, 0]
             },
-            name: `Arrive at ${destName}`,
+            name: arrivalName,
             distance: 0,
             duration: 0,
             intersections: lastNode && lastNode.lng !== null ? [{ location: [lastNode.lng, lastNode.lat] }] : []

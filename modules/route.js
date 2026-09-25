@@ -8,15 +8,58 @@ const RouteModule = (() => {
 
     const OSRM_BASE = 'https://router.project-osrm.org/route/v1/foot';
 
-    const calculateRoute = async (destLat, destLng, destName) => {
+    const calculateRoute = async (destLat, destLng, destName, options = {}) => {
         const map = MapModule.getMap();
         const origin = MapModule.getUserLocation();
 
+        // Check if destination building has multiple entrances configured
+        let targetLat = destLat;
+        let targetLng = destLng;
+        let finalDestName = destName;
+        let chosenEntrance = null;
+
+        const bList = (typeof buildingsData !== 'undefined' && buildingsData) ||
+                      (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA?.buildings) || [];
+        const bldg = options.building || bList.find(b =>
+            (b.name && b.name.toLowerCase() === destName?.toLowerCase()) ||
+            (Math.abs(b.lat - destLat) < 0.0005 && Math.abs(b.lng - destLng) < 0.0005)
+        );
+
+        const normFn = (typeof window !== 'undefined' && window.normalizeEntrances) ? window.normalizeEntrances : null;
+        const entrances = options.entrances ? (normFn ? normFn(options.entrances) : options.entrances) :
+                          (bldg?.entrance ? (normFn ? normFn(bldg.entrance) : bldg.entrance) : []);
+
+        if (Array.isArray(entrances) && entrances.length > 0) {
+            if (entrances.length === 1) {
+                chosenEntrance = entrances[0];
+            } else {
+                let minDist = Infinity;
+                for (const ent of entrances) {
+                    const coords = Array.isArray(ent.coords) ? ent.coords : ent;
+                    const lat = coords[1];
+                    const lng = coords[0];
+                    const d = Math.hypot((lat - origin.lat), (lng - origin.lng));
+                    if (d < minDist) {
+                        minDist = d;
+                        chosenEntrance = ent;
+                    }
+                }
+            }
+            if (chosenEntrance) {
+                const coords = Array.isArray(chosenEntrance.coords) ? chosenEntrance.coords : chosenEntrance;
+                targetLng = coords[0];
+                targetLat = coords[1];
+                if (chosenEntrance.label && !finalDestName.toLowerCase().includes(chosenEntrance.label.toLowerCase())) {
+                    finalDestName = `${finalDestName} (${chosenEntrance.label})`;
+                }
+            }
+        }
+
         clearRoute(map);
-        showRouteLoading(destName);
+        showRouteLoading(finalDestName);
 
         try {
-            const url = `${OSRM_BASE}/${origin.lng},${origin.lat};${destLng},${destLat}?overview=full&geometries=geojson&steps=false`;
+            const url = `${OSRM_BASE}/${origin.lng},${origin.lat};${targetLng},${targetLat}?overview=full&geometries=geojson&steps=false`;
             const response = await fetch(url);
             const data = await response.json();
 
@@ -55,23 +98,23 @@ const RouteModule = (() => {
             activeRouteMarkers.push(originMarker);
 
             // Destination flag
-            const destMarker = L.marker([destLat, destLng], {
+            const destMarker = L.marker([targetLat, targetLng], {
                 icon: L.divIcon({
                     html: `<div class="dest-flag"><i class="fas fa-flag-checkered"></i></div>`,
                     iconSize: [36, 36], iconAnchor: [18, 36], className: ''
                 })
-            }).addTo(map).bindTooltip(destName, { permanent: false });
+            }).addTo(map).bindTooltip(finalDestName, { permanent: false });
             activeRouteMarkers.push(destMarker);
 
             // Fit map to route
             map.fitBounds(activeRouteLine.getBounds(), { padding: [60, 60] });
 
-            displayRouteInfo(destName, distanceM, durationMin);
+            displayRouteInfo(finalDestName, distanceM, durationMin);
 
         } catch (err) {
             console.error('Routing error:', err);
             // Fallback: straight-line with Haversine distance
-            fallbackRoute(origin, destLat, destLng, destName, map);
+            fallbackRoute(origin, targetLat, targetLng, finalDestName, map);
         }
     };
 

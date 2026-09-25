@@ -81,19 +81,59 @@
         }
 
         /**
-         * Calculate Route between two geographic locations
-         * 
-         * @param {Object} start { lat, lng, nodeId? }
-         * @param {Object} dest { lat, lng, nodeId?, name? }
-         * @param {Object} [options] { profile: 'pedestrian'|'accessible', maxSnapDistanceMeters: 60 }
-         * @returns {Object} Structured route result
+         * Normalize entrance data from various formats (legacy [lng, lat], object, array of objects/coords)
          */
+        static normalizeEntrances(raw) {
+            if (!raw) return [];
+            // Legacy single entrance: [lng, lat]
+            if (Array.isArray(raw) && raw.length === 2 && typeof raw[0] === 'number' && typeof raw[1] === 'number') {
+                return [{
+                    id: 'ent-1',
+                    label: 'Main Entrance',
+                    coords: [raw[0], raw[1]],
+                    isPrimary: true
+                }];
+            }
+            // Multi-entrance format: array of entrance objects or coordinates
+            if (Array.isArray(raw)) {
+                let hasPrimary = false;
+                const normalized = raw.map((item, idx) => {
+                    if (!item) return null;
+                    if (Array.isArray(item.coords) && item.coords.length >= 2) {
+                        const isPrimary = item.isPrimary === true;
+                        if (isPrimary && !hasPrimary) hasPrimary = true;
+                        return {
+                            id: String(item.id || `ent-${idx + 1}`),
+                            label: String(item.label || (idx === 0 ? 'Main Entrance' : `Entrance ${idx + 1}`)),
+                            coords: [Number(item.coords[0]), Number(item.coords[1])],
+                            isPrimary: isPrimary
+                        };
+                    } else if (Array.isArray(item) && item.length >= 2 && typeof item[0] === 'number') {
+                        return {
+                            id: `ent-${idx + 1}`,
+                            label: idx === 0 ? 'Main Entrance' : `Entrance ${idx + 1}`,
+                            coords: [Number(item[0]), Number(item[1])],
+                            isPrimary: idx === 0
+                        };
+                    }
+                    return null;
+                }).filter(Boolean);
+
+                if (normalized.length > 0 && !hasPrimary) {
+                    normalized[0].isPrimary = true;
+                }
+                return normalized;
+            }
+            return [];
+        }
+
         /**
-         * Calculate Route between two geographic locations with Virtual Edge Projection & Fallback Connectors
+         * Calculate Route between two geographic locations with Virtual Edge Projection & Fallback Connectors.
+         * Automatically selects closest entrance if multiple entrances are provided.
          * 
          * @param {Object} start { lat, lng, nodeId? }
-         * @param {Object} dest { lat, lng, nodeId?, name?, entrance?: [lng, lat] }
-         * @param {Object} [options] { profile: 'pedestrian'|'accessible', maxSnapDistanceMeters: 150, buildings: [] }
+         * @param {Object} dest { lat, lng, nodeId?, name?, entrance?: [lng, lat] | Array<Entrance> }
+         * @param {Object} [options] { profile: 'pedestrian'|'accessible', maxSnapDistanceMeters: 150, buildings: [], entrances: [] }
          * @returns {Object} Structured route result
          */
         calculateRoute(start, dest, options = {}) {
@@ -111,6 +151,74 @@
                 };
             }
 
+            // Normalize any candidate entrances
+            const rawEntrances = (options && options.entrances) || (options && options.entrance) || (dest && dest.entrances) || (dest && dest.entrance);
+            const candidateEntrances = RoutingEngine.normalizeEntrances(rawEntrances);
+
+            // If building has multiple entrances, calculate route to all available entrances and select the closest one
+            if (candidateEntrances.length > 1) {
+                let bestResult = null;
+                let minDistance = Infinity;
+                let bestEntrance = null;
+
+                for (const ent of candidateEntrances) {
+                    const singleDest = {
+                        ...dest,
+                        entrance: [ent.coords[0], ent.coords[1]],
+                        entrances: undefined,
+                        selectedEntrance: ent
+                    };
+                    const singleOptions = {
+                        ...options,
+                        entrance: [ent.coords[0], ent.coords[1]],
+                        entrances: undefined,
+                        entranceLabel: ent.label
+                    };
+
+                    const r = this._calculateSingleRoute(start, singleDest, singleOptions);
+                    if (r && r.status === 'success') {
+                        const dist = r.distanceMeters;
+                        if (dist < minDistance || (dist === minDistance && ent.isPrimary && bestEntrance && !bestEntrance.isPrimary)) {
+                            minDistance = dist;
+                            bestResult = r;
+                            bestEntrance = ent;
+                        }
+                    }
+                }
+
+                if (bestResult) {
+                    bestResult.selectedEntrance = bestEntrance;
+                    bestResult.entranceName = bestEntrance.label;
+                    bestResult.allCandidateEntrances = candidateEntrances;
+                    return bestResult;
+                }
+            }
+
+            // Single entrance or centroid route
+            const singleEntrance = candidateEntrances.length === 1 ? candidateEntrances[0] : null;
+            const singleOptions = {
+                ...options,
+                entranceLabel: options.entranceLabel || (singleEntrance ? singleEntrance.label : undefined)
+            };
+            const singleDest = singleEntrance ? {
+                ...dest,
+                entrance: [singleEntrance.coords[0], singleEntrance.coords[1]],
+                selectedEntrance: singleEntrance
+            } : dest;
+
+            const res = this._calculateSingleRoute(start, singleDest, singleOptions);
+            if (res && res.status === 'success' && singleEntrance) {
+                res.selectedEntrance = singleEntrance;
+                res.entranceName = singleEntrance.label;
+                res.allCandidateEntrances = candidateEntrances;
+            }
+            return res;
+        }
+
+        /**
+         * Internal core calculation to a single coordinate target/entrance
+         */
+        _calculateSingleRoute(start, dest, options = {}) {
             const profile = options.profile || 'pedestrian';
             const maxSnapMeters = options.maxSnapDistanceMeters || SpatialSnapper.DEFAULT_MAX_SNAP_METERS;
 
@@ -299,11 +407,6 @@
                 coordinates.push([targetLng, targetLat]);
             }
 
-            // If explicit entrance was used and differs from building centroid, connect into building
-            if (hasEntrance && SpatialSnapper.haversineDistance(targetLat, targetLng, dest.lat, dest.lng) > 1.5) {
-                coordinates.push([dest.lng, dest.lat]);
-            }
-
             // Clean up temporary virtual graph vertices & edges immediately
             cleanups.forEach(cleanupFn => cleanupFn());
 
@@ -320,7 +423,16 @@
                         coordinates[c + 1][1], coordinates[c + 1][0]
                     );
                 }
+            } else {
+                // Include connector walking distance to/from entrance doorway and origin
+                if (snapDest && typeof snapDest.distanceMeters === 'number' && snapDest.distanceMeters > 1.0) {
+                    totalDistanceMeters += snapDest.distanceMeters;
+                }
+                if (snapStart && typeof snapStart.distanceMeters === 'number' && snapStart.distanceMeters > 1.0) {
+                    totalDistanceMeters += snapStart.distanceMeters;
+                }
             }
+            totalDistanceMeters = Math.round(totalDistanceMeters * 10) / 10;
             const durationSeconds = Math.round(totalDistanceMeters / 1.35); // standard ~4.8 km/h pedestrian speed
 
             // 9. If virtual connector was used, inject virtual connector edge into pathEdges
@@ -341,6 +453,7 @@
                 {
                     startName: start.name || 'Your Location',
                     destName: dest.name || 'Destination',
+                    entranceLabel: options.entranceLabel || (dest.selectedEntrance?.label),
                     buildings: options.buildings || []
                 }
             );
@@ -358,6 +471,8 @@
                 },
                 maneuvers: maneuvers,
                 hasVirtualConnector: hasVirtualConnector,
+                selectedEntrance: dest.selectedEntrance || null,
+                entranceName: dest.selectedEntrance?.label || options.entranceLabel || null,
                 diagnostics: {
                     profile: profile,
                     routingSource: 'CampusOS Local Prepared Graph',
@@ -438,6 +553,7 @@
     }
 
     return {
-        RoutingEngine
+        RoutingEngine,
+        normalizeEntrances: RoutingEngine.normalizeEntrances
     };
 }));
