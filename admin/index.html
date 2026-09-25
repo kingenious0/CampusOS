@@ -690,9 +690,10 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-20 lg:bottom-5 right-4 left-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Scripts: Always load from absolute path /admin/ to ensure zero routing mismatch -->
-    <script src="/admin/sync.js"></script>
-    <script src="/admin/app.js"></script>
+    <!-- Scripts: Guaranteed seed data, offline sync engine, and CMS app controller -->
+    <script src="seed_data.js"></script>
+    <script src="sync.js"></script>
+    <script src="app.js"></script>
 
     <!-- Register Admin Service Worker -->
     <script>

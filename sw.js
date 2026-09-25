@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1.0.1';
+const CACHE_NAME  = 'ustednav-v1.0.2';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell files to cache on install (Deduplicated clean paths)
@@ -85,6 +85,9 @@ self.addEventListener('fetch', e => {
 
     const url = new URL(e.request.url);
     if (!url.protocol.startsWith('http')) return;
+
+    // Bypass root service worker for /admin dashboard entirely
+    if (url.pathname.startsWith('/admin')) return;
 
     // Skip Mapbox events/telemetry
     if (url.hostname.includes('events.mapbox.com')) return;

@@ -3,10 +3,11 @@
  * Ensures the Admin CMS works 100% offline with local IndexedDB mutations.
  */
 
-const CACHE_NAME = 'campusos-studio-v1.0.0';
+const CACHE_NAME = 'campusos-studio-v1.0.1';
 const STATIC_ASSETS = [
     './',
     './index.html',
+    './seed_data.js',
     './app.js',
     './sync.js',
     './seed_data.json',

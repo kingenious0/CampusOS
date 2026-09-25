@@ -52,102 +52,149 @@ const CampusSync = (() => {
         notifyListeners();
     }
 
-    // Open IndexedDB database with object stores
+    // In-memory fallback if IndexedDB is blocked or unavailable
+    const memoryStore = {
+        buildings: new Map(),
+        rooms: new Map(),
+        staff_directory: new Map(),
+        mutation_queue: []
+    };
+
+    // Open IndexedDB database with object stores (with fail-safe fallback)
     async function initDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
+        if (typeof indexedDB === 'undefined') {
+            console.warn('[Sync] IndexedDB not available, using in-memory store.');
+            return null;
+        }
 
-            request.onupgradeneeded = (e) => {
-                const database = e.target.result;
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-                // 1. Buildings Store
-                if (!database.objectStoreNames.contains('buildings')) {
-                    const bStore = database.createObjectStore('buildings', { keyPath: 'id' });
-                    bStore.createIndex('code', 'code', { unique: false });
-                    bStore.createIndex('type', 'type', { unique: false });
-                    bStore.createIndex('org_id', 'org_id', { unique: false });
-                }
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
 
-                // 2. Rooms Store
-                if (!database.objectStoreNames.contains('rooms')) {
-                    const rStore = database.createObjectStore('rooms', { keyPath: 'id' });
-                    rStore.createIndex('building_id', 'building_id', { unique: false });
-                    rStore.createIndex('floor', 'floor', { unique: false });
-                    rStore.createIndex('org_id', 'org_id', { unique: false });
-                }
+                    // 1. Buildings Store
+                    if (!database.objectStoreNames.contains('buildings')) {
+                        const bStore = database.createObjectStore('buildings', { keyPath: 'id' });
+                        bStore.createIndex('code', 'code', { unique: false });
+                        bStore.createIndex('type', 'type', { unique: false });
+                        bStore.createIndex('org_id', 'org_id', { unique: false });
+                    }
 
-                // 3. Staff Directory Store
-                if (!database.objectStoreNames.contains('staff_directory')) {
-                    const sStore = database.createObjectStore('staff_directory', { keyPath: 'id' });
-                    sStore.createIndex('building_id', 'building_id', { unique: false });
-                    sStore.createIndex('room_id', 'room_id', { unique: false });
-                    sStore.createIndex('department', 'department', { unique: false });
-                    sStore.createIndex('org_id', 'org_id', { unique: false });
-                }
+                    // 2. Rooms Store
+                    if (!database.objectStoreNames.contains('rooms')) {
+                        const rStore = database.createObjectStore('rooms', { keyPath: 'id' });
+                        rStore.createIndex('building_id', 'building_id', { unique: false });
+                        rStore.createIndex('floor', 'floor', { unique: false });
+                        rStore.createIndex('org_id', 'org_id', { unique: false });
+                    }
 
-                // 4. Mutation Queue Store
-                if (!database.objectStoreNames.contains('mutation_queue')) {
-                    const qStore = database.createObjectStore('mutation_queue', { keyPath: 'queue_id', autoIncrement: true });
-                    qStore.createIndex('synced', 'synced', { unique: false });
-                    qStore.createIndex('timestamp', 'timestamp', { unique: false });
-                }
-            };
+                    // 3. Staff Directory Store
+                    if (!database.objectStoreNames.contains('staff_directory')) {
+                        const sStore = database.createObjectStore('staff_directory', { keyPath: 'id' });
+                        sStore.createIndex('building_id', 'building_id', { unique: false });
+                        sStore.createIndex('room_id', 'room_id', { unique: false });
+                        sStore.createIndex('department', 'department', { unique: false });
+                        sStore.createIndex('org_id', 'org_id', { unique: false });
+                    }
 
-            request.onsuccess = (e) => {
-                db = e.target.result;
-                resolve(db);
-            };
+                    // 4. Mutation Queue Store
+                    if (!database.objectStoreNames.contains('mutation_queue')) {
+                        const qStore = database.createObjectStore('mutation_queue', { keyPath: 'queue_id', autoIncrement: true });
+                        qStore.createIndex('synced', 'synced', { unique: false });
+                        qStore.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                };
 
-            request.onerror = (e) => {
-                console.error('[Sync] IndexedDB open error:', e);
-                reject(e);
-            };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+
+                request.onerror = (e) => {
+                    console.warn('[Sync] IndexedDB open error (falling back to memory):', e);
+                    db = null;
+                    resolve(null);
+                };
+            } catch (err) {
+                console.warn('[Sync] IndexedDB exception (falling back to memory):', err);
+                db = null;
+                resolve(null);
+            }
         });
     }
 
-    // Check if initial seeding is needed from seed_data.json
+    // Check if initial seeding is needed from window.CAMPUS_SEED_DATA or seed_data.json
     async function checkAndBootstrapData() {
-        const buildingCount = await countRecords('buildings');
-        if (buildingCount === 0) {
-            console.log('[Sync] Database is empty. Loading initial seed_data.json...');
-            try {
-                let res = await fetch('/admin/seed_data.json').catch(() => null);
-                if (!res || !res.ok) {
-                    res = await fetch('seed_data.json').catch(() => null);
+        try {
+            const buildingCount = await countRecords('buildings');
+            if (buildingCount === 0) {
+                console.log('[Sync] Database is empty. Loading initial seed dataset...');
+                let data = null;
+
+                // Priority 1: Instant in-memory seed dataset
+                if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA) {
+                    data = window.CAMPUS_SEED_DATA;
+                } else {
+                    // Priority 2: Network fetch
+                    let res = await fetch('/admin/seed_data.json').catch(() => null);
+                    if (!res || !res.ok) {
+                        res = await fetch('seed_data.json').catch(() => null);
+                    }
+                    if (res && res.ok) {
+                        data = await res.json();
+                    }
                 }
-                if (res && res.ok) {
-                    const data = await res.json();
+
+                if (data) {
                     await bulkPut('buildings', data.buildings || []);
                     await bulkPut('rooms', data.rooms || []);
                     await bulkPut('staff_directory', data.staff || []);
                     console.log(`[Sync] Bootstrapped with ${data.buildings?.length} buildings, ${data.rooms?.length} rooms, ${data.staff?.length} staff members.`);
                 }
-            } catch (err) {
-                console.warn('[Sync] Could not auto-bootstrap seed_data.json:', err);
             }
+        } catch (err) {
+            console.warn('[Sync] Could not auto-bootstrap seed_data:', err);
         }
     }
 
     // Helper: Count records in a store
     async function countRecords(storeName) {
+        if (!db) {
+            return memoryStore[storeName] ? memoryStore[storeName].size : 0;
+        }
         return new Promise((resolve) => {
-            const tx = db.transaction([storeName], 'readonly');
-            const store = tx.objectStore(storeName);
-            const req = store.count();
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => resolve(0);
+            try {
+                const tx = db.transaction([storeName], 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.count();
+                req.onsuccess = () => resolve(req.result || 0);
+                req.onerror = () => resolve(memoryStore[storeName] ? memoryStore[storeName].size : 0);
+            } catch (e) {
+                resolve(memoryStore[storeName] ? memoryStore[storeName].size : 0);
+            }
         });
     }
 
     // Helper: Bulk put items into a store
     async function bulkPut(storeName, items) {
         if (!items || items.length === 0) return;
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction([storeName], 'readwrite');
-            const store = tx.objectStore(storeName);
-            items.forEach(item => store.put(item));
-            tx.oncomplete = () => resolve();
-            tx.onerror = (e) => reject(e);
+        // Always mirror to memory store as backup
+        if (memoryStore[storeName]) {
+            items.forEach(item => memoryStore[storeName].set(item.id, item));
+        }
+        if (!db) return;
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction([storeName], 'readwrite');
+                const store = tx.objectStore(storeName);
+                items.forEach(item => store.put(item));
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => resolve();
+            } catch (e) {
+                resolve();
+            }
         });
     }
 
@@ -156,22 +203,59 @@ const CampusSync = (() => {
     // =========================================================================
 
     async function getAll(storeName) {
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction([storeName], 'readonly');
-            const store = tx.objectStore(storeName);
-            const req = store.getAll();
-            req.onsuccess = () => resolve(req.result || []);
-            req.onerror = (e) => reject(e);
+        const getFallbackData = () => {
+            if (memoryStore[storeName] && memoryStore[storeName].size > 0) {
+                return Array.from(memoryStore[storeName].values());
+            }
+            if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA) {
+                if (storeName === 'buildings') return window.CAMPUS_SEED_DATA.buildings || [];
+                if (storeName === 'rooms') return window.CAMPUS_SEED_DATA.rooms || [];
+                if (storeName === 'staff_directory') return window.CAMPUS_SEED_DATA.staff || [];
+            }
+            return [];
+        };
+
+        if (!db) {
+            return getFallbackData();
+        }
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction([storeName], 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const result = req.result || [];
+                    if (result.length === 0) {
+                        resolve(getFallbackData());
+                    } else {
+                        if (memoryStore[storeName]) {
+                            result.forEach(item => memoryStore[storeName].set(item.id, item));
+                        }
+                        resolve(result);
+                    }
+                };
+                req.onerror = () => resolve(getFallbackData());
+            } catch (e) {
+                resolve(getFallbackData());
+            }
         });
     }
 
     async function getById(storeName, id) {
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction([storeName], 'readonly');
-            const store = tx.objectStore(storeName);
-            const req = store.get(id);
-            req.onsuccess = () => resolve(req.result || null);
-            req.onerror = (e) => reject(e);
+        if (!db) {
+            return memoryStore[storeName] ? (memoryStore[storeName].get(id) || null) : null;
+        }
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction([storeName], 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.get(id);
+                req.onsuccess = () => resolve(req.result || (memoryStore[storeName] ? memoryStore[storeName].get(id) : null) || null);
+                req.onerror = () => resolve(memoryStore[storeName] ? (memoryStore[storeName].get(id) || null) : null);
+            } catch (e) {
+                resolve(memoryStore[storeName] ? (memoryStore[storeName].get(id) || null) : null);
+            }
         });
     }
 
@@ -180,14 +264,25 @@ const CampusSync = (() => {
         if (!record.created_at) record.created_at = record.updated_at;
         if (!record.org_id) record.org_id = config.orgId;
 
-        // 1. Write to local IndexedDB store
-        await new Promise((resolve, reject) => {
-            const tx = db.transaction([storeName], 'readwrite');
-            const store = tx.objectStore(storeName);
-            const req = store.put(record);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = (e) => reject(e);
-        });
+        // Mirror to memory store
+        if (memoryStore[storeName]) {
+            memoryStore[storeName].set(record.id, record);
+        }
+
+        // 1. Write to local IndexedDB store if available
+        if (db) {
+            await new Promise((resolve) => {
+                try {
+                    const tx = db.transaction([storeName], 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.put(record);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(record);
+                } catch (e) {
+                    resolve(record);
+                }
+            });
+        }
 
         // 2. Queue mutation
         await enqueueMutation(storeName, 'UPSERT', record);
@@ -202,14 +297,25 @@ const CampusSync = (() => {
     }
 
     async function deleteRecord(storeName, id) {
-        // 1. Delete from local IndexedDB
-        await new Promise((resolve, reject) => {
-            const tx = db.transaction([storeName], 'readwrite');
-            const store = tx.objectStore(storeName);
-            const req = store.delete(id);
-            req.onsuccess = () => resolve();
-            req.onerror = (e) => reject(e);
-        });
+        // Mirror to memory store
+        if (memoryStore[storeName]) {
+            memoryStore[storeName].delete(id);
+        }
+
+        // 1. Delete from local IndexedDB if available
+        if (db) {
+            await new Promise((resolve) => {
+                try {
+                    const tx = db.transaction([storeName], 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.delete(id);
+                    req.onsuccess = () => resolve();
+                    req.onerror = () => resolve();
+                } catch (e) {
+                    resolve();
+                }
+            });
+        }
 
         // 2. Queue delete mutation
         await enqueueMutation(storeName, 'DELETE', { id, org_id: config.orgId });
@@ -226,35 +332,54 @@ const CampusSync = (() => {
     // =========================================================================
 
     async function enqueueMutation(table, action, data) {
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(['mutation_queue'], 'readwrite');
-            const store = tx.objectStore('mutation_queue');
-            const entry = {
-                table,
-                action,
-                record_id: data.id,
-                payload: data,
-                timestamp: new Date().toISOString(),
-                synced: false,
-                attempts: 0,
-                last_error: null
-            };
-            const req = store.add(entry);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = (e) => reject(e);
+        const entry = {
+            queue_id: Date.now() + Math.random(),
+            table,
+            action,
+            record_id: data.id,
+            payload: data,
+            timestamp: new Date().toISOString(),
+            synced: false,
+            attempts: 0,
+            last_error: null
+        };
+
+        memoryStore.mutation_queue.push(entry);
+
+        if (!db) return entry.queue_id;
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(['mutation_queue'], 'readwrite');
+                const store = tx.objectStore('mutation_queue');
+                const req = store.add(entry);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(entry.queue_id);
+            } catch (e) {
+                resolve(entry.queue_id);
+            }
         });
     }
 
     async function getPendingMutations() {
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(['mutation_queue'], 'readonly');
-            const store = tx.objectStore('mutation_queue');
-            const req = store.getAll();
-            req.onsuccess = () => {
-                const pending = (req.result || []).filter(m => !m.synced);
-                resolve(pending);
-            };
-            req.onerror = (e) => reject(e);
+        if (!db) {
+            return memoryStore.mutation_queue.filter(m => !m.synced);
+        }
+
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(['mutation_queue'], 'readonly');
+                const store = tx.objectStore('mutation_queue');
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const all = req.result || [];
+                    const pending = all.filter(m => !m.synced);
+                    resolve(pending.length > 0 ? pending : memoryStore.mutation_queue.filter(m => !m.synced));
+                };
+                req.onerror = () => resolve(memoryStore.mutation_queue.filter(m => !m.synced));
+            } catch (e) {
+                resolve(memoryStore.mutation_queue.filter(m => !m.synced));
+            }
         });
     }
 
