@@ -588,6 +588,21 @@ window.CAMPUS_SEED_DATA = {
             "EXAMS OFFICE",
             "ROB 047"
           ]
+        },
+        {
+          "name": "Faculty Officer, FBE",
+          "category": "Administration",
+          "floor": "Ground Floor",
+          "wing": "West",
+          "room": "Room 048",
+          "description": "Faculty Officer for Faculty of Business Education",
+          "keywords": [
+            "FACULTY OFFICER",
+            "FACULTY OFFICER FBE",
+            "FBE",
+            "ROB 048",
+            "048"
+          ]
         }
       ],
       "metadata": {
@@ -2024,6 +2039,8 @@ window.CAMPUS_SEED_DATA = {
       ],
       "coordinates": null,
       "metadata": {
+        "purpose": "service_desk",
+        "wing": "North",
         "staff": []
       }
     },
@@ -2044,6 +2061,30 @@ window.CAMPUS_SEED_DATA = {
       ],
       "coordinates": null,
       "metadata": {
+        "purpose": "service_desk",
+        "wing": "North",
+        "staff": []
+      }
+    },
+    {
+      "id": "25-048",
+      "org_id": "usted-ksi",
+      "building_id": "25",
+      "room_number": "048",
+      "floor": 0,
+      "description": "Faculty Officer, FBE",
+      "keywords": [
+        "ROB 048",
+        "ROB ROOM 048",
+        "FACULTY OFFICER",
+        "FACULTY OFFICER FBE",
+        "FBE",
+        "048"
+      ],
+      "coordinates": null,
+      "metadata": {
+        "purpose": "service_desk",
+        "wing": "West",
         "staff": []
       }
     },

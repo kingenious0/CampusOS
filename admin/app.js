@@ -163,13 +163,46 @@ function openAddBuildingModal() {
 }
 window.openAddBuildingModal = openAddBuildingModal;
 
+function setRoomPurpose(purpose = 'lecturer_office') {
+    const inputPurpose = document.getElementById('room-purpose');
+    if (inputPurpose) inputPurpose.value = purpose;
+
+    const descInput = document.getElementById('room-description');
+    if (descInput) {
+        if (purpose === 'service_desk' || purpose === 'admin_office') {
+            descInput.placeholder = 'e.g. Faculty Officer, FBE';
+        } else if (purpose === 'lecture_room') {
+            descInput.placeholder = 'e.g. Lecture Hall 1, Computer Lab';
+        } else {
+            descInput.placeholder = 'e.g. Lecturer Office, Staff Suite';
+        }
+    }
+
+    document.querySelectorAll('.room-purpose-btn').forEach(btn => {
+        const btnP = btn.getAttribute('data-purpose');
+        const isActive = (btnP === purpose) ||
+                         (purpose === 'admin_office' && btnP === 'service_desk') ||
+                         (purpose === 'service_desk' && btnP === 'admin_office');
+        btn.classList.toggle('bg-brand-600', isActive);
+        btn.classList.toggle('text-white', isActive);
+        btn.classList.toggle('shadow-sm', isActive);
+        btn.classList.toggle('font-semibold', isActive);
+        btn.classList.toggle('text-slate-400', !isActive);
+        btn.classList.toggle('font-medium', !isActive);
+    });
+}
+window.setRoomPurpose = setRoomPurpose;
+
 function openAddRoomModal() {
     const form = document.getElementById('form-room');
     const title = document.getElementById('modal-room-title');
     const rId = document.getElementById('room-id');
+    const rWing = document.getElementById('room-wing');
     if (title) title.textContent = 'Add Room Allocation';
     if (form) form.reset();
     if (rId) rId.value = '';
+    if (rWing) rWing.value = '';
+    setRoomPurpose('lecturer_office');
     populateDropdowns();
     openModal('modal-room');
 }
@@ -494,12 +527,30 @@ function renderRooms() {
                 const bldg = bldgMap.get(r.building_id);
                 const bldgName = bldg ? `${bldg.name} (${bldg.code || bldg.id})` : (r.building_id || 'Unknown Block');
                 const floorText = r.floor === 0 ? 'Ground' : (r.floor === 1 ? '1st Floor' : (r.floor === 2 ? '2nd Floor' : `Floor ${r.floor}`));
+                const meta = r.metadata || {};
+                const wingText = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
+                const floorWingDisplay = wingText ? `${floorText} · ${wingText}` : floorText;
+
+                const purp = meta.purpose;
+                let purpBadge = '';
+                if (purp === 'service_desk' || purp === 'admin_office') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">Admin Office</span>';
+                } else if (purp === 'lecture_room') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">Lecture / Lab</span>';
+                } else if (purp === 'lecturer_office') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Lecturer Office</span>';
+                }
 
                 return `
                     <tr class="hover:bg-slate-800/30 transition">
-                        <td class="p-3.5 font-bold font-mono text-white">${r.room_number}</td>
+                        <td class="p-3.5 font-bold font-mono text-white">
+                            <div class="flex items-center gap-1.5">
+                                <span>${r.room_number}</span>
+                                ${purpBadge}
+                            </div>
+                        </td>
                         <td class="p-3.5 text-slate-300 font-medium">${bldgName}</td>
-                        <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${floorText}</span></td>
+                        <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${floorWingDisplay}</span></td>
                         <td class="p-3.5 text-slate-400">${r.description || '—'}</td>
                         <td class="p-3.5 text-slate-500 font-mono text-[11px]">${(r.keywords || []).slice(0, 3).join(', ')}</td>
                         <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
@@ -521,15 +572,31 @@ function renderRooms() {
                 const bldg = bldgMap.get(r.building_id);
                 const bldgName = bldg ? `${bldg.name}` : (r.building_id || 'Unknown Block');
                 const floorText = r.floor === 0 ? 'Ground Floor' : (r.floor === 1 ? '1st Floor' : (r.floor === 2 ? '2nd Floor' : `Floor ${r.floor}`));
+                const meta = r.metadata || {};
+                const wingText = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
+                const floorWingDisplay = wingText ? `${floorText} · ${wingText}` : floorText;
+
+                const purp = meta.purpose;
+                let purpBadge = '';
+                if (purp === 'service_desk' || purp === 'admin_office') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">Admin Office</span>';
+                } else if (purp === 'lecture_room') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">Lecture / Lab</span>';
+                } else if (purp === 'lecturer_office') {
+                    purpBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Lecturer Office</span>';
+                }
 
                 return `
                     <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm space-y-2">
                         <div class="flex items-start justify-between gap-2">
                             <div>
-                                <div class="font-bold text-white text-sm">Room ${r.room_number}</div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-white text-sm">Room ${r.room_number}</span>
+                                    ${purpBadge}
+                                </div>
                                 <div class="text-xs text-slate-400 mt-0.5 font-medium">${bldgName}</div>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">${floorText}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">${floorWingDisplay}</span>
                         </div>
                         ${r.description ? `<div class="text-xs text-slate-300">${r.description}</div>` : ''}
                         <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/60">
@@ -558,10 +625,21 @@ function editRoom(id) {
     if (rNum) rNum.value = r.room_number;
     const rFloor = document.getElementById('room-floor');
     if (rFloor) rFloor.value = r.floor;
+    const rWing = document.getElementById('room-wing');
+    const meta = r.metadata || {};
+    if (rWing) rWing.value = meta.wing || '';
     const rDesc = document.getElementById('room-description');
     if (rDesc) rDesc.value = r.description || '';
     const rKeywords = document.getElementById('room-keywords');
     if (rKeywords) rKeywords.value = (r.keywords || []).join(', ');
+
+    // Hydrate purpose toggle
+    const purpose = meta.purpose || (
+        /exam|officer|secretariat|service desk|admin office|dean/i.test(r.description || '') ? 'service_desk' :
+        /lecture|lab|hall|theatre|auditorium|classroom/i.test(r.description || '') ? 'lecture_room' : 'lecturer_office'
+    );
+    setRoomPurpose(purpose);
+
     openModal('modal-room');
 }
 window.editRoom = editRoom;
@@ -692,25 +770,52 @@ function updateStaffRoomDropdown(buildingId, selectedRoomId = '') {
     if (!staffRoomSelect) return;
     staffRoomSelect.innerHTML = '<option value="">(No Room Assigned)</option>';
     if (!buildingId) return;
-    const bldgRooms = rooms.filter(r => r.building_id === buildingId || String(r.building_id) === String(buildingId));
-    bldgRooms.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r.id;
 
-        const floorStr = (r.floor === 0 || r.floor === '0') ? 'Ground' : r.floor;
-        const meta = r.metadata;
-        const desc = r.description || '';
+    // Filter to only display rooms assigned to academic staff (lecturer offices)
+    // Exclude designated service desks / admin offices (e.g. Faculty Officer, Exams Office) and lecture halls
+    const bldgRooms = rooms.filter(r => {
+        const isBldg = r.building_id === buildingId || String(r.building_id) === String(buildingId);
+        if (!isBldg) return false;
+
+        // Retain currently assigned room for editing continuity
+        if (selectedRoomId && (r.id === selectedRoomId || String(r.id) === String(selectedRoomId))) {
+            return true;
+        }
+
+        const meta = r.metadata || {};
+        const purpose = meta.purpose || '';
+
+        // If explicitly tagged as lecturer_office, include it
+        if (purpose === 'lecturer_office') return true;
+
+        // If explicitly tagged as service desk / admin office or lecture room, exclude it
+        if (purpose === 'service_desk' || purpose === 'admin_office' || purpose === 'lecture_room' || purpose === 'lecture_hall') {
+            return false;
+        }
+
+        // For untagged/legacy rooms, keep independent service desks & lecture halls out of lecturer assignment
+        const desc = (r.description || '').toLowerCase();
+        const isExcludedDeskOrHall = /exam|faculty officer|secretariat|service desk|dean'?s office|hall|lab|lecture|auditorium|theatre/i.test(desc);
+        return !isExcludedDeskOrHall;
+    });
+
+    bldgRooms.forEach(room => {
+        const opt = document.createElement('option');
+        opt.value = room.id;
+
+        const floorStr = room.floor === 0 ? 'Ground' : room.floor;
+        const meta = room.metadata;
 
         if (meta && (meta.wing || meta.type)) {
             const wingStr = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
-            const typeStr = meta.type || desc;
+            const typeStr = meta.type || room.description || '';
             const parts = [floorStr, wingStr, typeStr].filter(Boolean);
-            opt.textContent = `Room ${r.room_number} (${parts.join(' · ')})`;
+            opt.textContent = `Room ${room.room_number} (${parts.join(' · ')})`;
         } else {
-            opt.textContent = `Room ${r.room_number} (Floor ${r.floor}${desc ? ' - ' + desc : ''})`;
+            opt.textContent = `Room ${room.room_number} (Floor ${room.floor} - ${room.description || 'Room'})`;
         }
 
-        if (r.id === selectedRoomId || String(r.id) === String(selectedRoomId)) opt.selected = true;
+        if (room.id === selectedRoomId || String(room.id) === String(selectedRoomId)) opt.selected = true;
         staffRoomSelect.appendChild(opt);
     });
 }
@@ -1284,6 +1389,17 @@ document.addEventListener('click', (e) => {
         return;
     }
 
+    // 5b. Room Purpose Selector Toggle Buttons
+    const purposeBtn = e.target.closest('.room-purpose-btn');
+    if (purposeBtn) {
+        e.preventDefault();
+        const purpose = purposeBtn.getAttribute('data-purpose');
+        if (purpose && typeof setRoomPurpose === 'function') {
+            setRoomPurpose(purpose);
+        }
+        return;
+    }
+
     // 6. Action Buttons in Table / Cards (Delegated)
     const actionBtn = e.target.closest('[data-action]');
     if (actionBtn) {
@@ -1559,6 +1675,16 @@ document.addEventListener('submit', async (e) => {
         const rawKeywords = document.getElementById('room-keywords').value;
         const kwArray = rawKeywords.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
 
+        const purposeVal = document.getElementById('room-purpose')?.value || 'lecturer_office';
+        const wingVal = document.getElementById('room-wing')?.value?.trim() || '';
+
+        const existingMeta = existing.metadata || {};
+        const metadata = {
+            ...existingMeta,
+            purpose: purposeVal,
+            wing: wingVal
+        };
+
         const record = {
             ...existing,
             id,
@@ -1566,7 +1692,8 @@ document.addEventListener('submit', async (e) => {
             room_number: num,
             floor: parseInt(document.getElementById('room-floor').value, 10),
             description: document.getElementById('room-description').value.trim(),
-            keywords: kwArray
+            keywords: kwArray,
+            metadata
         };
 
         if (typeof CampusSync !== 'undefined' && CampusSync.saveRecord) {

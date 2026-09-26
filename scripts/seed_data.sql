@@ -1058,7 +1058,7 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-046', 'usted-ksi', '25', '046', 2, 'Accounting Exams Office', ARRAY['ACCOUNTING EXAMS', 'EXAMS OFFICE', 'ROB 046', 'ROB ROOM 046', 'ACCOUNTING EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-046', 'usted-ksi', '25', '046', 2, 'Accounting Exams Office', ARRAY['ACCOUNTING EXAMS', 'EXAMS OFFICE', 'ROB 046', 'ROB ROOM 046', 'ACCOUNTING EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"purpose":"service_desk","wing":"North","staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,
@@ -1068,7 +1068,17 @@ ON CONFLICT (id) DO UPDATE SET
   coordinates = EXCLUDED.coordinates,
   metadata = EXCLUDED.metadata;
 INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
-VALUES ('25-047', 'usted-ksi', '25', '047', 2, 'Management Exams Office', ARRAY['MANAGEMENT EXAMS', 'EXAMS OFFICE', 'ROB 047', 'ROB ROOM 047', 'MANAGEMENT EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"staff":[]}'::jsonb)
+VALUES ('25-047', 'usted-ksi', '25', '047', 2, 'Management Exams Office', ARRAY['MANAGEMENT EXAMS', 'EXAMS OFFICE', 'ROB 047', 'ROB ROOM 047', 'MANAGEMENT EXAMS OFFICE', 'ROB SF']::TEXT[], NULL, '{"purpose":"service_desk","wing":"North","staff":[]}'::jsonb)
+ON CONFLICT (id) DO UPDATE SET
+  building_id = EXCLUDED.building_id,
+  room_number = EXCLUDED.room_number,
+  floor = EXCLUDED.floor,
+  description = EXCLUDED.description,
+  keywords = EXCLUDED.keywords,
+  coordinates = EXCLUDED.coordinates,
+  metadata = EXCLUDED.metadata;
+INSERT INTO rooms (id, org_id, building_id, room_number, floor, description, keywords, coordinates, metadata)
+VALUES ('25-048', 'usted-ksi', '25', '048', 0, 'Faculty Officer, FBE', ARRAY['ROB 048', 'ROB ROOM 048', 'FACULTY OFFICER', 'FACULTY OFFICER FBE', 'FBE', '048']::TEXT[], NULL, '{"purpose":"service_desk","wing":"West","staff":[]}'::jsonb)
 ON CONFLICT (id) DO UPDATE SET
   building_id = EXCLUDED.building_id,
   room_number = EXCLUDED.room_number,

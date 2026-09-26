@@ -267,11 +267,14 @@ const SearchModule = (() => {
             return '🚶 Routes directly to building entrance';
         }
         const floor = loc.floor || itemOrPerson?.floor || 'Ground Floor';
-        const flStr = floor.toLowerCase().includes('floor') ? floor : `${floor} Floor`;
+        const flStr = (floor === 0 || floor === '0') ? 'Ground Floor' : (String(floor).toLowerCase().includes('floor') ? floor : `${floor} Floor`);
         const rawRoom = loc.room || itemOrPerson?.number || itemOrPerson?.room || '';
         const rmStr = formatRoomNumber(rawRoom);
+        const wing = loc.wing || itemOrPerson?.metadata?.wing || itemOrPerson?.wing;
+        const wingStr = wing ? (String(wing).toLowerCase().includes('wing') ? wing : `${wing} Wing`) : '';
         if (rmStr) {
-            return `🚶 Routes to main entrance • Head inside for ${flStr}, ${rmStr}`;
+            const insidePart = [flStr, wingStr, rmStr].filter(Boolean).join(', ');
+            return `🚶 Routes to main entrance • Head inside for ${insidePart}`;
         }
         return '🚶 Routes directly to building entrance';
     };
@@ -343,7 +346,8 @@ const SearchModule = (() => {
         }
         const bName = b ? b.name : 'Campus Building';
         const roomStr = r?.number ? formatRoomNumber(r.number) : '';
-        const floorStr = r?.floor ? (String(r.floor).match(/floor/i) ? r.floor : `${r.floor} Floor`) : 'Ground Floor';
+        const floorVal = r?.floor;
+        const floorStr = (floorVal === 0 || floorVal === '0') ? 'Ground Floor' : (floorVal ? (String(floorVal).match(/floor/i) ? floorVal : `${floorVal} Floor`) : 'Ground Floor');
         const occupant = r?.occupant || (r?.staff && r.staff[0]);
         if (occupant) {
             const cleanOcc = String(occupant).trim();
@@ -593,6 +597,32 @@ const SearchModule = (() => {
         bData.filter(b => b.rooms).forEach(b => {
             b.rooms.forEach(r => {
                 let rScore = getMatchScore(r.number, queryTokens, queryExpanded) * 2.2;
+                if (r.room) {
+                    const rmScore = getMatchScore(r.room, queryTokens, queryExpanded) * 2.5;
+                    rScore = Math.max(rScore, rmScore);
+                }
+                if (r.description) {
+                    const descScore = getMatchScore(r.description, queryTokens, queryExpanded) * 2.2;
+                    rScore = Math.max(rScore, descScore);
+                }
+                if (r.name && r.name !== r.number) {
+                    const nameScore = getMatchScore(r.name, queryTokens, queryExpanded) * 2.0;
+                    rScore = Math.max(rScore, nameScore);
+                }
+                if (r.metadata) {
+                    if (r.metadata.purpose) {
+                        const purpScore = getMatchScore(r.metadata.purpose.replace(/_/g, ' '), queryTokens, queryExpanded) * 1.5;
+                        rScore = Math.max(rScore, purpScore);
+                    }
+                    if (r.metadata.wing) {
+                        const wingScore = getMatchScore(r.metadata.wing, queryTokens, queryExpanded) * 1.5;
+                        rScore = Math.max(rScore, wingScore);
+                    }
+                }
+                if (r.wing) {
+                    const wingScore = getMatchScore(r.wing, queryTokens, queryExpanded) * 1.5;
+                    rScore = Math.max(rScore, wingScore);
+                }
                 if (r.keywords) {
                     r.keywords.forEach(kw => {
                         const kwScore = getMatchScore(kw, queryTokens, queryExpanded) * 1.8;
@@ -600,6 +630,11 @@ const SearchModule = (() => {
                     });
                 }
                 if (rScore > 0) {
+                    const floorStr = (r.floor === 0 || r.floor === '0') ? 'Ground Floor' : (r.floor ? (String(r.floor).match(/floor/i) ? r.floor : `${r.floor} Floor`) : 'Ground Floor');
+                    const wing = r.wing || r.metadata?.wing;
+                    const wingStr = wing ? (String(wing).match(/wing/i) ? wing : `${wing} Wing`) : '';
+                    const roomStr = formatRoomNumber(r.number);
+
                     results.push({
                         type: 'room',
                         id: r.id || `${b.id}-${r.number}`,
@@ -610,7 +645,7 @@ const SearchModule = (() => {
                         room: r.number,
                         matchScore: rScore,
                         score: rScore,
-                        locationPill: `${b.shortName || b.name} — ${r.floor ? (String(r.floor).match(/floor/i) ? r.floor : `${r.floor} Floor`) : 'Ground Floor'}, ${formatRoomNumber(r.number)}`,
+                        locationPill: `${b.shortName || b.name} — ${floorStr}${wingStr ? ', ' + wingStr : ''}, ${roomStr}`,
                         breadcrumb: formatRoomBreadcrumb(r, b)
                     });
                 }
@@ -854,13 +889,25 @@ const SearchModule = (() => {
                     const rData = r.data;
                     const bObj = b || buildingsData[0];
                     const bPrefix = bObj.shortName || bObj.name;
-                    const floorStr = rData.floor ? (rData.floor.toLowerCase().includes('floor') ? rData.floor : rData.floor + ' Floor') : 'Ground Floor';
+                    const floorStr = (rData.floor === 0 || rData.floor === '0') ? 'Ground Floor' : (rData.floor ? (String(rData.floor).match(/floor/i) ? rData.floor : `${rData.floor} Floor`) : 'Ground Floor');
                     const roomStr = formatRoomNumber(rData.number);
-                    const pillText = `${bPrefix} — ${floorStr}, ${roomStr}`;
+                    const wing = rData.wing || rData.metadata?.wing;
+                    const wingStr = wing ? (String(wing).match(/wing/i) ? wing : `${wing} Wing`) : '';
+                    const pillText = `${bPrefix} — ${floorStr}${wingStr ? ', ' + wingStr : ''}, ${roomStr}`;
                     const breadcrumb = formatRoomBreadcrumb(rData, bObj);
-                    const occupants = rData.occupant ? `Occupant: ${rData.occupant}` : (rData.staff && rData.staff.length ? `Staff: ${rData.staff.join(', ')}` : `Located in ${bObj.name}`);
-                    const isDept = /Department|Dept\.?/i.test(roomStr);
-                    const tagText = isDept ? 'Department' : (/Lab/i.test(roomStr) ? 'Lab' : 'Room');
+
+                    const purpose = rData.metadata?.purpose;
+                    let tagText = 'Room';
+                    if (purpose === 'service_desk' || purpose === 'admin_office') tagText = 'Admin Office';
+                    else if (purpose === 'lecture_room') tagText = 'Lecture / Lab';
+                    else if (purpose === 'lecturer_office') tagText = 'Staff Office';
+                    else if (/Department|Dept\.?/i.test(roomStr)) tagText = 'Department';
+                    else if (/Lab/i.test(roomStr)) tagText = 'Lab';
+                    else if (/Exam|Officer|Secretariat/i.test(rData.description || '')) tagText = 'Admin Office';
+
+                    const titleText = (rData.description && !roomStr.toLowerCase().includes(rData.description.toLowerCase())) ? 
+                        `${rData.description} (${roomStr})` : `${bPrefix} - ${roomStr}`;
+                    const occupants = rData.occupant ? `Occupant: ${rData.occupant}` : (rData.staff && rData.staff.length ? `Staff: ${rData.staff.join(', ')}` : (rData.description ? `${bObj.name} • ${floorStr}${wingStr ? ' • ' + wingStr : ''}` : `Located in ${bObj.name}`));
 
                     el.className = 'result-item room-result';
                     el.innerHTML = `
@@ -868,7 +915,7 @@ const SearchModule = (() => {
                         <div class="result-name" style="width:100%;min-width:0">
                             <!-- Line 1: Room code & name -->
                             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                                <strong style="font-size:14px;color:var(--text, #0f172a);font-weight:700">${highlightMatch(bPrefix + ' - ' + roomStr, query)}</strong>
+                                <strong style="font-size:14px;color:var(--text, #0f172a);font-weight:700">${highlightMatch(titleText, query)}</strong>
                                 <span class="staff-pos-tag" style="color:#059669;background:rgba(16,185,129,0.1)">${tagText}</span>
                             </div>
                             <!-- Line 2: Occupant or Building -->

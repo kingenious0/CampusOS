@@ -1050,6 +1050,21 @@
           "EXAMS OFFICE",
           "ROB 047"
         ]
+      },
+      {
+        "name": "Faculty Officer, FBE",
+        "category": "Administration",
+        "floor": "Ground Floor",
+        "wing": "West",
+        "room": "Room 048",
+        "description": "Faculty Officer for Faculty of Business Education",
+        "keywords": [
+          "FACULTY OFFICER",
+          "FACULTY OFFICER FBE",
+          "FBE",
+          "ROB 048",
+          "048"
+        ]
       }
     ],
     "rooms": [
@@ -1213,6 +1228,10 @@
         "floor": "2nd",
         "wing": "North",
         "description": "Accounting Exams Office",
+        "metadata": {
+          "purpose": "service_desk",
+          "wing": "North"
+        },
         "keywords": [
           "ACCOUNTING EXAMS",
           "EXAMS OFFICE",
@@ -1228,6 +1247,10 @@
         "floor": "2nd",
         "wing": "North",
         "description": "Management Exams Office",
+        "metadata": {
+          "purpose": "service_desk",
+          "wing": "North"
+        },
         "keywords": [
           "MANAGEMENT EXAMS",
           "EXAMS OFFICE",
@@ -1235,6 +1258,25 @@
           "ROB ROOM 047",
           "MANAGEMENT EXAMS OFFICE",
           "ROB SF"
+        ]
+      },
+      {
+        "number": "Room 048",
+        "room": "048",
+        "floor": "Ground",
+        "wing": "West",
+        "description": "Faculty Officer, FBE",
+        "metadata": {
+          "purpose": "service_desk",
+          "wing": "West"
+        },
+        "keywords": [
+          "ROB 048",
+          "ROB ROOM 048",
+          "FACULTY OFFICER",
+          "FACULTY OFFICER FBE",
+          "FBE",
+          "048"
         ]
       },
       {
