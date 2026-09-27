@@ -230,7 +230,12 @@ function openAddStaffModal() {
     if (form) form.reset();
     if (sId) sId.value = '';
     populateDropdowns();
-    updateStaffRoomDropdown('');
+    const defaultBldgId = buildings.length > 0 ? String(buildings[0].id) : '';
+    const staffBuildingSelect = document.getElementById('staff-building-select');
+    if (staffBuildingSelect && defaultBldgId) {
+        staffBuildingSelect.value = defaultBldgId;
+    }
+    updateStaffRoomDropdown(defaultBldgId);
     if (typeof syncBuildingComboboxes === 'function') syncBuildingComboboxes();
     openModal('modal-staff');
 }
@@ -1580,6 +1585,36 @@ function syncBuildingComboboxes() {
 window.syncBuildingComboboxes = syncBuildingComboboxes;
 
 // Searchable Staff Room Combobox Engine
+function getAvailableStaffRooms(buildingId, selectedRoomId = '') {
+    if (!buildingId) return [];
+    return rooms.filter(r => {
+        const isBldg = r.building_id === buildingId || String(r.building_id) === String(buildingId);
+        if (!isBldg) return false;
+
+        // Retain currently assigned room for editing continuity
+        if (selectedRoomId && (r.id === selectedRoomId || String(r.id) === String(selectedRoomId))) {
+            return true;
+        }
+
+        const meta = r.metadata || {};
+        const purpose = meta.purpose || '';
+
+        // If explicitly tagged as lecturer_office, include it
+        if (purpose === 'lecturer_office') return true;
+
+        // If explicitly tagged as service desk / admin office or lecture room, exclude it
+        if (purpose === 'service_desk' || purpose === 'admin_office' || purpose === 'lecture_room' || purpose === 'lecture_hall') {
+            return false;
+        }
+
+        // For untagged/legacy rooms, keep independent service desks & lecture halls out of lecturer assignment
+        const desc = (r.description || '').toLowerCase();
+        const isExcludedDeskOrHall = /exam|faculty officer|secretariat|service desk|dean'?s office|hall|lab|lecture|auditorium|theatre/i.test(desc);
+        return !isExcludedDeskOrHall;
+    });
+}
+window.getAvailableStaffRooms = getAvailableStaffRooms;
+
 function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms = null) {
     const select = document.getElementById('staff-room-select');
     const btn = document.getElementById('btn-staff-room-combobox');
@@ -1591,23 +1626,22 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
 
     if (!select || !btn || !label || !dropdown || !list) return;
 
-    let availableRooms = prefilteredRooms;
-    if (!availableRooms) {
-        if (!buildingId) {
-            availableRooms = [];
-        } else {
-            availableRooms = rooms.filter(r => {
-                const isBldg = r.building_id === buildingId || String(r.building_id) === String(buildingId);
-                if (!isBldg) return false;
-                if (selectedRoomId && (r.id === selectedRoomId || String(r.id) === String(selectedRoomId))) return true;
-                const meta = r.metadata || {};
-                const purpose = meta.purpose || '';
-                if (purpose === 'lecturer_office') return true;
-                if (purpose === 'service_desk' || purpose === 'admin_office' || purpose === 'lecture_room' || purpose === 'lecture_hall') return false;
-                const desc = (r.description || '').toLowerCase();
-                return !/exam|faculty officer|secretariat|service desk|dean'?s office|hall|lab|lecture|auditorium|theatre/i.test(desc);
-            });
+    if (buildingId !== undefined && buildingId !== null) btn._currentBuildingId = String(buildingId);
+    if (selectedRoomId !== undefined && selectedRoomId !== null) btn._currentSelectedRoomId = String(selectedRoomId);
+    if (prefilteredRooms !== null) btn._prefilteredRooms = prefilteredRooms;
+    else if (buildingId) delete btn._prefilteredRooms;
+
+    function getCurrentBuildingId() {
+        const staffBuildingSelect = document.getElementById('staff-building-select');
+        return (staffBuildingSelect && staffBuildingSelect.value) || btn._currentBuildingId || '';
+    }
+
+    function getRoomsList() {
+        if (btn._prefilteredRooms && Array.isArray(btn._prefilteredRooms) && btn._prefilteredRooms.length > 0) {
+            return btn._prefilteredRooms;
         }
+        const bId = getCurrentBuildingId();
+        return getAvailableStaffRooms(bId, select.value || btn._currentSelectedRoomId || '');
     }
 
     function formatRoomItem(room) {
@@ -1625,8 +1659,9 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
 
     function syncLabel() {
         const curVal = select.value;
+        const bId = getCurrentBuildingId();
         if (!curVal) {
-            label.textContent = buildingId ? '(No Room Assigned)' : '(Select building first)';
+            label.textContent = bId ? '(No Room Assigned)' : '(Select building first)';
             label.classList.add('text-slate-400');
             label.classList.remove('text-slate-200');
             return;
@@ -1647,7 +1682,9 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
     }
 
     function renderOptions(query = '') {
-        const q = query.trim().toLowerCase();
+        const q = (query || '').trim().toLowerCase();
+        const bId = getCurrentBuildingId();
+        const availableRooms = getRoomsList();
         let itemsHtml = '';
 
         // Option: "(No Room Assigned)"
@@ -1656,13 +1693,13 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
             itemsHtml += `
                 <div data-value="" role="option" aria-selected="${isSelected}"
                      class="combobox-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] bg-[#0b1120] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
-                    <span class="truncate">(No Room Assigned)</span>
+                    <span class="truncate font-medium text-slate-300">(No Room Assigned)</span>
                     ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
                 </div>
             `;
         }
 
-        if (!buildingId) {
+        if (!bId) {
             itemsHtml += `
                 <div class="px-3 py-6 text-center text-xs text-slate-500 bg-[#0b1120] rounded-xl">
                     <div class="text-base mb-1">🏢</div>
@@ -1732,7 +1769,7 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
         list.innerHTML = itemsHtml;
     }
 
-    function openDropdown() {
+    btn._openStaffRoomDropdown = function() {
         document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => {
             if (d !== dropdown) {
                 d.classList.add('hidden');
@@ -1758,24 +1795,24 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
         } else {
             renderOptions('');
         }
-    }
+    };
 
-    function closeDropdown() {
+    btn._closeStaffRoomDropdown = function() {
         dropdown.classList.add('hidden');
         btn.setAttribute('aria-expanded', 'false');
         const parentRel = dropdown.closest('.relative');
         if (parentRel) parentRel.classList.remove('z-40');
         const arrow = btn.querySelector('svg');
         if (arrow) arrow.classList.remove('rotate-180');
-    }
+    };
 
     if (!btn._comboboxInitialized) {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (dropdown.classList.contains('hidden')) {
-                openDropdown();
+                btn._openStaffRoomDropdown();
             } else {
-                closeDropdown();
+                btn._closeStaffRoomDropdown();
             }
         });
 
@@ -1788,7 +1825,7 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
             search.addEventListener('click', (e) => e.stopPropagation());
             search.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    closeDropdown();
+                    btn._closeStaffRoomDropdown();
                     btn.focus();
                 }
             });
@@ -1812,7 +1849,7 @@ function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms
             select.value = val;
             select.dispatchEvent(new Event('change', { bubbles: true }));
             syncLabel();
-            closeDropdown();
+            btn._closeStaffRoomDropdown();
             btn.focus();
         });
 
