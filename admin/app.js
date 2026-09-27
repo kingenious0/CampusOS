@@ -1400,7 +1400,7 @@ function renderBuildingCombobox({
             const isSelected = !select.value;
             itemsHtml += `
                 <div data-value="" role="option" aria-selected="${isSelected}"
-                     class="combobox-item flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'}">
+                     class="combobox-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] bg-[#0b1120] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
                     <span class="truncate">${noneLabel}</span>
                     ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
                 </div>
@@ -1417,7 +1417,7 @@ function renderBuildingCombobox({
 
         if (filtered.length === 0 && (!allowNone || (q && !noneLabel.toLowerCase().includes(q)))) {
             itemsHtml += `
-                <div class="px-3 py-6 text-center text-xs text-slate-500">
+                <div class="px-3 py-6 text-center text-xs text-slate-500 bg-[#0b1120] rounded-xl">
                     <div class="text-base mb-1">🔍</div>
                     No campus buildings matching "<span class="text-slate-300 font-medium">${escapeHtml(query)}</span>"
                 </div>
@@ -1427,13 +1427,13 @@ function renderBuildingCombobox({
                 const isSelected = String(select.value) === String(b.id);
                 itemsHtml += `
                     <div data-value="${b.id}" role="option" aria-selected="${isSelected}"
-                         class="combobox-item flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'}">
+                         class="combobox-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] bg-[#0b1120] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
                         <div class="flex items-center gap-2 truncate">
                             <span class="text-xs">🏢</span>
                             <span class="truncate font-medium">${escapeHtml(b.name)}</span>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0 ml-2">
-                            ${b.code ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700/60">${escapeHtml(b.code)}</span>` : ''}
+                            ${b.code ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700/80">${escapeHtml(b.code)}</span>` : ''}
                             ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
                         </div>
                     </div>
@@ -1450,6 +1450,7 @@ function renderBuildingCombobox({
                 d.classList.add('hidden');
                 const rel = d.closest('.relative');
                 if (rel) {
+                    rel.classList.remove('z-40');
                     const arr = rel.querySelector('svg.rotate-180');
                     if (arr) arr.classList.remove('rotate-180');
                 }
@@ -1457,6 +1458,8 @@ function renderBuildingCombobox({
         });
         dropdown.classList.remove('hidden');
         btn.setAttribute('aria-expanded', 'true');
+        const parentRel = dropdown.closest('.relative');
+        if (parentRel) parentRel.classList.add('z-40');
         const arrow = btn.querySelector('svg');
         if (arrow) arrow.classList.add('rotate-180');
         if (search) {
@@ -1472,6 +1475,8 @@ function renderBuildingCombobox({
     function closeDropdown() {
         dropdown.classList.add('hidden');
         btn.setAttribute('aria-expanded', 'false');
+        const parentRel = dropdown.closest('.relative');
+        if (parentRel) parentRel.classList.remove('z-40');
         const arrow = btn.querySelector('svg');
         if (arrow) arrow.classList.remove('rotate-180');
     }
