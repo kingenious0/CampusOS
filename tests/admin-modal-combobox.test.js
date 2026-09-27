@@ -47,7 +47,14 @@ assert(html.includes('id="dropdown-staff-building-combobox"'), 'Staff Building c
 assert(html.includes('id="search-staff-building-combobox"'), 'Staff Building search input must exist');
 assert(html.includes('id="list-staff-building-combobox"'), 'Staff Building list container must exist');
 assert(html.includes('id="staff-building-select"'), 'Native select #staff-building-select must be retained');
-console.log('✓ PASS: Searchable Building Combobox HTML components present for both Room and Staff modals');
+
+assert(html.includes('id="btn-staff-room-combobox"'), 'Staff Room combobox trigger button must exist');
+assert(html.includes('id="label-staff-room-combobox"'), 'Staff Room combobox label must exist');
+assert(html.includes('id="dropdown-staff-room-combobox"'), 'Staff Room combobox dropdown must exist');
+assert(html.includes('id="search-staff-room-combobox"'), 'Staff Room search input must exist');
+assert(html.includes('id="list-staff-room-combobox"'), 'Staff Room list container must exist');
+assert(html.includes('id="staff-room-select"'), 'Native select #staff-room-select must be retained');
+console.log('✓ PASS: Searchable Building & Room Combobox HTML components present for modals');
 
 // 2. Verify admin/app.js combobox logic
 const appPath = path.join(__dirname, '../admin/app.js');
@@ -57,8 +64,10 @@ const app = fs.readFileSync(appPath, 'utf8');
 assert(app.includes('function renderBuildingCombobox'), 'renderBuildingCombobox function must exist');
 assert(app.includes('function syncBuildingComboboxes'), 'syncBuildingComboboxes function must exist');
 assert(app.includes('window.syncBuildingComboboxes = syncBuildingComboboxes'), 'syncBuildingComboboxes must be exported to window');
+assert(app.includes('function syncStaffRoomCombobox'), 'syncStaffRoomCombobox function must exist');
+assert(app.includes('window.syncStaffRoomCombobox = syncStaffRoomCombobox'), 'syncStaffRoomCombobox must be exported to window');
 assert(app.includes("e.key === 'Escape'"), 'Escape key handler must be registered');
-console.log('✓ PASS: admin/app.js contains combobox controller and Escape key handler');
+console.log('✓ PASS: admin/app.js contains combobox controllers and Escape key handler');
 
 // 3. Test Combobox Search Filtering Simulation
 const buildings = [

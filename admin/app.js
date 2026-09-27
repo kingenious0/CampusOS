@@ -791,7 +791,12 @@ function updateStaffRoomDropdown(buildingId, selectedRoomId = '') {
     const staffRoomSelect = document.getElementById('staff-room-select');
     if (!staffRoomSelect) return;
     staffRoomSelect.innerHTML = '<option value="">(No Room Assigned)</option>';
-    if (!buildingId) return;
+    if (!buildingId) {
+        if (typeof syncStaffRoomCombobox === 'function') {
+            syncStaffRoomCombobox('', '', []);
+        }
+        return;
+    }
 
     // Filter to only display rooms assigned to academic staff (lecturer offices)
     // Exclude designated service desks / admin offices (e.g. Faculty Officer, Exams Office) and lecture halls
@@ -825,21 +830,30 @@ function updateStaffRoomDropdown(buildingId, selectedRoomId = '') {
         const opt = document.createElement('option');
         opt.value = room.id;
 
-        const floorStr = room.floor === 0 ? 'Ground' : room.floor;
+        const floorStr = room.floor === 0 ? 'Ground' : `Floor ${room.floor}`;
+        let cleanRoomNo = String(room.room_number || '').trim();
+        if (/^room\s+/i.test(cleanRoomNo)) {
+            cleanRoomNo = cleanRoomNo.replace(/^room\s+/i, '').trim();
+        }
+        const roomTitle = cleanRoomNo ? `Room ${cleanRoomNo}` : 'Room';
         const meta = room.metadata;
 
         if (meta && (meta.wing || meta.type)) {
             const wingStr = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
             const typeStr = meta.type || room.description || '';
             const parts = [floorStr, wingStr, typeStr].filter(Boolean);
-            opt.textContent = `Room ${room.room_number} (${parts.join(' · ')})`;
+            opt.textContent = `${roomTitle} (${parts.join(' · ')})`;
         } else {
-            opt.textContent = `Room ${room.room_number} (Floor ${room.floor} - ${room.description || 'Room'})`;
+            opt.textContent = `${roomTitle} (${floorStr} - ${room.description || 'Room'})`;
         }
 
         if (room.id === selectedRoomId || String(room.id) === String(selectedRoomId)) opt.selected = true;
         staffRoomSelect.appendChild(opt);
     });
+
+    if (typeof syncStaffRoomCombobox === 'function') {
+        syncStaffRoomCombobox(buildingId, selectedRoomId, bldgRooms);
+    }
 }
 window.updateStaffRoomDropdown = updateStaffRoomDropdown;
 
@@ -1565,6 +1579,255 @@ function syncBuildingComboboxes() {
 }
 window.syncBuildingComboboxes = syncBuildingComboboxes;
 
+// Searchable Staff Room Combobox Engine
+function syncStaffRoomCombobox(buildingId, selectedRoomId = '', prefilteredRooms = null) {
+    const select = document.getElementById('staff-room-select');
+    const btn = document.getElementById('btn-staff-room-combobox');
+    const label = document.getElementById('label-staff-room-combobox');
+    const dropdown = document.getElementById('dropdown-staff-room-combobox');
+    const search = document.getElementById('search-staff-room-combobox');
+    const clearBtn = document.getElementById('clear-staff-room-search');
+    const list = document.getElementById('list-staff-room-combobox');
+
+    if (!select || !btn || !label || !dropdown || !list) return;
+
+    let availableRooms = prefilteredRooms;
+    if (!availableRooms) {
+        if (!buildingId) {
+            availableRooms = [];
+        } else {
+            availableRooms = rooms.filter(r => {
+                const isBldg = r.building_id === buildingId || String(r.building_id) === String(buildingId);
+                if (!isBldg) return false;
+                if (selectedRoomId && (r.id === selectedRoomId || String(r.id) === String(selectedRoomId))) return true;
+                const meta = r.metadata || {};
+                const purpose = meta.purpose || '';
+                if (purpose === 'lecturer_office') return true;
+                if (purpose === 'service_desk' || purpose === 'admin_office' || purpose === 'lecture_room' || purpose === 'lecture_hall') return false;
+                const desc = (r.description || '').toLowerCase();
+                return !/exam|faculty officer|secretariat|service desk|dean'?s office|hall|lab|lecture|auditorium|theatre/i.test(desc);
+            });
+        }
+    }
+
+    function formatRoomItem(room) {
+        let cleanRoomNo = String(room.room_number || '').trim();
+        if (/^room\s+/i.test(cleanRoomNo)) {
+            cleanRoomNo = cleanRoomNo.replace(/^room\s+/i, '').trim();
+        }
+        const roomTitle = cleanRoomNo ? `Room ${cleanRoomNo}` : 'Room';
+        const floorStr = room.floor === 0 ? 'Ground' : `Floor ${room.floor}`;
+        const meta = room.metadata || {};
+        const wingStr = meta.wing ? (String(meta.wing).endsWith('Wing') ? meta.wing : `${meta.wing} Wing`) : '';
+        const desc = room.description || meta.type || '';
+        return { cleanRoomNo, roomTitle, floorStr, wingStr, desc };
+    }
+
+    function syncLabel() {
+        const curVal = select.value;
+        if (!curVal) {
+            label.textContent = buildingId ? '(No Room Assigned)' : '(Select building first)';
+            label.classList.add('text-slate-400');
+            label.classList.remove('text-slate-200');
+            return;
+        }
+
+        const rm = rooms.find(r => String(r.id) === String(curVal));
+        if (rm) {
+            const { roomTitle, floorStr, wingStr } = formatRoomItem(rm);
+            const extra = [floorStr, wingStr].filter(Boolean).join(' · ');
+            label.textContent = extra ? `${roomTitle} (${extra})` : roomTitle;
+            label.classList.remove('text-slate-400');
+            label.classList.add('text-slate-200');
+        } else {
+            label.textContent = '(No Room Assigned)';
+            label.classList.add('text-slate-400');
+            label.classList.remove('text-slate-200');
+        }
+    }
+
+    function renderOptions(query = '') {
+        const q = query.trim().toLowerCase();
+        let itemsHtml = '';
+
+        // Option: "(No Room Assigned)"
+        if (!q || '(no room assigned)'.includes(q) || 'none'.includes(q)) {
+            const isSelected = !select.value;
+            itemsHtml += `
+                <div data-value="" role="option" aria-selected="${isSelected}"
+                     class="combobox-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] bg-[#0b1120] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
+                    <span class="truncate">(No Room Assigned)</span>
+                    ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                </div>
+            `;
+        }
+
+        if (!buildingId) {
+            itemsHtml += `
+                <div class="px-3 py-6 text-center text-xs text-slate-500 bg-[#0b1120] rounded-xl">
+                    <div class="text-base mb-1">🏢</div>
+                    Please select a building above to choose an office.
+                </div>
+            `;
+            list.innerHTML = itemsHtml;
+            return;
+        }
+
+        if (availableRooms.length === 0) {
+            itemsHtml += `
+                <div class="px-3 py-6 text-center text-xs text-slate-500 bg-[#0b1120] rounded-xl">
+                    <div class="text-base mb-1">🚪</div>
+                    No lecturer offices found in this building.
+                </div>
+            `;
+            list.innerHTML = itemsHtml;
+            return;
+        }
+
+        const filtered = availableRooms.filter(r => {
+            if (!q) return true;
+            const { cleanRoomNo, roomTitle, floorStr, wingStr, desc } = formatRoomItem(r);
+            const num = (r.room_number || '').toLowerCase();
+            const id = String(r.id || '').toLowerCase();
+            return cleanRoomNo.toLowerCase().includes(q) ||
+                   roomTitle.toLowerCase().includes(q) ||
+                   num.includes(q) ||
+                   id.includes(q) ||
+                   floorStr.toLowerCase().includes(q) ||
+                   wingStr.toLowerCase().includes(q) ||
+                   desc.toLowerCase().includes(q);
+        });
+
+        if (filtered.length === 0) {
+            itemsHtml += `
+                <div class="px-3 py-6 text-center text-xs text-slate-500 bg-[#0b1120] rounded-xl">
+                    <div class="text-base mb-1">🔍</div>
+                    No staff offices matching "<span class="text-slate-300 font-medium">${escapeHtml(query)}</span>"
+                </div>
+            `;
+        } else {
+            filtered.forEach(room => {
+                const isSelected = String(select.value) === String(room.id);
+                const { roomTitle, floorStr, wingStr, desc } = formatRoomItem(room);
+
+                itemsHtml += `
+                    <div data-value="${room.id}" role="option" aria-selected="${isSelected}"
+                         class="combobox-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[46px] bg-[#0b1120] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
+                        <div class="flex flex-col min-w-0 pr-2">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-slate-100">${escapeHtml(roomTitle)}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700/80">${escapeHtml(floorStr)}</span>
+                                ${wingStr ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950/70 text-indigo-300 border border-indigo-800/60">${escapeHtml(wingStr)}</span>` : ''}
+                            </div>
+                            ${desc ? `<span class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(desc)}</span>` : ''}
+                        </div>
+                        <div class="shrink-0 ml-2 flex items-center">
+                            ${isSelected ? '<svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        list.innerHTML = itemsHtml;
+    }
+
+    function openDropdown() {
+        document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => {
+            if (d !== dropdown) {
+                d.classList.add('hidden');
+                const rel = d.closest('.relative');
+                if (rel) {
+                    rel.classList.remove('z-40');
+                    const arr = rel.querySelector('svg.rotate-180');
+                    if (arr) arr.classList.remove('rotate-180');
+                }
+            }
+        });
+        dropdown.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+        const parentRel = dropdown.closest('.relative');
+        if (parentRel) parentRel.classList.add('z-40');
+        const arrow = btn.querySelector('svg');
+        if (arrow) arrow.classList.add('rotate-180');
+        if (search) {
+            search.value = '';
+            if (clearBtn) clearBtn.classList.add('hidden');
+            renderOptions('');
+            setTimeout(() => search.focus(), 60);
+        } else {
+            renderOptions('');
+        }
+    }
+
+    function closeDropdown() {
+        dropdown.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        const parentRel = dropdown.closest('.relative');
+        if (parentRel) parentRel.classList.remove('z-40');
+        const arrow = btn.querySelector('svg');
+        if (arrow) arrow.classList.remove('rotate-180');
+    }
+
+    if (!btn._comboboxInitialized) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (dropdown.classList.contains('hidden')) {
+                openDropdown();
+            } else {
+                closeDropdown();
+            }
+        });
+
+        if (search) {
+            search.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+                renderOptions(val);
+            });
+            search.addEventListener('click', (e) => e.stopPropagation());
+            search.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    btn.focus();
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                search.value = '';
+                clearBtn.classList.add('hidden');
+                renderOptions('');
+                search.focus();
+            });
+        }
+
+        list.addEventListener('click', (e) => {
+            const item = e.target.closest('.combobox-item');
+            if (!item) return;
+            e.stopPropagation();
+            const val = item.getAttribute('data-value') || '';
+            select.value = val;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            syncLabel();
+            closeDropdown();
+            btn.focus();
+        });
+
+        select.addEventListener('change', () => {
+            syncLabel();
+        });
+
+        btn._comboboxInitialized = true;
+    }
+
+    syncLabel();
+    renderOptions(search ? search.value : '');
+}
+window.syncStaffRoomCombobox = syncStaffRoomCombobox;
+
 async function refreshData() {
     try {
         if (typeof CampusSync !== 'undefined' && CampusSync.getAll) {
@@ -1590,11 +1853,12 @@ window.refreshData = refreshData;
 
 document.addEventListener('click', (e) => {
     // 0. Combobox outside click dismissal
-    if (!e.target.closest('#combobox-room-building') && !e.target.closest('#combobox-staff-building')) {
+    if (!e.target.closest('#combobox-room-building') && !e.target.closest('#combobox-staff-building') && !e.target.closest('#combobox-staff-room')) {
         document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => {
             d.classList.add('hidden');
             const rel = d.closest('.relative');
             if (rel) {
+                rel.classList.remove('z-40');
                 const arr = rel.querySelector('svg.rotate-180');
                 if (arr) arr.classList.remove('rotate-180');
             }
