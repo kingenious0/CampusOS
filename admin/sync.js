@@ -11,10 +11,78 @@ const CampusSync = (() => {
     const DB_SCHEMA = 'usted_nav';
     let db = null;
     let supabaseClient = null;
+    let activeSyncPromise = null;
+    let syncRequestedAgain = false;
 
     // Config storage keys
     const STORAGE_KEY_CONFIG = 'campusos_supabase_config';
     const STORAGE_KEY_AUTH = 'campusos_supabase_auth';
+    const STORAGE_KEY_TOMBSTONES = 'campusos_tombstones';
+    const STORAGE_KEY_TIMESTAMP = 'campusos_data_timestamp';
+
+    // Deleted record / tombstone tracking (prevents deleted IDs from resurrecting)
+    function getTombstones() {
+        try {
+            const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_TOMBSTONES) : null;
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function recordTombstone(storeName, id) {
+        if (id === null || id === undefined) return;
+        try {
+            const tombstones = getTombstones();
+            if (!tombstones[storeName]) tombstones[storeName] = {};
+            tombstones[storeName][String(id)] = Date.now();
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem(STORAGE_KEY_TOMBSTONES, JSON.stringify(tombstones));
+                localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(Date.now()));
+            }
+        } catch (e) {}
+    }
+
+    function isTombstoned(storeName, id) {
+        if (id === null || id === undefined) return false;
+        try {
+            const tombstones = getTombstones();
+            const tableMap = tombstones[storeName];
+            return !!(tableMap && tableMap[String(id)]);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function clearTombstone(storeName, id) {
+        if (id === null || id === undefined) return;
+        try {
+            const tombstones = getTombstones();
+            if (tombstones[storeName] && tombstones[storeName][String(id)]) {
+                delete tombstones[storeName][String(id)];
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.setItem(STORAGE_KEY_TOMBSTONES, JSON.stringify(tombstones));
+                    localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(Date.now()));
+                }
+            }
+        } catch (e) {}
+    }
+
+    function clearAllTombstones() {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem(STORAGE_KEY_TOMBSTONES);
+                localStorage.setItem(STORAGE_KEY_TIMESTAMP, String(Date.now()));
+            }
+        } catch (e) {}
+    }
+
+    // Reliable online detection across browsers, PWA, and Node 21+ environments
+    function checkIsOnline() {
+        if (typeof navigator === 'undefined') return true;
+        if (navigator.onLine === undefined) return true;
+        return navigator.onLine !== false;
+    }
 
     // In-memory callbacks for status updates
     const statusListeners = [];
@@ -273,10 +341,13 @@ const CampusSync = (() => {
                 }
 
                 if (data) {
-                    await bulkPut('buildings', data.buildings || []);
-                    await bulkPut('rooms', data.rooms || []);
-                    await bulkPut('staff_directory', data.staff || []);
-                    console.log(`[Sync] Bootstrapped with ${data.buildings?.length} buildings, ${data.rooms?.length} rooms, ${data.staff?.length} staff members.`);
+                    const b = (data.buildings || []).filter(item => !isTombstoned('buildings', item.id));
+                    const r = (data.rooms || []).filter(item => !isTombstoned('rooms', item.id));
+                    const s = (data.staff || []).filter(item => !isTombstoned('staff_directory', item.id));
+                    await bulkPut('buildings', b);
+                    await bulkPut('rooms', r);
+                    await bulkPut('staff_directory', s);
+                    console.log(`[Sync] Bootstrapped with ${b.length} buildings, ${r.length} rooms, ${s.length} staff members.`);
                 }
             }
         } catch (err) {
@@ -329,15 +400,15 @@ const CampusSync = (() => {
 
     async function getAll(storeName) {
         const getFallbackData = () => {
+            let data = [];
             if (memoryStore[storeName] && memoryStore[storeName].size > 0) {
-                return Array.from(memoryStore[storeName].values());
+                data = Array.from(memoryStore[storeName].values());
+            } else if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA) {
+                if (storeName === 'buildings') data = window.CAMPUS_SEED_DATA.buildings || [];
+                if (storeName === 'rooms') data = window.CAMPUS_SEED_DATA.rooms || [];
+                if (storeName === 'staff_directory') data = window.CAMPUS_SEED_DATA.staff || [];
             }
-            if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA) {
-                if (storeName === 'buildings') return window.CAMPUS_SEED_DATA.buildings || [];
-                if (storeName === 'rooms') return window.CAMPUS_SEED_DATA.rooms || [];
-                if (storeName === 'staff_directory') return window.CAMPUS_SEED_DATA.staff || [];
-            }
-            return [];
+            return data.filter(item => !isTombstoned(storeName, item.id));
         };
 
         if (!db) {
@@ -354,10 +425,11 @@ const CampusSync = (() => {
                     if (result.length === 0) {
                         resolve(getFallbackData());
                     } else {
+                        const filtered = result.filter(item => !isTombstoned(storeName, item.id));
                         if (memoryStore[storeName]) {
-                            result.forEach(item => memoryStore[storeName].set(item.id, item));
+                            filtered.forEach(item => memoryStore[storeName].set(item.id, item));
                         }
-                        resolve(result);
+                        resolve(filtered);
                     }
                 };
                 req.onerror = () => resolve(getFallbackData());
@@ -389,6 +461,9 @@ const CampusSync = (() => {
         if (!record.created_at) record.created_at = record.updated_at;
         if (!record.org_id) record.org_id = config.orgId;
 
+        // Clear any previous tombstone for this ID since it's actively being saved
+        clearTombstone(storeName, record.id);
+
         // Mirror to memory store
         if (memoryStore[storeName]) {
             memoryStore[storeName].set(record.id, record);
@@ -414,28 +489,62 @@ const CampusSync = (() => {
         notifyListeners();
 
         // 3. Attempt immediate sync if connected
-        const isOnline = typeof navigator === 'undefined' || navigator.onLine;
-        if (!config.isSandbox && isOnline) {
-            triggerSync();
+        if (!config.isSandbox && checkIsOnline()) {
+            await triggerSync();
         }
 
         return record;
     }
 
     async function deleteRecord(storeName, id) {
-        // Mirror to memory store
+        // Record tombstone immediately to prevent any reload resurrection
+        recordTombstone(storeName, id);
+
+        // Flexible ID representations
+        const idStr = String(id);
+        const idNum = !isNaN(Number(id)) ? Number(id) : null;
+
+        // Mirror deletion to memory store
         if (memoryStore[storeName]) {
             memoryStore[storeName].delete(id);
+            memoryStore[storeName].delete(idStr);
+            if (idNum !== null) memoryStore[storeName].delete(idNum);
         }
 
-        // 1. Delete from local IndexedDB if available
+        // 1. Delete from local IndexedDB if available (handle both string & integer keys)
         if (db) {
             await new Promise((resolve) => {
                 try {
                     const tx = db.transaction([storeName], 'readwrite');
                     const store = tx.objectStore(storeName);
-                    const req = store.delete(id);
-                    req.onsuccess = () => resolve();
+                    try { store.delete(id); } catch (e) {}
+                    try { store.delete(idStr); } catch (e) {}
+                    if (idNum !== null) {
+                        try { store.delete(idNum); } catch (e) {}
+                    }
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => resolve();
+                    tx.onabort = () => resolve();
+                } catch (e) {
+                    resolve();
+                }
+            });
+
+            // 1b. Remove any un-synced pending UPSERT mutations for this item from queue
+            await new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(['mutation_queue'], 'readwrite');
+                    const store = tx.objectStore('mutation_queue');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        const items = req.result || [];
+                        items.forEach(m => {
+                            if (m.table === storeName && String(m.record_id) === idStr && m.action === 'UPSERT') {
+                                try { store.delete(m.queue_id); } catch (e) {}
+                            }
+                        });
+                        resolve();
+                    };
                     req.onerror = () => resolve();
                 } catch (e) {
                     resolve();
@@ -443,14 +552,17 @@ const CampusSync = (() => {
             });
         }
 
+        memoryStore.mutation_queue = memoryStore.mutation_queue.filter(
+            m => !(m.table === storeName && String(m.record_id) === idStr && m.action === 'UPSERT')
+        );
+
         // 2. Queue delete mutation
         await enqueueMutation(storeName, 'DELETE', { id, org_id: config.orgId });
         notifyListeners();
 
-        // 3. Attempt sync
-        const isOnline = typeof navigator === 'undefined' || navigator.onLine;
-        if (!config.isSandbox && isOnline) {
-            triggerSync();
+        // 3. Await sync so remote DELETE executes in Supabase before resolving
+        if (!config.isSandbox && checkIsOnline()) {
+            await triggerSync();
         }
     }
 
@@ -534,10 +646,31 @@ const CampusSync = (() => {
     // =========================================================================
 
     async function triggerSync() {
-        if (isSyncing || config.isSandbox || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
-        isSyncing = true;
-        notifyListeners();
+        if (config.isSandbox || !checkIsOnline()) return;
+        if (activeSyncPromise) {
+            syncRequestedAgain = true;
+            return activeSyncPromise;
+        }
 
+        activeSyncPromise = (async () => {
+            isSyncing = true;
+            notifyListeners();
+            try {
+                do {
+                    syncRequestedAgain = false;
+                    await performSyncPass();
+                } while (syncRequestedAgain);
+            } finally {
+                isSyncing = false;
+                activeSyncPromise = null;
+                notifyListeners();
+            }
+        })();
+
+        return activeSyncPromise;
+    }
+
+    async function performSyncPass() {
         try {
             await ensureValidAuthToken();
             const pending = await getPendingMutations();
@@ -637,15 +770,13 @@ const CampusSync = (() => {
 
         } catch (syncErr) {
             console.error('[Sync] Full synchronization pass error:', syncErr);
-        } finally {
-            isSyncing = false;
-            notifyListeners();
         }
     }
 
     async function pullRemoteRecords(tableName) {
         if (config.isSandbox || !config.supabaseUrl) return;
         try {
+            let records = null;
             const client = getSupabaseClient();
             if (client && typeof client.schema === 'function') {
                 const { data, error } = await client
@@ -654,33 +785,88 @@ const CampusSync = (() => {
                     .select('*')
                     .eq('org_id', config.orgId);
                 if (error) throw error;
-                if (data && data.length) {
-                    await bulkPut(tableName, data);
+                records = data || [];
+            } else {
+                // Raw REST API fallback with PostgREST schema headers
+                const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+                const cleanKey = (config.supabaseAnonKey || '').trim();
+                const url = `${cleanUrl}/rest/v1/${tableName}?org_id=eq.${encodeURIComponent(config.orgId)}&select=*`;
+                const token = currentUser?.access_token || cleanKey;
+                const res = await fetch(url, {
+                    headers: {
+                        'apikey': cleanKey,
+                        'Authorization': `Bearer ${token}`,
+                        'Accept-Profile': DB_SCHEMA,
+                        'Content-Profile': DB_SCHEMA
+                    }
+                });
+                if (res.ok) {
+                    records = await res.json();
+                } else {
+                    const errBody = await res.text();
+                    console.warn(`[Sync] Pull returned ${res.status} for ${tableName}:`, errBody);
                 }
-                return;
             }
 
-            // Raw REST API fallback with PostgREST schema headers
-            const cleanUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
-            const cleanKey = (config.supabaseAnonKey || '').trim();
-            const url = `${cleanUrl}/rest/v1/${tableName}?org_id=eq.${encodeURIComponent(config.orgId)}&select=*`;
-            const token = currentUser?.access_token || cleanKey;
-            const res = await fetch(url, {
-                headers: {
-                    'apikey': cleanKey,
-                    'Authorization': `Bearer ${token}`,
-                    'Accept-Profile': DB_SCHEMA,
-                    'Content-Profile': DB_SCHEMA
+            if (Array.isArray(records)) {
+                // 1. Filter out records that are locally tombstoned or pending local DELETE
+                const pending = await getPendingMutations();
+                const pendingDeletes = new Set(
+                    pending.filter(m => m.table === tableName && m.action === 'DELETE')
+                           .map(m => String(m.record_id))
+                );
+
+                const validRecords = records.filter(r => 
+                    !isTombstoned(tableName, r.id) && !pendingDeletes.has(String(r.id))
+                );
+
+                // 2. Identify records that currently exist locally in IndexedDB and prune missing ones
+                if (db) {
+                    await new Promise((resolve) => {
+                        try {
+                            const tx = db.transaction([tableName], 'readwrite');
+                            const store = tx.objectStore(tableName);
+                            const getKeysReq = store.getAllKeys();
+                            getKeysReq.onsuccess = () => {
+                                const localKeys = getKeysReq.result || [];
+                                const remoteKeySet = new Set(
+                                    validRecords.flatMap(r => [
+                                        String(r.id),
+                                        r.id,
+                                        !isNaN(Number(r.id)) ? Number(r.id) : null
+                                    ].filter(Boolean))
+                                );
+
+                                // Pending UPSERT mutations should NOT be pruned from local
+                                const pendingUpserts = new Set(
+                                    pending.filter(m => m.table === tableName && m.action === 'UPSERT')
+                                           .map(m => String(m.record_id))
+                                );
+
+                                localKeys.forEach(k => {
+                                    const kStr = String(k);
+                                    if (!remoteKeySet.has(k) && !remoteKeySet.has(kStr) && !pendingUpserts.has(kStr)) {
+                                        // Record was deleted remotely! Prune from local store.
+                                        try { store.delete(k); } catch (e) {}
+                                        if (memoryStore[tableName]) {
+                                            memoryStore[tableName].delete(k);
+                                            memoryStore[tableName].delete(kStr);
+                                        }
+                                    }
+                                });
+                                resolve();
+                            };
+                            getKeysReq.onerror = () => resolve();
+                        } catch (e) {
+                            resolve();
+                        }
+                    });
                 }
-            });
-            if (res.ok) {
-                const records = await res.json();
-                if (records && records.length) {
-                    await bulkPut(tableName, records);
+
+                // 3. Put authoritative remote records into local store
+                if (validRecords.length > 0) {
+                    await bulkPut(tableName, validRecords);
                 }
-            } else {
-                const errBody = await res.text();
-                console.warn(`[Sync] Pull returned ${res.status} for ${tableName}:`, errBody);
             }
         } catch (e) {
             console.warn(`[Sync] Pull failed for table ${tableName}:`, e);
@@ -747,7 +933,7 @@ const CampusSync = (() => {
     async function getStatus() {
         const pending = await getPendingMutations();
         return {
-            isOnline: typeof navigator === 'undefined' ? true : !!navigator.onLine,
+            isOnline: checkIsOnline(),
             isSandbox: config.isSandbox,
             isSyncing,
             pendingCount: pending.length,
@@ -782,6 +968,11 @@ const CampusSync = (() => {
         });
 
         notifyListeners();
+
+        // Flush any pending queue mutations on initialization if online
+        if (!config.isSandbox && checkIsOnline()) {
+            triggerSync();
+        }
     }
 
     return {
@@ -802,7 +993,12 @@ const CampusSync = (() => {
         bulkPut,
         getSupabaseClient: () => getSupabaseClient(),
         getSchema: () => DB_SCHEMA,
-        pullRemoteRecords
+        pullRemoteRecords,
+        getTombstones,
+        isTombstoned,
+        recordTombstone,
+        clearTombstone,
+        clearAllTombstones
     };
 })();
 

@@ -14,15 +14,26 @@
 // GLOBAL STATE & DATA CACHES
 // =============================================================================
 
-let buildings = (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.buildings)
-    ? [...window.CAMPUS_SEED_DATA.buildings]
-    : [];
-let rooms = (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.rooms)
-    ? [...window.CAMPUS_SEED_DATA.rooms]
-    : [];
-let staff = (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.staff)
-    ? [...window.CAMPUS_SEED_DATA.staff]
-    : [];
+function getInitialData(key, storeName) {
+    const raw = (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA[key])
+        ? [...window.CAMPUS_SEED_DATA[key]]
+        : [];
+    try {
+        const tombstonesRaw = typeof localStorage !== 'undefined' ? localStorage.getItem('campusos_tombstones') : null;
+        if (tombstonesRaw) {
+            const tombstones = JSON.parse(tombstonesRaw);
+            const tableTombstones = tombstones[storeName];
+            if (tableTombstones) {
+                return raw.filter(item => !tableTombstones[String(item.id)]);
+            }
+        }
+    } catch (e) {}
+    return raw;
+}
+
+let buildings = getInitialData('buildings', 'buildings');
+let rooms = getInitialData('rooms', 'rooms');
+let staff = getInitialData('staff', 'staff_directory');
 let activeTab = 'buildings';
 
 // Helper for safe HTML escaping in popups and lists
@@ -479,7 +490,10 @@ async function deleteBuilding(id) {
         if (typeof CampusSync !== 'undefined' && CampusSync.deleteRecord) {
             await CampusSync.deleteRecord('buildings', id);
         }
-        buildings = buildings.filter(b => b.id !== id);
+        buildings = buildings.filter(b => String(b.id) !== String(id));
+        if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.buildings) {
+            window.CAMPUS_SEED_DATA.buildings = window.CAMPUS_SEED_DATA.buildings.filter(b => String(b.id) !== String(id));
+        }
         showToast('Building deleted', 'success');
         await refreshData();
     } catch (err) {
@@ -650,7 +664,10 @@ async function deleteRoom(id) {
         if (typeof CampusSync !== 'undefined' && CampusSync.deleteRecord) {
             await CampusSync.deleteRecord('rooms', id);
         }
-        rooms = rooms.filter(r => r.id !== id);
+        rooms = rooms.filter(r => String(r.id) !== String(id));
+        if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.rooms) {
+            window.CAMPUS_SEED_DATA.rooms = window.CAMPUS_SEED_DATA.rooms.filter(r => String(r.id) !== String(id));
+        }
         showToast('Room deleted', 'success');
         await refreshData();
     } catch (err) {
@@ -854,7 +871,10 @@ async function deleteStaff(id) {
         if (typeof CampusSync !== 'undefined' && CampusSync.deleteRecord) {
             await CampusSync.deleteRecord('staff_directory', id);
         }
-        staff = staff.filter(s => s.id !== id);
+        staff = staff.filter(s => String(s.id) !== String(id));
+        if (typeof window !== 'undefined' && window.CAMPUS_SEED_DATA && window.CAMPUS_SEED_DATA.staff) {
+            window.CAMPUS_SEED_DATA.staff = window.CAMPUS_SEED_DATA.staff.filter(s => String(s.id) !== String(id));
+        }
         showToast('Staff member deleted', 'success');
         await refreshData();
     } catch (err) {
@@ -1320,9 +1340,9 @@ async function refreshData() {
             const b = await CampusSync.getAll('buildings');
             const r = await CampusSync.getAll('rooms');
             const s = await CampusSync.getAll('staff_directory');
-            if (b && b.length > 0) buildings = b;
-            if (r && r.length > 0) rooms = r;
-            if (s && s.length > 0) staff = s;
+            if (Array.isArray(b)) buildings = b;
+            if (Array.isArray(r)) rooms = r;
+            if (Array.isArray(s)) staff = s;
         }
     } catch (e) {
         console.warn('[App] Error in CampusSync.getAll, keeping cached data:', e);

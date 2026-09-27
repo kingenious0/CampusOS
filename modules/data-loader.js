@@ -100,7 +100,7 @@ const DataLoader = (() => {
         });
     }
 
-    // 3. Write to IndexedDB
+    // 3. Write to IndexedDB with automatic pruning of remote-deleted records
     async function writeToIndexedDB({ buildings = [], rooms = [], staff = [] }, dbName = DB_NAME) {
         const database = await openIDB(dbName);
         if (!database) return false;
@@ -111,24 +111,39 @@ const DataLoader = (() => {
                 if (stores.length === 0) return resolve(false);
 
                 const tx = database.transaction(stores, 'readwrite');
-                if (buildings.length > 0 && database.objectStoreNames.contains('buildings')) {
-                    const bStore = tx.objectStore('buildings');
-                    buildings.forEach(b => {
-                        try { bStore.put(b); } catch (e) {}
+
+                const syncStore = (storeName, items) => {
+                    if (!database.objectStoreNames.contains(storeName)) return;
+                    const store = tx.objectStore(storeName);
+
+                    // 1. Put current items
+                    items.forEach(item => {
+                        try { store.put(item); } catch (e) {}
                     });
-                }
-                if (rooms.length > 0 && database.objectStoreNames.contains('rooms')) {
-                    const rStore = tx.objectStore('rooms');
-                    rooms.forEach(r => {
-                        try { rStore.put(r); } catch (e) {}
-                    });
-                }
-                if (staff.length > 0 && database.objectStoreNames.contains('staff_directory')) {
-                    const sStore = tx.objectStore('staff_directory');
-                    staff.forEach(s => {
-                        try { sStore.put(s); } catch (e) {}
-                    });
-                }
+
+                    // 2. Prune records that no longer exist in the authoritative remote set
+                    const reqKeys = store.getAllKeys();
+                    reqKeys.onsuccess = () => {
+                        const localKeys = reqKeys.result || [];
+                        const validKeys = new Set(
+                            items.flatMap(item => [
+                                String(item.id),
+                                item.id,
+                                !isNaN(Number(item.id)) ? Number(item.id) : null
+                            ].filter(Boolean))
+                        );
+
+                        localKeys.forEach(k => {
+                            if (!validKeys.has(k) && !validKeys.has(String(k))) {
+                                try { store.delete(k); } catch (e) {}
+                            }
+                        });
+                    };
+                };
+
+                if (Array.isArray(buildings)) syncStore('buildings', buildings);
+                if (Array.isArray(rooms)) syncStore('rooms', rooms);
+                if (Array.isArray(staff)) syncStore('staff_directory', staff);
 
                 tx.oncomplete = () => resolve(true);
                 tx.onerror = () => resolve(false);
@@ -241,44 +256,65 @@ const DataLoader = (() => {
 
     // 6. Dataset Normalizer: Bridge Database Rows -> Client Map/Search Engine Structure
     function normalizeDataset({ buildings = [], rooms = [], staff = [], fallbackBuildings = [], fallbackPeople = [] }) {
+        // Read tombstones from localStorage if any
+        let tombstones = {};
+        try {
+            const rawTombstones = typeof localStorage !== 'undefined' ? localStorage.getItem('campusos_tombstones') : null;
+            if (rawTombstones) tombstones = JSON.parse(rawTombstones);
+        } catch (e) {}
+
+        const isTombstoned = (storeName, id) => {
+            if (id === null || id === undefined || !tombstones[storeName]) return false;
+            return !!tombstones[storeName][String(id)];
+        };
+
         const buildingsMap = new Map();
+        const hasDbBuildings = Array.isArray(buildings) && buildings.length > 0;
 
-        // Seed with fallback buildings if available
-        (fallbackBuildings || []).forEach(b => {
-            buildingsMap.set(String(b.id), { ...b, rooms: [...(b.rooms || [])] });
-        });
+        // Build fallback lookup map for property enrichment (polygon, coordinates, services, hours)
+        const fallbackBldgMap = new Map((fallbackBuildings || []).map(b => [String(b.id), b]));
 
-        // Overlay with database buildings
-        buildings.forEach(b => {
-            const idStr = String(b.id);
-            const existing = buildingsMap.get(idStr) || {};
-            buildingsMap.set(idStr, {
-                ...existing,
-                ...b,
-                id: isNaN(Number(b.id)) ? b.id : Number(b.id),
-                name: b.name || existing.name || '',
-                shortName: b.shortName || b.short_name || b.code || existing.shortName || '',
-                type: b.type || existing.type || 'facility',
-                lat: typeof b.lat === 'number' ? b.lat : (parseFloat(b.lat) || existing.lat || 0),
-                lng: typeof b.lng === 'number' ? b.lng : (parseFloat(b.lng) || existing.lng || 0),
-                entrance: b.entrance !== undefined ? b.entrance : existing.entrance,
-                entrances: b.entrances || existing.entrances || (Array.isArray(b.entrance) && typeof b.entrance[0] === 'object' ? b.entrance : null),
-                polygon: b.polygon || existing.polygon || (b.metadata && b.metadata.polygon) || null,
-                coordinates: b.coordinates || existing.coordinates || (b.metadata && b.metadata.coordinates) || null,
-                metadata: b.metadata || existing.metadata || {},
-                description: b.description || existing.description || '',
-                hours: b.hours || existing.hours || '',
-                services: b.services || existing.services || [],
-                keywords: b.keywords || existing.keywords || [],
-                rooms: existing.rooms ? [...existing.rooms] : []
+        if (hasDbBuildings) {
+            // When authoritative database / cached records exist, ONLY include buildings from that dataset!
+            buildings.forEach(b => {
+                if (isTombstoned('buildings', b.id)) return;
+                const idStr = String(b.id);
+                const fb = fallbackBldgMap.get(idStr) || {};
+                buildingsMap.set(idStr, {
+                    ...fb,
+                    ...b,
+                    id: isNaN(Number(b.id)) ? b.id : Number(b.id),
+                    name: b.name || fb.name || '',
+                    shortName: b.shortName || b.short_name || b.code || fb.shortName || '',
+                    type: b.type || fb.type || 'facility',
+                    lat: typeof b.lat === 'number' ? b.lat : (parseFloat(b.lat) || fb.lat || 0),
+                    lng: typeof b.lng === 'number' ? b.lng : (parseFloat(b.lng) || fb.lng || 0),
+                    entrance: b.entrance !== undefined ? b.entrance : fb.entrance,
+                    entrances: b.entrances || fb.entrances || (Array.isArray(b.entrance) && typeof b.entrance[0] === 'object' ? b.entrance : null),
+                    polygon: b.polygon || fb.polygon || (b.metadata && b.metadata.polygon) || null,
+                    coordinates: b.coordinates || fb.coordinates || (b.metadata && b.metadata.coordinates) || null,
+                    metadata: b.metadata || fb.metadata || {},
+                    description: b.description || fb.description || '',
+                    hours: b.hours || fb.hours || '',
+                    services: b.services || fb.services || [],
+                    keywords: b.keywords || fb.keywords || [],
+                    rooms: []
+                });
             });
-        });
+        } else {
+            // Pure fallback mode (only when database is completely empty/uninitialized)
+            (fallbackBuildings || []).forEach(b => {
+                if (isTombstoned('buildings', b.id)) return;
+                buildingsMap.set(String(b.id), { ...b, rooms: [...(b.rooms || [])] });
+            });
+        }
 
         // Index rooms by ID and Building ID
         const roomsById = new Map();
         const roomsByBldg = new Map();
 
         rooms.forEach(r => {
+            if (isTombstoned('rooms', r.id)) return;
             const bIdStr = String(r.building_id);
             const rIdStr = String(r.id);
             const roomNum = String(r.room_number || r.number || '');
@@ -311,116 +347,122 @@ const DataLoader = (() => {
         buildingsMap.forEach((bObj, idStr) => {
             const dbRooms = roomsByBldg.get(idStr);
             if (dbRooms && dbRooms.length > 0) {
-                // Merge database rooms with existing rooms
-                const existingRoomMap = new Map((bObj.rooms || []).map(r => [String(r.number || r.room).toLowerCase(), r]));
-                dbRooms.forEach(dbr => {
-                    const key = String(dbr.number || dbr.room).toLowerCase();
-                    const prev = existingRoomMap.get(key) || {};
-                    existingRoomMap.set(key, { ...prev, ...dbr });
-                });
-                bObj.rooms = Array.from(existingRoomMap.values());
+                bObj.rooms = [...dbRooms];
+            } else if (!hasDbBuildings && bObj.rooms) {
+                bObj.rooms = (bObj.rooms || []).filter(r => !isTombstoned('rooms', r.id));
+            } else {
+                bObj.rooms = [];
             }
         });
 
         // Build Staff / People Data
         const peopleMap = new Map();
-        (fallbackPeople || []).forEach(p => {
-            peopleMap.set(String(p.id), { ...p });
-        });
+        const hasDbStaff = Array.isArray(staff) && staff.length > 0;
+        const fallbackPeopleMap = new Map((fallbackPeople || []).map(p => [String(p.id), p]));
 
-        staff.forEach(s => {
-            const sId = String(s.id);
-            const existing = peopleMap.get(sId) || {};
-            const bIdStr = s.building_id ? String(s.building_id) : '';
-            const bldg = bIdStr ? buildingsMap.get(bIdStr) : null;
-            const bCode = bldg ? (bldg.shortName || bldg.code || bldg.name) : (s.building_id || '');
+        if (hasDbStaff) {
+            // Authoritative database staff only
+            staff.forEach(s => {
+                if (isTombstoned('staff_directory', s.id)) return;
+                const sId = String(s.id);
+                const fb = fallbackPeopleMap.get(sId) || {};
+                const bIdStr = s.building_id ? String(s.building_id) : '';
+                const bldg = bIdStr ? buildingsMap.get(bIdStr) : null;
+                const bCode = bldg ? (bldg.shortName || bldg.code || bldg.name) : (s.building_id || '');
 
-            // Resolve precise room details
-            let roomDisplay = '';
-            let floorDisplay = '';
-            let roomDesc = '';
-            if (s.room_id) {
-                const rStr = String(s.room_id);
-                const rMatch = roomsById.get(rStr) || roomsById.get(`${bIdStr}-${rStr}`.toLowerCase());
-                if (rMatch) {
-                    roomDisplay = rMatch.room || rMatch.number;
-                    floorDisplay = rMatch.floor;
-                    roomDesc = rMatch.description || '';
-                } else {
-                    roomDisplay = rStr.replace(new RegExp(`^${bIdStr}-`, 'i'), '').replace(/^Room\s+/i, '');
-                }
-            }
-
-            if (!floorDisplay && s.floor !== undefined && s.floor !== null) {
-                floorDisplay = typeof s.floor === 'number'
-                    ? (s.floor === 0 ? 'Ground Floor' : (s.floor === 1 ? '1st Floor' : `${s.floor}th Floor`))
-                    : String(s.floor);
-            }
-
-            const targetBuildingId = bldg ? (isNaN(Number(bldg.id)) ? bldg.id : Number(bldg.id)) : (isNaN(Number(s.building_id)) ? undefined : Number(s.building_id));
-
-            const personObj = {
-                ...existing,
-                id: s.id,
-                name: s.name || existing.name || '',
-                title: s.title || existing.title || '',
-                position: s.position || existing.position || '',
-                department: s.department || existing.department || '',
-                faculty: s.faculty || existing.faculty || '',
-                location: {
-                    building: bCode || existing.location?.building || '',
-                    targetBuildingId: targetBuildingId || existing.location?.targetBuildingId,
-                    floor: floorDisplay || existing.location?.floor || '',
-                    room: roomDisplay || existing.location?.room || '',
-                    description: roomDesc || existing.location?.description || '',
-                    status: s.location_status || existing.location?.status || (bCode && (roomDisplay || roomDesc) ? 'exact' : (bCode ? 'building_only' : 'unresolved'))
-                },
-                contact: {
-                    email: s.email || existing.contact?.email || '',
-                    phone: s.phone || existing.contact?.phone || ''
-                }
-            };
-
-            peopleMap.set(sId, personObj);
-
-            // Ensure the room in the building includes this staff member
-            if (bldg && roomDisplay) {
-                const cleanRoomNum = roomDisplay.replace(/^Room\s+/i, '').toLowerCase();
-                let bRoom = (bldg.rooms || []).find(r => 
-                    String(r.number || '').toLowerCase().includes(cleanRoomNum) ||
-                    String(r.room || '').toLowerCase() === cleanRoomNum
-                );
-
-                if (!bRoom) {
-                    bRoom = {
-                        number: `Room ${roomDisplay.replace(/^Room\s+/i, '')}`,
-                        room: roomDisplay.replace(/^Room\s+/i, ''),
-                        floor: floorDisplay || 'Ground Floor',
-                        description: `Staff Office – ${personObj.name} (${personObj.department || ''})`,
-                        staff: [personObj.name],
-                        keywords: [personObj.name.toUpperCase(), cleanRoomNum, `${bldg.shortName} ${cleanRoomNum}`.toUpperCase()]
-                    };
-                    bldg.rooms = bldg.rooms || [];
-                    bldg.rooms.push(bRoom);
-                } else {
-                    bRoom.staff = bRoom.staff || [];
-                    if (!bRoom.staff.includes(personObj.name)) {
-                        bRoom.staff.push(personObj.name);
+                // Resolve precise room details
+                let roomDisplay = '';
+                let floorDisplay = '';
+                let roomDesc = '';
+                if (s.room_id) {
+                    const rStr = String(s.room_id);
+                    const rMatch = roomsById.get(rStr) || roomsById.get(`${bIdStr}-${rStr}`.toLowerCase());
+                    if (rMatch) {
+                        roomDisplay = rMatch.room || rMatch.number;
+                        floorDisplay = rMatch.floor;
+                        roomDesc = rMatch.description || '';
+                    } else {
+                        roomDisplay = rStr.replace(new RegExp(`^${bIdStr}-`, 'i'), '').replace(/^Room\s+/i, '');
                     }
                 }
-            }
 
-            // Clean up room associations in any other buildings where this staff member is not located
-            buildingsMap.forEach((bldgItem, bldgIdStr) => {
-                if (bldgIdStr !== String(targetBuildingId) && bldgItem.rooms) {
-                    bldgItem.rooms.forEach(r => {
-                        if (r.staff && r.staff.includes(personObj.name)) {
-                            r.staff = r.staff.filter(st => st !== personObj.name);
-                        }
-                    });
+                if (!floorDisplay && s.floor !== undefined && s.floor !== null) {
+                    floorDisplay = typeof s.floor === 'number'
+                        ? (s.floor === 0 ? 'Ground Floor' : (s.floor === 1 ? '1st Floor' : `${s.floor}th Floor`))
+                        : String(s.floor);
                 }
+
+                const targetBuildingId = bldg ? (isNaN(Number(bldg.id)) ? bldg.id : Number(bldg.id)) : (isNaN(Number(s.building_id)) ? undefined : Number(s.building_id));
+
+                const personObj = {
+                    ...fb,
+                    id: s.id,
+                    name: s.name || fb.name || '',
+                    title: s.title || fb.title || '',
+                    position: s.position || fb.position || '',
+                    department: s.department || fb.department || '',
+                    faculty: s.faculty || fb.faculty || '',
+                    location: {
+                        building: bCode || fb.location?.building || '',
+                        targetBuildingId: targetBuildingId || fb.location?.targetBuildingId,
+                        floor: floorDisplay || fb.location?.floor || '',
+                        room: roomDisplay || fb.location?.room || '',
+                        description: roomDesc || fb.location?.description || '',
+                        status: s.location_status || fb.location?.status || (bCode && (roomDisplay || roomDesc) ? 'exact' : (bCode ? 'building_only' : 'unresolved'))
+                    },
+                    contact: {
+                        email: s.email || fb.contact?.email || '',
+                        phone: s.phone || fb.contact?.phone || ''
+                    }
+                };
+
+                peopleMap.set(sId, personObj);
+
+                // Ensure the room in the building includes this staff member
+                if (bldg && roomDisplay) {
+                    const cleanRoomNum = roomDisplay.replace(/^Room\s+/i, '').toLowerCase();
+                    let bRoom = (bldg.rooms || []).find(r => 
+                        String(r.number || '').toLowerCase().includes(cleanRoomNum) ||
+                        String(r.room || '').toLowerCase() === cleanRoomNum
+                    );
+
+                    if (!bRoom) {
+                        bRoom = {
+                            number: `Room ${roomDisplay.replace(/^Room\s+/i, '')}`,
+                            room: roomDisplay.replace(/^Room\s+/i, ''),
+                            floor: floorDisplay || 'Ground Floor',
+                            description: `Staff Office – ${personObj.name} (${personObj.department || ''})`,
+                            staff: [personObj.name],
+                            keywords: [personObj.name.toUpperCase(), cleanRoomNum, `${bldg.shortName} ${cleanRoomNum}`.toUpperCase()]
+                        };
+                        bldg.rooms = bldg.rooms || [];
+                        bldg.rooms.push(bRoom);
+                    } else {
+                        bRoom.staff = bRoom.staff || [];
+                        if (!bRoom.staff.includes(personObj.name)) {
+                            bRoom.staff.push(personObj.name);
+                        }
+                    }
+                }
+
+                // Clean up room associations in any other buildings where this staff member is not located
+                buildingsMap.forEach((bldgItem, bldgIdStr) => {
+                    if (bldgIdStr !== String(targetBuildingId) && bldgItem.rooms) {
+                        bldgItem.rooms.forEach(r => {
+                            if (r.staff && r.staff.includes(personObj.name)) {
+                                r.staff = r.staff.filter(st => st !== personObj.name);
+                            }
+                        });
+                    }
+                });
             });
-        });
+        } else {
+            // Pure fallback mode
+            (fallbackPeople || []).forEach(p => {
+                if (isTombstoned('staff_directory', p.id)) return;
+                peopleMap.set(String(p.id), { ...p });
+            });
+        }
 
         const buildingsData = Array.from(buildingsMap.values());
         const peopleData = Array.from(peopleMap.values());
@@ -527,6 +569,18 @@ const DataLoader = (() => {
 
         if (typeof window !== 'undefined') {
             window.addEventListener('online', revalidateFromCloud);
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'campusos_data_timestamp' || e.key === 'campusos_tombstones') {
+                    readFromIndexedDB().then(idb => {
+                        if (idb && idb.buildings) {
+                            const updated = normalizeDataset(idb);
+                            if (typeof onUpdate === 'function') onUpdate({ ...updated, source: 'indexeddb' });
+                            window.dispatchEvent(new CustomEvent('campusos:data-updated', { detail: { ...updated, source: 'indexeddb' } }));
+                        }
+                    }).catch(() => {});
+                    revalidateFromCloud();
+                }
+            });
         }
 
         return initialData;
