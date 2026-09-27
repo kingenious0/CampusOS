@@ -54,6 +54,10 @@
 
     <!-- UI Polish & Touch Styling -->
     <style>
+        :root {
+            color-scheme: dark;
+        }
+
         .custom-scroll::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -76,9 +80,75 @@
             cursor: pointer;
         }
         .touch-btn {
-            min-height: 40px;
+            min-height: 44px;
             touch-action: manipulation;
         }
+
+        /* Dark Theme Form Controls & Selects */
+        select, option, input, textarea {
+            color-scheme: dark;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #090d16 !important;
+            color: #f1f5f9 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23818cf8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.25em 1.25em;
+            padding-right: 2.25rem !important;
+            cursor: pointer;
+        }
+        select option {
+            background-color: #0b1120 !important;
+            color: #f8fafc !important;
+            padding: 10px 14px;
+        }
+        select option:checked {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+        select option:hover,
+        select option:focus {
+            background-color: #1e293b !important;
+        }
+
+        /* Mobile Bottom Sheet & Dialog Responsiveness */
+        .modal-sheet {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+        }
+        @media (max-width: 639px) {
+            .modal-sheet {
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+                max-height: 92vh !important;
+                width: 100% !important;
+                padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
+            }
+        }
+
+        /* Custom Combobox Menu Dropdown Styling */
+        .combobox-dropdown {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            animation: comboboxIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes comboboxIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .combobox-item.active-item {
+            background-color: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
         /* Leaflet Dark Map Filter */
         .leaflet-layer,
         .leaflet-control-zoom-in,
@@ -571,24 +641,41 @@
     </div>
 
     <!-- ADD / EDIT BUILDING MODAL -->
-    <div id="modal-building" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+    <div id="modal-building" class="fixed inset-0 z-50 hidden pointer-events-none flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
-        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
-            <h3 id="modal-building-title" class="text-base font-bold text-white mb-3">Edit Building</h3>
-            <form id="form-building" class="space-y-3">
+        <div class="relative w-full max-w-full sm:max-w-md max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900/98 backdrop-blur-md border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto modal-sheet">
+            <!-- Mobile drag indicator -->
+            <div class="sm:hidden w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3.5"></div>
+            
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-lg shrink-0">
+                        🏢
+                    </div>
+                    <div>
+                        <h3 id="modal-building-title" class="text-base font-bold text-white tracking-tight">Edit Building</h3>
+                        <p class="text-[11px] text-slate-400">Configure spatial coordinates and attributes</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition touch-btn cursor-pointer" aria-label="Close modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="form-building" class="space-y-3.5">
                 <input type="hidden" id="building-id">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Building Name</label>
-                    <input id="building-name" required type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                    <input id="building-name" required type="text" placeholder="e.g. Faculty of Technical Education" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Code</label>
-                        <input id="building-code" type="text" placeholder="e.g. ROB" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Code / Short Name</label>
+                        <input id="building-code" type="text" placeholder="e.g. ROB" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Type</label>
-                        <select id="building-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <select id="building-type" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                             <option value="academic">Academic</option>
                             <option value="administration">Administration</option>
                             <option value="hostel">Hall of Residence</option>
@@ -597,65 +684,110 @@
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Latitude</label>
-                        <input id="building-lat" required step="any" type="number" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500">
+                        <input id="building-lat" required step="any" type="number" placeholder="6.699..." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Longitude</label>
-                        <input id="building-lng" required step="any" type="number" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500">
+                        <input id="building-lng" required step="any" type="number" placeholder="-1.682..." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
-                    <textarea id="building-description" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
+                    <textarea id="building-description" rows="2" placeholder="Brief details about facilities, departments, or entrances..." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Building</button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3 border-t border-slate-800/80">
+                    <button type="button" class="btn-close-modal w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 touch-btn cursor-pointer min-h-[44px] flex items-center justify-center">Cancel</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer shadow-lg shadow-brand-500/20 min-h-[44px] flex items-center justify-center">Save Building</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ADD / EDIT ROOM MODAL -->
-    <div id="modal-room" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+    <div id="modal-room" class="fixed inset-0 z-50 hidden pointer-events-none flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
-        <div class="relative w-full max-w-md max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
-            <h3 id="modal-room-title" class="text-base font-bold text-white mb-3">Edit Room Allocation</h3>
-            <form id="form-room" class="space-y-3">
+        <div class="relative w-full max-w-full sm:max-w-lg max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900/98 backdrop-blur-md border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto modal-sheet">
+            <!-- Mobile drag indicator -->
+            <div class="sm:hidden w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3.5"></div>
+
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-lg shrink-0">
+                        🚪
+                    </div>
+                    <div>
+                        <h3 id="modal-room-title" class="text-base font-bold text-white tracking-tight">Edit Room Allocation</h3>
+                        <p class="text-[11px] text-slate-400">Assign room number, floor, wing, and purpose</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition touch-btn cursor-pointer" aria-label="Close modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="form-room" class="space-y-3.5">
                 <input type="hidden" id="room-id">
+                
+                <!-- Searchable Building Selector (Combobox) -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Building</label>
-                    <select id="room-building-select" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500"></select>
+                    <!-- Kept for test assertions, programmatic reads, and form submission compatibility -->
+                    <select id="room-building-select" required class="sr-only" tabindex="-1" aria-hidden="true"></select>
+                    
+                    <div class="relative" id="combobox-room-building">
+                        <button type="button" id="btn-room-building-combobox" class="w-full flex items-center justify-between bg-slate-950/90 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 transition focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 text-left min-h-[44px] cursor-pointer" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="flex items-center gap-2 truncate">
+                                <span class="text-sm">🏢</span>
+                                <span id="label-room-building-combobox" class="truncate font-medium text-slate-200">Select Building...</span>
+                            </span>
+                            <svg class="w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200" id="arrow-room-building-combobox" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        
+                        <div id="dropdown-room-building-combobox" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-slate-900/98 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden p-2">
+                            <div class="relative mb-2">
+                                <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </span>
+                                <input id="search-room-building-combobox" type="text" placeholder="Type to filter buildings..." autocomplete="off" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-7 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                                <button type="button" id="clear-room-building-search" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            <div id="list-room-building-combobox" role="listbox" class="max-h-56 overflow-y-auto custom-scroll space-y-1">
+                                <!-- Dynamically populated by setupSearchableCombobox -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 3-Way Purpose Selector -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">Room Purpose</label>
                     <input type="hidden" id="room-purpose" value="lecturer_office">
-                    <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl" id="room-purpose-group">
-                        <button type="button" data-purpose="lecturer_office" class="room-purpose-btn px-2 py-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer bg-brand-600 text-white shadow-sm">
+                    <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950/90 border border-slate-800 rounded-xl" id="room-purpose-group">
+                        <button type="button" data-purpose="lecturer_office" class="room-purpose-btn px-2 py-2.5 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer bg-brand-600 text-white shadow-sm min-h-[40px]">
                             <span>👨‍🏫</span> <span class="truncate">Lecturer Office</span>
                         </button>
-                        <button type="button" data-purpose="lecture_room" class="room-purpose-btn px-2 py-2 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+                        <button type="button" data-purpose="lecture_room" class="room-purpose-btn px-2 py-2.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 min-h-[40px]">
                             <span>🎓</span> <span class="truncate">Lecture / Lab</span>
                         </button>
-                        <button type="button" data-purpose="service_desk" class="room-purpose-btn px-2 py-2 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60">
+                        <button type="button" data-purpose="service_desk" class="room-purpose-btn px-2 py-2.5 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition text-center touch-btn cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 min-h-[40px]">
                             <span>🏛️</span> <span class="truncate">Admin Office</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Room No.</label>
-                        <input id="room-number" required type="text" placeholder="e.g. 048" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="room-number" required type="text" placeholder="e.g. 048" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Floor</label>
-                        <select id="room-floor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <select id="room-floor" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                             <option value="0">Ground (0)</option>
                             <option value="1">1st Floor (1)</option>
                             <option value="2">2nd Floor (2)</option>
@@ -666,79 +798,124 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Wing (Optional)</label>
-                        <input id="room-wing" type="text" placeholder="e.g. West" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="room-wing" type="text" placeholder="e.g. West" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Description / Title</label>
-                    <input id="room-description" type="text" placeholder="e.g. Lecturer Office, Staff Suite" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                    <input id="room-description" type="text" placeholder="e.g. Lecturer Office, Staff Suite" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Search Keywords (Comma-separated)</label>
-                    <input id="room-keywords" type="text" placeholder="e.g. ROB 048, FBE, Officer" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                    <input id="room-keywords" type="text" placeholder="e.g. ROB 048, FBE, Officer" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Room</button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3 border-t border-slate-800/80">
+                    <button type="button" class="btn-close-modal w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 touch-btn cursor-pointer min-h-[44px] flex items-center justify-center">Cancel</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer shadow-lg shadow-brand-500/20 min-h-[44px] flex items-center justify-center">Save Room</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- ADD / EDIT STAFF MODAL -->
-    <div id="modal-staff" class="fixed inset-0 z-50 hidden pointer-events-none flex items-center justify-center p-3 sm:p-4">
+    <div id="modal-staff" class="fixed inset-0 z-50 hidden pointer-events-none flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="modal-backdrop absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-none"></div>
-        <div class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto">
-            <h3 id="modal-staff-title" class="text-base font-bold text-white mb-3">Edit Staff Record</h3>
-            <form id="form-staff" class="space-y-3">
-                <input type="hidden" id="staff-id">
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Title</label>
-                        <input id="staff-title" type="text" placeholder="Dr., Prof., Mr." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+        <div class="relative w-full max-w-full sm:max-w-lg max-h-[92vh] sm:max-h-[90vh] overflow-y-auto custom-scroll bg-slate-900/98 backdrop-blur-md border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 pointer-events-auto modal-sheet">
+            <!-- Mobile drag indicator -->
+            <div class="sm:hidden w-12 h-1 bg-slate-700/60 rounded-full mx-auto mb-3.5"></div>
+
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-lg shrink-0">
+                        👨‍🏫
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
-                        <input id="staff-name" required type="text" placeholder="e.g. Courage S.K. Dogbe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                    <div>
+                        <h3 id="modal-staff-title" class="text-base font-bold text-white tracking-tight">Edit Staff Record</h3>
+                        <p class="text-[11px] text-slate-400">Faculty member profile and room assignment</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <button type="button" class="btn-close-modal p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition touch-btn cursor-pointer" aria-label="Close modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="form-staff" class="space-y-3.5">
+                <input type="hidden" id="staff-id">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Title</label>
+                        <input id="staff-title" type="text" placeholder="Dr., Prof., Mr." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+                        <input id="staff-name" required type="text" placeholder="e.g. Courage S.K. Dogbe" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Position</label>
-                        <input id="staff-position" type="text" placeholder="Senior Lecturer, HOD" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="staff-position" type="text" placeholder="Senior Lecturer, HOD" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Department</label>
-                        <input id="staff-department" type="text" placeholder="Department of Management" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="staff-department" type="text" placeholder="Department of Management" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+
+                <!-- Staff Building Combobox & Room Dropdown -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Building</label>
-                        <select id="staff-building-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <select id="staff-building-select" class="sr-only" tabindex="-1" aria-hidden="true">
                             <option value="">(No Building Assigned)</option>
                         </select>
+                        
+                        <div class="relative" id="combobox-staff-building">
+                            <button type="button" id="btn-staff-building-combobox" class="w-full flex items-center justify-between bg-slate-950/90 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 transition focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 text-left min-h-[44px] cursor-pointer" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="flex items-center gap-2 truncate">
+                                    <span class="text-sm">🏢</span>
+                                    <span id="label-staff-building-combobox" class="truncate font-medium text-slate-200">(No Building Assigned)</span>
+                                </span>
+                                <svg class="w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200" id="arrow-staff-building-combobox" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            
+                            <div id="dropdown-staff-building-combobox" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-slate-900/98 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden p-2">
+                                <div class="relative mb-2">
+                                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    </span>
+                                    <input id="search-staff-building-combobox" type="text" placeholder="Type to filter buildings..." autocomplete="off" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-7 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                                    <button type="button" id="clear-staff-building-search" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                                <div id="list-staff-building-combobox" role="listbox" class="max-h-56 overflow-y-auto custom-scroll space-y-1">
+                                    <!-- Dynamically populated by setupSearchableCombobox -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Room</label>
-                        <select id="staff-room-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <select id="staff-room-select" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[44px]">
                             <option value="">(No Room Assigned)</option>
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Email</label>
-                        <input id="staff-email" type="email" placeholder="name@aamusted.edu.gh" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="staff-email" type="email" placeholder="name@aamusted.edu.gh" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Phone</label>
-                        <input id="staff-phone" type="text" placeholder="+233 ..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        <input id="staff-phone" type="text" placeholder="+233 ..." class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 min-h-[42px]">
                     </div>
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" class="btn-close-modal px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 touch-btn cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer">Save Staff Record</button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3 border-t border-slate-800/80">
+                    <button type="button" class="btn-close-modal w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 touch-btn cursor-pointer min-h-[44px] flex items-center justify-center">Cancel</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white touch-btn cursor-pointer shadow-lg shadow-brand-500/20 min-h-[44px] flex items-center justify-center">Save Staff Record</button>
                 </div>
             </form>
         </div>

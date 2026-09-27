@@ -146,6 +146,8 @@ function closeAllModals() {
             }
         }
     });
+    // Also close any open combobox dropdowns
+    document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => d.classList.add('hidden'));
 }
 window.closeAllModals = closeAllModals;
 
@@ -215,6 +217,7 @@ function openAddRoomModal() {
     if (rWing) rWing.value = '';
     setRoomPurpose('lecturer_office');
     populateDropdowns();
+    if (typeof syncBuildingComboboxes === 'function') syncBuildingComboboxes();
     openModal('modal-room');
 }
 window.openAddRoomModal = openAddRoomModal;
@@ -228,6 +231,7 @@ function openAddStaffModal() {
     if (sId) sId.value = '';
     populateDropdowns();
     updateStaffRoomDropdown('');
+    if (typeof syncBuildingComboboxes === 'function') syncBuildingComboboxes();
     openModal('modal-staff');
 }
 window.openAddStaffModal = openAddStaffModal;
@@ -653,6 +657,7 @@ function editRoom(id) {
         /lecture|lab|hall|theatre|auditorium|classroom/i.test(r.description || '') ? 'lecture_room' : 'lecturer_office'
     );
     setRoomPurpose(purpose);
+    if (typeof syncBuildingComboboxes === 'function') syncBuildingComboboxes();
 
     openModal('modal-room');
 }
@@ -861,6 +866,7 @@ function editStaff(id) {
     if (sEmail) sEmail.value = s.email || '';
     const sPhone = document.getElementById('staff-phone');
     if (sPhone) sPhone.value = s.phone || '';
+    if (typeof syncBuildingComboboxes === 'function') syncBuildingComboboxes();
     openModal('modal-staff');
 }
 window.editStaff = editStaff;
@@ -1332,7 +1338,227 @@ function populateDropdowns() {
         mobileEditorBuildingSelect.innerHTML = '<option value="">Select Building to Pin...</option>' + 
             buildings.map(b => `<option value="${b.id}" ${b.id === selectedBuildingId ? 'selected' : ''}>${b.name} (${b.code || b.id})</option>`).join('');
     }
+
+    if (typeof syncBuildingComboboxes === 'function') {
+        syncBuildingComboboxes();
+    }
 }
+
+// Searchable Building Combobox Engine
+function renderBuildingCombobox({
+    selectId,
+    btnId,
+    labelId,
+    dropdownId,
+    searchId,
+    clearId,
+    listId,
+    allowNone = false,
+    noneLabel = '(No Building Assigned)'
+}) {
+    const select = document.getElementById(selectId);
+    const btn = document.getElementById(btnId);
+    const label = document.getElementById(labelId);
+    const dropdown = document.getElementById(dropdownId);
+    const search = document.getElementById(searchId);
+    const clearBtn = document.getElementById(clearId);
+    const list = document.getElementById(listId);
+
+    if (!select || !btn || !label || !dropdown || !list) return;
+
+    function syncLabel() {
+        const currentVal = select.value;
+        if (!currentVal && allowNone) {
+            label.textContent = noneLabel;
+            label.classList.add('text-slate-400');
+            label.classList.remove('text-slate-200');
+            return;
+        }
+        const b = buildings.find(x => String(x.id) === String(currentVal));
+        if (b) {
+            label.textContent = `${b.name} (${b.code || b.id})`;
+            label.classList.remove('text-slate-400');
+            label.classList.add('text-slate-200');
+        } else if (allowNone) {
+            label.textContent = noneLabel;
+            label.classList.add('text-slate-400');
+            label.classList.remove('text-slate-200');
+        } else if (buildings.length > 0) {
+            label.textContent = `${buildings[0].name} (${buildings[0].code || buildings[0].id})`;
+            label.classList.remove('text-slate-400');
+            label.classList.add('text-slate-200');
+        } else {
+            label.textContent = 'Select Building...';
+        }
+    }
+
+    function renderOptions(query = '') {
+        const q = query.trim().toLowerCase();
+        let itemsHtml = '';
+
+        if (allowNone && (!q || noneLabel.toLowerCase().includes(q))) {
+            const isSelected = !select.value;
+            itemsHtml += `
+                <div data-value="" role="option" aria-selected="${isSelected}"
+                     class="combobox-item flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'}">
+                    <span class="truncate">${noneLabel}</span>
+                    ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                </div>
+            `;
+        }
+
+        const filtered = buildings.filter(b => {
+            if (!q) return true;
+            const name = (b.name || '').toLowerCase();
+            const code = (b.code || '').toLowerCase();
+            const id = String(b.id || '').toLowerCase();
+            return name.includes(q) || code.includes(q) || id.includes(q);
+        });
+
+        if (filtered.length === 0 && (!allowNone || (q && !noneLabel.toLowerCase().includes(q)))) {
+            itemsHtml += `
+                <div class="px-3 py-6 text-center text-xs text-slate-500">
+                    <div class="text-base mb-1">🔍</div>
+                    No campus buildings matching "<span class="text-slate-300 font-medium">${escapeHtml(query)}</span>"
+                </div>
+            `;
+        } else {
+            filtered.forEach(b => {
+                const isSelected = String(select.value) === String(b.id);
+                itemsHtml += `
+                    <div data-value="${b.id}" role="option" aria-selected="${isSelected}"
+                         class="combobox-item flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer transition touch-btn min-h-[42px] ${isSelected ? 'bg-brand-600/20 text-brand-300 font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'}">
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="text-xs">🏢</span>
+                            <span class="truncate font-medium">${escapeHtml(b.name)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                            ${b.code ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700/60">${escapeHtml(b.code)}</span>` : ''}
+                            ${isSelected ? '<svg class="w-4 h-4 text-brand-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        list.innerHTML = itemsHtml;
+    }
+
+    function openDropdown() {
+        document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => {
+            if (d !== dropdown) {
+                d.classList.add('hidden');
+                const rel = d.closest('.relative');
+                if (rel) {
+                    const arr = rel.querySelector('svg.rotate-180');
+                    if (arr) arr.classList.remove('rotate-180');
+                }
+            }
+        });
+        dropdown.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+        const arrow = btn.querySelector('svg');
+        if (arrow) arrow.classList.add('rotate-180');
+        if (search) {
+            search.value = '';
+            if (clearBtn) clearBtn.classList.add('hidden');
+            renderOptions('');
+            setTimeout(() => search.focus(), 60);
+        } else {
+            renderOptions('');
+        }
+    }
+
+    function closeDropdown() {
+        dropdown.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        const arrow = btn.querySelector('svg');
+        if (arrow) arrow.classList.remove('rotate-180');
+    }
+
+    if (!btn._comboboxInitialized) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (dropdown.classList.contains('hidden')) {
+                openDropdown();
+            } else {
+                closeDropdown();
+            }
+        });
+
+        if (search) {
+            search.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (clearBtn) clearBtn.classList.toggle('hidden', !val);
+                renderOptions(val);
+            });
+            search.addEventListener('click', (e) => e.stopPropagation());
+            search.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    btn.focus();
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                search.value = '';
+                clearBtn.classList.add('hidden');
+                renderOptions('');
+                search.focus();
+            });
+        }
+
+        list.addEventListener('click', (e) => {
+            const item = e.target.closest('.combobox-item');
+            if (!item) return;
+            e.stopPropagation();
+            const val = item.getAttribute('data-value');
+            select.value = val;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            syncLabel();
+            closeDropdown();
+            btn.focus();
+        });
+
+        select.addEventListener('change', () => {
+            syncLabel();
+        });
+
+        btn._comboboxInitialized = true;
+    }
+
+    syncLabel();
+    renderOptions(search ? search.value : '');
+}
+
+function syncBuildingComboboxes() {
+    renderBuildingCombobox({
+        selectId: 'room-building-select',
+        btnId: 'btn-room-building-combobox',
+        labelId: 'label-room-building-combobox',
+        dropdownId: 'dropdown-room-building-combobox',
+        searchId: 'search-room-building-combobox',
+        clearId: 'clear-room-building-search',
+        listId: 'list-room-building-combobox',
+        allowNone: false
+    });
+
+    renderBuildingCombobox({
+        selectId: 'staff-building-select',
+        btnId: 'btn-staff-building-combobox',
+        labelId: 'label-staff-building-combobox',
+        dropdownId: 'dropdown-staff-building-combobox',
+        searchId: 'search-staff-building-combobox',
+        clearId: 'clear-staff-building-search',
+        listId: 'list-staff-building-combobox',
+        allowNone: true,
+        noneLabel: '(No Building Assigned)'
+    });
+}
+window.syncBuildingComboboxes = syncBuildingComboboxes;
 
 async function refreshData() {
     try {
@@ -1358,6 +1584,18 @@ window.refreshData = refreshData;
 // =============================================================================
 
 document.addEventListener('click', (e) => {
+    // 0. Combobox outside click dismissal
+    if (!e.target.closest('#combobox-room-building') && !e.target.closest('#combobox-staff-building')) {
+        document.querySelectorAll('[id^="dropdown-"][id$="-combobox"]').forEach(d => {
+            d.classList.add('hidden');
+            const rel = d.closest('.relative');
+            if (rel) {
+                const arr = rel.querySelector('svg.rotate-180');
+                if (arr) arr.classList.remove('rotate-180');
+            }
+        });
+    }
+
     // 1. Modals cancel or backdrop click
     if (e.target.closest('.btn-close-modal') || e.target.classList.contains('modal-backdrop')) {
         closeAllModals();
@@ -1630,6 +1868,25 @@ document.addEventListener('click', (e) => {
         a.download = `campusos_snapshot_${Date.now()}.json`;
         a.click();
         return;
+    }
+});
+
+// Keyboard Shortcuts (Escape dismissal)
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const openCombobox = document.querySelector('[id^="dropdown-"][id$="-combobox"]:not(.hidden)');
+        if (openCombobox) {
+            openCombobox.classList.add('hidden');
+            const rel = openCombobox.closest('.relative');
+            if (rel) {
+                const arr = rel.querySelector('svg.rotate-180');
+                if (arr) arr.classList.remove('rotate-180');
+            }
+            return;
+        }
+        closeAllModals();
+        closeSettings();
+        closeMobileSidebar();
     }
 });
 
