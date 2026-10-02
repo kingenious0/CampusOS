@@ -68,6 +68,14 @@
       "destination": "/api/index.py"
     },
     {
+      "source": "/parse",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index.py"
+    },
+    {
       "source": "/.well-known/assetlinks.json",
       "destination": "/.well-known/assetlinks.json"
     },

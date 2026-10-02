@@ -20,11 +20,29 @@
             if (typeof window !== 'undefined' && window.ENV && window.ENV.naviCloudUrl) {
                 return window.ENV.naviCloudUrl.replace(/\/+$/, '');
             }
-            // Auto-detect same-origin on Vercel or live web deployment
+            // Auto-detect same-origin ONLY on live deployments (e.g. *.vercel.app), not static local dev servers
             if (typeof window !== 'undefined' && window.location && window.location.origin && window.location.protocol.startsWith('http')) {
-                return window.location.origin;
+                const host = (window.location.hostname || '').toLowerCase();
+                const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host.endsWith('.local');
+                if (!isLocal) {
+                    return window.location.origin;
+                }
             }
             return '';
+        },
+
+        getCloudEndpoint(path) {
+            const base = this.getCloudUrl();
+            if (!base) return '';
+            const cleanBase = base.replace(/\/+$/, '');
+            const cleanPath = path.startsWith('/') ? path : '/' + path;
+            if (cleanBase.endsWith('/api')) {
+                return cleanBase + cleanPath.replace(/^\/api/, '');
+            }
+            if (typeof window !== 'undefined' && cleanBase === window.location?.origin) {
+                return cleanBase + (cleanPath.startsWith('/api') ? cleanPath : '/api' + cleanPath);
+            }
+            return cleanBase + cleanPath;
         },
 
         /**
@@ -89,7 +107,9 @@
             this.recognition.onerror = (event) => {
                 console.warn('[NaviBridge] Speech recognition error:', event.error);
                 this.stopVoice();
-                this.notify('Voice recognition note: ' + event.error);
+                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    this.notify('Voice recognition note: ' + event.error);
+                }
             };
 
             this.recognition.onend = () => {
@@ -187,14 +207,14 @@
             const checks = [];
 
             // 1. Check Cloud Navi if online and URL configured
-            const cloudUrl = this.getCloudUrl();
-            if (cloudUrl && (typeof navigator === 'undefined' || navigator.onLine)) {
+            const healthUrl = this.getCloudEndpoint('/health');
+            if (healthUrl && (typeof navigator === 'undefined' || navigator.onLine)) {
                 checks.push(
                     (async () => {
                         try {
                             const ctrl = new AbortController();
                             const timeoutId = setTimeout(() => ctrl.abort(), 1200);
-                            const res = await fetch(`${cloudUrl}/health`, { signal: ctrl.signal });
+                            const res = await fetch(healthUrl, { signal: ctrl.signal });
                             clearTimeout(timeoutId);
                             if (res.ok) {
                                 const data = await res.json();
@@ -360,14 +380,14 @@
             const q = query.trim();
 
             // TIER 1: Cloud Navi (when online & configured)
-            const cloudUrl = this.getCloudUrl();
+            const parseUrl = this.getCloudEndpoint('/parse');
             const isOnline = typeof navigator === 'undefined' || navigator.onLine;
 
-            if (cloudUrl && isOnline) {
+            if (parseUrl && isOnline) {
                 try {
                     const ctrl = new AbortController();
-                    const timeoutId = setTimeout(() => ctrl.abort(), 1800);
-                    const resp = await fetch(`${cloudUrl}/parse`, {
+                    const timeoutId = setTimeout(() => ctrl.abort(), 2000);
+                    const resp = await fetch(parseUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ query: q }),
