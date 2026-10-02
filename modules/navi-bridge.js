@@ -55,8 +55,11 @@
                 return false;
             }
             if (this.recognition) {
-                try { this.recognition.abort(); } catch(e) {}
+                const prev = this.recognition;
                 this.recognition = null;
+                prev.onerror = null;
+                prev.onend = null;
+                try { prev.abort(); } catch(e) {}
             }
             this.recognition = new SpeechRec();
             this.recognition.continuous = false;
@@ -125,11 +128,15 @@
             };
 
             this.recognition.onerror = (event) => {
-                console.warn('[NaviBridge] Speech recognition error:', event.error);
-                this.stopVoice();
-                if (event.error !== 'no-speech' && event.error !== 'aborted') {
-                    this.notify('Voice recognition note: ' + event.error);
+                const err = (event && event.error) || '';
+                // 'aborted' is intentional when user stops or dispatches speech; 'no-speech' is normal silence
+                if (err === 'aborted' || err === 'no-speech') {
+                    this.stopVoice();
+                    return;
                 }
+                console.warn('[NaviBridge] Speech recognition note:', err);
+                this.stopVoice();
+                this.notify('Voice recognition note: ' + err);
             };
 
             this.recognition.onend = () => {
@@ -150,8 +157,11 @@
             } catch (e) {
                 console.warn('[NaviBridge] Speech start retry:', e);
                 try {
-                    this.recognition.abort();
-                    this.recognition.start();
+                    if (this.recognition) {
+                        this.recognition.onerror = null;
+                        this.recognition.abort();
+                        this.recognition.start();
+                    }
                 } catch(err) {}
             }
         },
@@ -162,8 +172,12 @@
             if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
             this.updateVoiceUI(false);
             if (this.recognition) {
-                try { this.recognition.abort(); } catch(e) {}
+                const rec = this.recognition;
                 this.recognition = null;
+                // Detach listeners so manual abort does not trigger spurious error logs
+                rec.onerror = null;
+                rec.onend = null;
+                try { rec.abort(); } catch(e) {}
             }
         },
 
@@ -256,28 +270,41 @@
                 );
             }
 
-            // 2. Check Local Sidecar
-            checks.push(
-                (async () => {
-                    try {
-                        const ctrl = new AbortController();
-                        const timeoutId = setTimeout(() => ctrl.abort(), 600);
-                        const res = await fetch(`${this.sidecarUrl}/health`, { signal: ctrl.signal });
-                        clearTimeout(timeoutId);
-                        if (res.ok) {
-                            const data = await res.json();
-                            this.isAvailable = true;
+            // 2. Check Local Sidecar ONLY if in a local dev environment (localhost/127.0.0.1/Node.js)
+            // On production HTTPS deployments (e.g. ustednav.app), probing 127.0.0.1:8000
+            // triggers net::ERR_CONNECTION_REFUSED and browser security errors.
+            const isLocalEnv = typeof window === 'undefined' || 
+                (window.location && (
+                    window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' || 
+                    window.location.hostname === '0.0.0.0' || 
+                    window.location.hostname === '' ||
+                    window.location.protocol === 'file:'
+                ));
+
+            if (isLocalEnv) {
+                checks.push(
+                    (async () => {
+                        try {
+                            const ctrl = new AbortController();
+                            const timeoutId = setTimeout(() => ctrl.abort(), 600);
+                            const res = await fetch(`${this.sidecarUrl}/health`, { signal: ctrl.signal });
+                            clearTimeout(timeoutId);
+                            if (res.ok) {
+                                const data = await res.json();
+                                this.isAvailable = true;
+                                this.lastCheck = Date.now();
+                                console.log('[NaviBridge] Local sidecar connected:', data);
+                                return true;
+                            }
+                        } catch (e) {
+                            this.isAvailable = false;
                             this.lastCheck = Date.now();
-                            console.log('[NaviBridge] Local sidecar connected:', data);
-                            return true;
                         }
-                    } catch (e) {
-                        this.isAvailable = false;
-                        this.lastCheck = Date.now();
-                    }
-                    return false;
-                })()
-            );
+                        return false;
+                    })()
+                );
+            }
 
             const results = await Promise.all(checks);
             return results.some(Boolean);
