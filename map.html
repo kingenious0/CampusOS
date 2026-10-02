@@ -21,6 +21,7 @@
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="modules/data-loader.js"></script>
+    <script src="modules/navi-bridge.js"></script>
     <!-- CesiumJS 1.145 (Official Release) -->
     <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/Widgets/widgets.css">
     <script>window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.145/Build/Cesium/';</script>
@@ -240,6 +241,131 @@
             cursor: pointer;
         }
         .search-clear-btn { display: none; }
+
+        .search-voice-btn {
+            background: none; border: none;
+            color: var(--primary, #33449b);
+            width: 40px; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .search-voice-btn:hover {
+            color: var(--accent, #f8b511);
+            transform: scale(1.1);
+        }
+        .search-voice-btn.listening {
+            color: #ef4444;
+            animation: pulse-mic 1s infinite alternate;
+        }
+        @keyframes pulse-mic {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.4)); }
+            100% { transform: scale(1.25); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8)); }
+        }
+
+        /* ── NAVI VOICE HUD MODAL ── */
+        .navi-voice-hud, .charlie-voice-hud {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0; right: 0;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(248, 181, 17, 0.4);
+            border-radius: 18px;
+            padding: 14px 18px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(248, 181, 17, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 3100;
+            color: #fff;
+            animation: cv-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes cv-slide-in {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cv-pulse-container {
+            position: relative;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8b511, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 16px rgba(248, 181, 17, 0.5);
+        }
+        .cv-mic-icon {
+            color: #fff;
+            font-size: 18px;
+            z-index: 2;
+        }
+        .cv-pulse-circle {
+            position: absolute;
+            inset: -4px;
+            border: 2px solid rgba(248, 181, 17, 0.6);
+            border-radius: 50%;
+            animation: cv-ripple 1.6s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+        }
+        .cv-pulse-circle.delay {
+            animation-delay: 0.8s;
+        }
+        @keyframes cv-ripple {
+            0% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .cv-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .cv-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+        .cv-badge {
+            background: rgba(248, 181, 17, 0.2);
+            color: #f8b511;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(248, 181, 17, 0.4);
+        }
+        .cv-status {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .cv-transcript {
+            font-size: 13px;
+            font-weight: 600;
+            color: #f8fafc;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cv-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #94a3b8;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .cv-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
 
         .search-dir-btn {
             background: none; border: none;
@@ -1778,6 +1904,9 @@
             </button>
             <input type="text" id="searchInput" placeholder="Search USTED NAV" autocomplete="off" spellcheck="false">
             <div class="search-action-btns">
+                <button class="search-voice-btn" id="searchVoiceBtn" title="Speak to Navi (Voice Navigation)" aria-label="Voice Search">
+                    <i class="fas fa-microphone"></i>
+                </button>
                 <button class="search-icon-btn" id="searchSearchBtn" aria-label="Search">
                     <i class="fas fa-magnifying-glass"></i>
                 </button>
@@ -1791,6 +1920,23 @@
             
             <div class="search-results" id="searchResults">
                 <!-- Dynamic results -->
+            </div>
+
+            <!-- NAVI AI VOICE HUD -->
+            <div class="navi-voice-hud charlie-voice-hud" id="naviVoiceHud" style="display:none">
+                <div class="cv-pulse-container">
+                    <div class="cv-pulse-circle"></div>
+                    <div class="cv-pulse-circle delay"></div>
+                    <i class="fas fa-microphone cv-mic-icon"></i>
+                </div>
+                <div class="cv-content">
+                    <div class="cv-header">
+                        <span class="cv-badge">NAVI AI</span>
+                        <span class="cv-status" id="naviStatus">Listening...</span>
+                    </div>
+                    <div class="cv-transcript" id="naviTranscript">Ask Navi your destination (e.g. "Take me to USTED Library" or "Where is the clinic?")</div>
+                </div>
+                <button class="cv-close-btn" id="naviCloseBtn" title="Close voice input"><i class="fas fa-xmark"></i></button>
             </div>
         </div>
     </div>
@@ -2515,9 +2661,35 @@
     const searchResults    = document.getElementById('searchResults');
     const searchClear      = document.getElementById('searchClear');
     const searchSearchBtn  = document.getElementById('searchSearchBtn');
+    const searchVoiceBtn   = document.getElementById('searchVoiceBtn');
+    const naviCloseBtn     = document.getElementById('naviCloseBtn') || document.getElementById('charlieCloseBtn');
     const searchDirections = document.getElementById('searchDirections');
     const searchMenuBtn    = document.querySelector('.search-menu-btn');
     let debounce;
+
+    searchVoiceBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.toggleVoice();
+        } else {
+            showToast('Navi Voice AI initializing...');
+        }
+    });
+
+    const naviVoiceHud = document.getElementById('naviVoiceHud') || document.getElementById('charlieVoiceHud');
+    naviVoiceHud?.addEventListener('click', (e) => {
+        if (e.target.closest('#naviCloseBtn') || e.target.closest('#charlieCloseBtn')) return;
+        if (window.NaviBridge && window.NaviBridge.isListening) {
+            window.NaviBridge.toggleVoice();
+        }
+    });
+
+    naviCloseBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.stopVoice();
+        }
+    });
 
     searchInput.addEventListener('input', e => {
         const q = e.target.value.trim();
@@ -3120,10 +3292,28 @@
         searchResults.classList.add('open');
     }
 
-    // Keyboard navigation for search results
+    // Keyboard navigation & smart natural query handling for search results
     searchInput.addEventListener('keydown', e => {
         const items = [...searchResults.querySelectorAll('.result-item')];
         const focused = searchResults.querySelector('.result-item:focus');
+
+        if (e.key === 'Enter') {
+            const q = searchInput.value.trim();
+            const isNatural = /^(take|route|guide|where|show|find|lead|how|go|navigate|who|can)\b/i.test(q) || q.split(/\s+/).length >= 3;
+            if (isNatural && window.NaviBridge) {
+                e.preventDefault();
+                searchResults.classList.remove('open');
+                searchInput.blur();
+                window.NaviBridge.askNavi(q);
+                return;
+            }
+            if (items.length > 0 && !focused) {
+                e.preventDefault();
+                items[0].click();
+                return;
+            }
+        }
+
         if (!items.length) return;
         if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -4340,12 +4530,14 @@
         showService: (s, b) => showService(s, b),
         closeSheet: () => closeSheet(),
         showToast: (msg) => showToast(msg),
-        getActiveRoute: () => _route
+        getActiveRoute: () => _route,
+        startRoute: (lat, lng, name) => startRoute(lat, lng, name)
     };
     window.showBuilding = showBuilding;
     window.showStaff = showStaff;
     window.showRoom = showRoom;
     window.showService = showService;
+    window.startRoute = startRoute;
 
     if (window.ViewControllerModule) {
         window.ViewControllerModule.init();
