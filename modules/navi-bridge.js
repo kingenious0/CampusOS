@@ -54,14 +54,32 @@
                 console.warn('[NaviBridge] Web Speech API not supported on this browser.');
                 return false;
             }
+            if (this.recognition) {
+                try { this.recognition.abort(); } catch(e) {}
+                this.recognition = null;
+            }
             this.recognition = new SpeechRec();
             this.recognition.continuous = false;
             this.recognition.interimResults = true;
             this.recognition.lang = 'en-US';
+            this.recognition.maxAlternatives = 1;
 
             this.recognition.onstart = () => {
                 this.isListening = true;
                 this.updateVoiceUI(true, 'Listening... Speak your destination');
+
+                // Safety Watchdog: max 6.5s listening window so it NEVER hangs
+                if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
+                this.maxVoiceTimer = setTimeout(() => {
+                    if (this.isListening) {
+                        const toSend = (this.lastSpokenText || '').trim();
+                        this.lastSpokenText = '';
+                        this.stopVoice();
+                        if (toSend && toSend.length > 2) {
+                            this.askNavi(toSend);
+                        }
+                    }
+                }, 6500);
             };
 
             this.recognition.onresult = (event) => {
@@ -83,6 +101,7 @@
                 // Instant dispatch on browser final speech event
                 if (final && final.trim()) {
                     if (this.silenceTimer) clearTimeout(this.silenceTimer);
+                    if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
                     const toSend = final.trim();
                     this.lastSpokenText = '';
                     this.stopVoice();
@@ -90,17 +109,18 @@
                     return;
                 }
 
-                // Smart silence debounce: if user finishes speaking and pauses for 850ms, submit immediately!
+                // Ultra-responsive silence debounce: submit 500ms after user pauses
                 if (this.silenceTimer) clearTimeout(this.silenceTimer);
-                if (spoken && spoken.length > 3) {
+                if (spoken && spoken.length > 2) {
                     this.silenceTimer = setTimeout(() => {
                         if (this.isListening && this.lastSpokenText) {
+                            if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
                             const toSend = this.lastSpokenText;
                             this.lastSpokenText = '';
                             this.stopVoice();
                             this.askNavi(toSend);
                         }
-                    }, 850);
+                    }, 500);
                 }
             };
 
@@ -120,24 +140,30 @@
         },
 
         startVoice() {
-            if (!this.recognition) {
-                if (!this.initSpeech()) {
-                    this.notify('Voice input is not supported in this browser.');
-                    return;
-                }
+            // Fresh instance every time to prevent Chromium audio capture hang
+            if (!this.initSpeech()) {
+                this.notify('Voice input is not supported in this browser.');
+                return;
             }
             try {
                 this.recognition.start();
             } catch (e) {
-                try { this.recognition.stop(); } catch(err) {}
+                console.warn('[NaviBridge] Speech start retry:', e);
+                try {
+                    this.recognition.abort();
+                    this.recognition.start();
+                } catch(err) {}
             }
         },
 
         stopVoice() {
             this.isListening = false;
+            if (this.silenceTimer) clearTimeout(this.silenceTimer);
+            if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
             this.updateVoiceUI(false);
             if (this.recognition) {
-                try { this.recognition.stop(); } catch(e) {}
+                try { this.recognition.abort(); } catch(e) {}
+                this.recognition = null;
             }
         },
 
