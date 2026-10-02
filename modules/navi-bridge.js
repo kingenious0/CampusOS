@@ -20,11 +20,14 @@
             if (typeof window !== 'undefined' && window.ENV && window.ENV.naviCloudUrl) {
                 return window.ENV.naviCloudUrl.replace(/\/+$/, '');
             }
-            // Auto-detect same-origin ONLY on live deployments (e.g. *.vercel.app), not static local dev servers
+            // Auto-detect same-origin on live deployments (e.g. *.ustednav.app, *.vercel.app)
             if (typeof window !== 'undefined' && window.location && window.location.origin && window.location.protocol.startsWith('http')) {
                 const host = (window.location.hostname || '').toLowerCase();
                 const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host.endsWith('.local');
                 if (!isLocal) {
+                    if (host === 'ustednav.app') {
+                        return 'https://www.ustednav.app';
+                    }
                     return window.location.origin;
                 }
             }
@@ -39,10 +42,10 @@
             if (cleanBase.endsWith('/api')) {
                 return cleanBase + cleanPath.replace(/^\/api/, '');
             }
-            if (typeof window !== 'undefined' && cleanBase === window.location?.origin) {
-                return cleanBase + (cleanPath.startsWith('/api') ? cleanPath : '/api' + cleanPath);
+            if (cleanPath.startsWith('/api/')) {
+                return cleanBase + cleanPath;
             }
-            return cleanBase + cleanPath;
+            return cleanBase + '/api' + cleanPath;
         },
 
         /**
@@ -147,8 +150,10 @@
         },
 
         startVoice() {
+            this.updateVoiceUI(true, 'Listening... Speak your destination', 'Listening...');
             // Fresh instance every time to prevent Chromium audio capture hang
             if (!this.initSpeech()) {
+                this.updateVoiceUI(false);
                 this.notify('Voice input is not supported in this browser.');
                 return;
             }
@@ -162,7 +167,9 @@
                         this.recognition.abort();
                         this.recognition.start();
                     }
-                } catch(err) {}
+                } catch(err) {
+                    this.updateVoiceUI(false);
+                }
             }
         },
 
@@ -253,7 +260,7 @@
                     (async () => {
                         try {
                             const ctrl = new AbortController();
-                            const timeoutId = setTimeout(() => ctrl.abort(), 1200);
+                            const timeoutId = setTimeout(() => ctrl.abort(), 4000);
                             const res = await fetch(healthUrl, { signal: ctrl.signal });
                             clearTimeout(timeoutId);
                             if (res.ok) {
@@ -439,7 +446,7 @@
             if (parseUrl && isOnline) {
                 try {
                     const ctrl = new AbortController();
-                    const timeoutId = setTimeout(() => ctrl.abort(), 2000);
+                    const timeoutId = setTimeout(() => ctrl.abort(), 6000);
                     const resp = await fetch(parseUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -813,9 +820,14 @@
     // Auto-check health in browser environment
     if (typeof window !== 'undefined') {
         window.NaviBridge = NaviBridge;
-        window.addEventListener('DOMContentLoaded', () => {
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', () => {
+                NaviBridge.checkHealth();
+            });
+        } else {
+            // Already loaded or restored from PWA cache: execute health check immediately!
             NaviBridge.checkHealth();
-        });
+        }
     }
 
     if (typeof module !== 'undefined' && module.exports) {

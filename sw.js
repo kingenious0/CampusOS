@@ -3,7 +3,7 @@
  * Caches app shell + tile images for offline use
  */
 
-const CACHE_NAME  = 'ustednav-v1.3.1';
+const CACHE_NAME  = 'ustednav-v1.3.2';
 const TILE_CACHE  = 'ustednav-tiles-v1';
 
 // App shell and Studio admin files to precache on install
@@ -163,6 +163,9 @@ self.addEventListener('fetch', e => {
 
     // Bypass Supabase API requests (handled directly by offline-first IndexedDB queue)
     if (url.hostname.includes('supabase.co')) return;
+
+    // Bypass Cloud Navi backend API endpoints (/api/*, /health, /parse)
+    if (url.pathname.startsWith('/api/') || url.pathname === '/health' || url.pathname === '/parse') return;
 
     // Skip Mapbox events/telemetry
     if (url.hostname.includes('events.mapbox.com')) return;

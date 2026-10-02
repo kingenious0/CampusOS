@@ -2699,6 +2699,19 @@
         debounce = setTimeout(() => doSearch(q), 180);
     });
 
+    searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            const q = searchInput.value.trim();
+            if (q && window.NaviBridge) {
+                if (q.split(/\s+/).length >= 3 || /^(where|take|find|how|show|can|what|lead|route)/i.test(q)) {
+                    e.preventDefault();
+                    searchInput.blur();
+                    window.NaviBridge.askNavi(q);
+                }
+            }
+        }
+    });
+
     searchDirections?.addEventListener('click', () => {
         showToast('Entering direction mode...');
         searchInput.focus();
