@@ -114,6 +114,27 @@ async function runTests() {
     assert.strictEqual(convResult, true);
     console.log('[PASS] Conversational action execution verified.');
 
+    // 8. Test Fuzzy Matching & Suggestion Engine
+    console.log('--- TESTING FUZZY MATCH & POLITE UNKNOWN LOCATION RECOVERY ---');
+    const simScore1 = NaviBridge.calculateSimilarity('libary', 'USTED Library');
+    assert.ok(simScore1 > 0.6, `Similarity for "libary" vs "USTED Library" should be > 0.6, got ${simScore1}`);
+    console.log('[PASS] Typo resilience verified: "libary" matches "USTED Library" with score:', simScore1.toFixed(2));
+
+    const suggestions = NaviBridge.getFuzzySuggestions('economics block', buildingsData, peopleData, 3);
+    assert.ok(suggestions.length > 0, 'Should find fuzzy suggestions for economics');
+    assert.ok(suggestions.some(s => s.name.toLowerCase().includes('economics')), 'Should suggest Economics department');
+    console.log('[PASS] Fuzzy suggestions generated for "economics block":', suggestions.map(s => s.name));
+
+    // 9. Test Unknown / Missing Location polite fallback
+    const unknownResult = NaviBridge.execute({
+        success: true,
+        action: 'route_to',
+        parameters: { target: 'Eiffel Tower Paris' }
+    });
+    assert.strictEqual(unknownResult, false, 'Unknown location route should return false (not crash or wrongly route)');
+    assert.strictEqual(NaviBridge.currentAssistantState, 'confused', 'State should be set to confused for polite recovery');
+    console.log('[PASS] Unknown location politely intercepted with state:', NaviBridge.currentAssistantState);
+
     console.log('=============================================');
     console.log('ALL NAVIBRIDGE & NAVI AI TESTS PASSED (100%)!');
     console.log('=============================================');

@@ -65,95 +65,201 @@
                 try { prev.abort(); } catch(e) {}
             }
             this.recognition = new SpeechRec();
+            // Continuous false is standard for query recognition and avoids Windows socket drops
             this.recognition.continuous = false;
             this.recognition.interimResults = true;
-            this.recognition.lang = 'en-US';
+            try {
+                const navLang = (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
+                this.recognition.lang = navLang;
+            } catch(e) {
+                this.recognition.lang = 'en-US';
+            }
             this.recognition.maxAlternatives = 1;
 
             this.recognition.onstart = () => {
                 this.isListening = true;
-                this.updateVoiceUI(true, 'Listening... Speak your destination');
+                this.updateVoiceUI(true, '', 'Listening...');
 
-                // Safety Watchdog: max 6.5s listening window so it NEVER hangs
+                // Live Assistant Modal updates
+                const statusBadge = document.getElementById('naviAssistantStatus');
+                if (statusBadge) statusBadge.textContent = 'Listening...';
+                const wavesEl = document.getElementById('naviAudioWaves');
+                if (wavesEl) wavesEl.classList.add('active');
+                const micToggle = document.getElementById('naviAssistantMicToggle');
+                if (micToggle) {
+                    micToggle.innerHTML = '<i class="fas fa-stop"></i><span>Stop Listening</span>';
+                    micToggle.classList.add('active');
+                }
+
+                // Safety Watchdog: 14s window so user has plenty of time to ask their question
                 if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
                 this.maxVoiceTimer = setTimeout(() => {
                     if (this.isListening) {
                         const toSend = (this.lastSpokenText || '').trim();
                         this.lastSpokenText = '';
                         this.stopVoice();
-                        if (toSend && toSend.length > 2) {
+                        if (toSend && toSend.length > 1) {
                             this.askNavi(toSend);
+                        } else {
+                            this.setAssistantState('confused', {
+                                statusText: "Didn't catch that",
+                                speechText: "I couldn't hear your voice. Tap the orb or type below to ask Navi."
+                            });
                         }
                     }
-                }, 6500);
+                }, 14000);
             };
 
             this.recognition.onresult = (event) => {
-                let interim = '';
-                let final = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        final += event.results[i][0].transcript;
-                    } else {
-                        interim += event.results[i][0].transcript;
+                let fullFinal = '';
+                let fullInterim = '';
+                for (let i = 0; i < event.results.length; ++i) {
+                    const item = event.results[i];
+                    if (item && item[0]) {
+                        if (item.isFinal) {
+                            fullFinal += item[0].transcript + ' ';
+                        } else {
+                            fullInterim += item[0].transcript;
+                        }
                     }
                 }
-                const spoken = (final || interim).trim();
-                const input = document.getElementById('searchInput');
-                if (input && spoken) input.value = spoken;
-                this.lastSpokenText = spoken;
-                this.updateVoiceUI(true, spoken || 'Listening...', 'Listening...');
+                const spoken = (fullFinal + fullInterim).trim();
+                if (!spoken) return;
 
-                // Instant dispatch on browser final speech event
-                if (final && final.trim()) {
-                    if (this.silenceTimer) clearTimeout(this.silenceTimer);
-                    if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
-                    const toSend = final.trim();
+                this.lastSpokenText = spoken;
+                const input = document.getElementById('searchInput');
+                if (input) input.value = spoken;
+                const assistantInput = document.getElementById('naviAssistantInput');
+                if (assistantInput) assistantInput.value = spoken;
+
+                // Real-time live transcript for Google-style assistant modal!
+                const transcriptEl = document.getElementById('naviAssistantTranscript');
+                if (transcriptEl) {
+                    transcriptEl.textContent = `“${spoken}”`;
+                }
+                const statusBadge = document.getElementById('naviAssistantStatus');
+                if (statusBadge) {
+                    statusBadge.textContent = 'Listening...';
+                }
+                const wavesEl = document.getElementById('naviAudioWaves');
+                if (wavesEl) wavesEl.classList.add('active');
+
+                this.updateVoiceUI(true, spoken, 'Listening...');
+
+                // Final sentence or silence pause: dispatch after user pauses speaking
+                if (this.silenceTimer) clearTimeout(this.silenceTimer);
+                const isFinalChunk = event.results[event.results.length - 1]?.isFinal;
+                const delay = isFinalChunk ? 500 : 900;
+                this.silenceTimer = setTimeout(() => {
+                    if (this.isListening && this.lastSpokenText) {
+                        if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
+                        const toSend = this.lastSpokenText.trim();
+                        this.lastSpokenText = '';
+                        this.stopVoice();
+                        this.askNavi(toSend);
+                    }
+                }, delay);
+            };
+
+            this.recognition.onerror = (event) => {
+                const err = (event && event.error) || '';
+                if (err === 'aborted') {
+                    this.stopVoice();
+                    return;
+                }
+
+                // If user already spoke words before error/timeout, send them!
+                const toSend = (this.lastSpokenText || '').trim();
+                if (toSend && toSend.length > 1) {
                     this.lastSpokenText = '';
                     this.stopVoice();
                     this.askNavi(toSend);
                     return;
                 }
 
-                // Ultra-responsive silence debounce: submit 500ms after user pauses
-                if (this.silenceTimer) clearTimeout(this.silenceTimer);
-                if (spoken && spoken.length > 2) {
-                    this.silenceTimer = setTimeout(() => {
-                        if (this.isListening && this.lastSpokenText) {
-                            if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
-                            const toSend = this.lastSpokenText;
-                            this.lastSpokenText = '';
-                            this.stopVoice();
-                            this.askNavi(toSend);
-                        }
-                    }, 500);
-                }
-            };
-
-            this.recognition.onerror = (event) => {
-                const err = (event && event.error) || '';
-                // 'aborted' is intentional when user stops or dispatches speech; 'no-speech' is normal silence
-                if (err === 'aborted' || err === 'no-speech') {
+                // Smooth retry on momentary initial silence
+                if (err === 'no-speech') {
+                    if (this.isListening && this.noSpeechRetries < 2) {
+                        this.noSpeechRetries++;
+                        try {
+                            this.recognition?.stop();
+                            setTimeout(() => {
+                                if (this.isListening) {
+                                    try { this.recognition?.start(); } catch(e) {}
+                                }
+                            }, 200);
+                            return;
+                        } catch(e) {}
+                    }
                     this.stopVoice();
+                    this.setAssistantState('confused', {
+                        statusText: "Didn't catch that",
+                        speechText: "I couldn't hear your voice. Tap the orb or type your destination below."
+                    });
                     return;
                 }
+
+                if (err === 'not-allowed') {
+                    this.stopVoice();
+                    this.setAssistantState('confused', {
+                        statusText: "Microphone Blocked",
+                        speechText: "Please allow microphone access in your browser to speak with Navi."
+                    });
+                    return;
+                }
+
                 console.warn('[NaviBridge] Speech recognition note:', err);
                 this.stopVoice();
-                this.notify('Voice recognition note: ' + err);
+                this.setAssistantState('idle');
             };
 
             this.recognition.onend = () => {
+                const toSend = (this.lastSpokenText || '').trim();
+                this.lastSpokenText = '';
                 this.stopVoice();
+                if (toSend && toSend.length > 1) {
+                    this.askNavi(toSend);
+                } else if (this.isListening) {
+                    this.setAssistantState('confused', {
+                        statusText: "Didn't catch that",
+                        speechText: "I couldn't hear your voice. Tap the orb or type your query below."
+                    });
+                }
             };
 
             return true;
         },
 
-        startVoice() {
-            this.updateVoiceUI(true, 'Listening... Speak your destination', 'Listening...');
+        async startVoice() {
+            this.noSpeechRetries = 0;
+            this.lastSpokenText = '';
+            this.setAssistantState('listening', { 
+                statusText: 'Listening...', 
+                query: '',
+                speechText: ''
+            });
+
+            // Trigger permission if needed without locking the audio recording endpoint
+            if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    // Release the track immediately so Chrome's speech recognition has exclusive hardware access
+                    stream.getTracks().forEach(t => t.stop());
+                } catch (micErr) {
+                    console.warn('[NaviBridge] getUserMedia permission note:', micErr);
+                    if (micErr.name === 'NotAllowedError' || micErr.name === 'PermissionDeniedError') {
+                        this.setAssistantState('confused', {
+                            statusText: "Microphone Blocked",
+                            speechText: "Please allow microphone access in your browser to speak with Navi."
+                        });
+                        return;
+                    }
+                }
+            }
+
             // Fresh instance every time to prevent Chromium audio capture hang
             if (!this.initSpeech()) {
-                this.updateVoiceUI(false);
+                this.setAssistantState('idle');
                 this.notify('Voice input is not supported in this browser.');
                 return;
             }
@@ -168,7 +274,7 @@
                         this.recognition.start();
                     }
                 } catch(err) {
-                    this.updateVoiceUI(false);
+                    this.setAssistantState('idle');
                 }
             }
         },
@@ -177,7 +283,17 @@
             this.isListening = false;
             if (this.silenceTimer) clearTimeout(this.silenceTimer);
             if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
-            this.updateVoiceUI(false);
+            const micToggle = document.getElementById('naviAssistantMicToggle');
+            if (micToggle) {
+                micToggle.innerHTML = '<i class="fas fa-microphone"></i><span>Tap to Speak</span>';
+                micToggle.classList.remove('active');
+            }
+            if (this.activeMicStream) {
+                try {
+                    this.activeMicStream.getTracks().forEach(t => t.stop());
+                } catch(e) {}
+                this.activeMicStream = null;
+            }
             if (this.recognition) {
                 const rec = this.recognition;
                 this.recognition = null;
@@ -188,9 +304,17 @@
             }
         },
 
+        closeAssistant() {
+            this.stopVoice();
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
+            this.setAssistantState('idle');
+        },
+
         toggleVoice() {
             if (this.isListening) {
-                // If user clicks mic while already speaking, immediately submit what was spoken!
+                // If user clicks while already speaking, immediately submit what was spoken!
                 if (this.lastSpokenText && this.lastSpokenText.trim().length > 2) {
                     const toSend = this.lastSpokenText.trim();
                     this.lastSpokenText = '';
@@ -199,18 +323,29 @@
                     return;
                 }
                 this.stopVoice();
+                this.setAssistantState('idle');
             } else {
                 this.startVoice();
             }
         },
 
-        speak(text) {
+        speak(text, onEnd) {
             if (typeof window !== 'undefined' && 'speechSynthesis' in window && text) {
                 try {
                     window.speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.rate = 1.05;
                     utterance.pitch = 1.0;
+                    utterance.onstart = () => {
+                        this.setOrbVisualState('speaking');
+                    };
+                    utterance.onend = () => {
+                        this.setOrbVisualState(this.currentAssistantState || 'idle');
+                        if (typeof onEnd === 'function') onEnd();
+                    };
+                    utterance.onerror = () => {
+                        this.setOrbVisualState(this.currentAssistantState || 'idle');
+                    };
                     window.speechSynthesis.speak(utterance);
                 } catch(e) {}
             }
@@ -218,11 +353,249 @@
 
         autoHideTimeout: null,
 
-        autoHideVoiceUI(delayMs = 3500) {
+        autoHideVoiceUI(delayMs = 3800) {
             if (this.autoHideTimeout) clearTimeout(this.autoHideTimeout);
             this.autoHideTimeout = setTimeout(() => {
-                this.updateVoiceUI(false);
+                // Only auto-hide if in idle or success state, not if user has suggestion chips to click
+                if (this.currentAssistantState === 'success') {
+                    this.closeAssistant();
+                }
             }, delayMs);
+        },
+
+        calculateSimilarity(s1, s2) {
+            if (!s1 || !s2) return 0;
+            const a = s1.toLowerCase().trim();
+            const b = s2.toLowerCase().trim();
+            if (a === b) return 1.0;
+            if (a.includes(b) || b.includes(a)) {
+                return 0.85 + (Math.min(a.length, b.length) / Math.max(a.length, b.length)) * 0.14;
+            }
+
+            // Helper for Dice character bigram similarity between two single tokens
+            const bigramDice = (x, y) => {
+                const sX = x.replace(/[^a-z0-9]/g, '');
+                const sY = y.replace(/[^a-z0-9]/g, '');
+                if (!sX || !sY) return 0;
+                if (sX === sY) return 1.0;
+                const bgX = new Map();
+                for (let i = 0; i < sX.length - 1; i++) {
+                    const pair = sX.substr(i, 2);
+                    bgX.set(pair, (bgX.get(pair) || 0) + 1);
+                }
+                let common = 0;
+                for (let i = 0; i < sY.length - 1; i++) {
+                    const pair = sY.substr(i, 2);
+                    const count = bgX.get(pair) || 0;
+                    if (count > 0) {
+                        common++;
+                        bgX.set(pair, count - 1);
+                    }
+                }
+                const total = Math.max(0, sX.length - 1) + Math.max(0, sY.length - 1);
+                return total > 0 ? (2 * common) / total : 0;
+            };
+
+            // Full string bigram dice
+            const fullDice = bigramDice(a, b);
+
+            const wordsA = a.split(/\s+/).filter(w => w.length > 1);
+            const wordsB = b.split(/\s+/).filter(w => w.length > 1);
+            if (wordsA.length === 0 || wordsB.length === 0) return fullDice;
+
+            // Generic campus terms have lower discriminative weight
+            const genericCampusTerms = new Set(['block', 'building', 'hall', 'room', 'dept', 'department', 'centre', 'center', 'the', 'of', 'and']);
+
+            let weightedScoreSum = 0;
+            let totalWeight = 0;
+
+            for (const wa of wordsA) {
+                const weight = genericCampusTerms.has(wa) ? 1.5 : Math.max(2, wa.length);
+                totalWeight += weight;
+
+                let bestWordMatch = 0;
+                for (const wb of wordsB) {
+                    const d = bigramDice(wa, wb);
+                    if (d > bestWordMatch) bestWordMatch = d;
+                }
+                weightedScoreSum += bestWordMatch * weight;
+            }
+
+            const queryCoverage = totalWeight > 0 ? (weightedScoreSum / totalWeight) : 0;
+            return Math.max(fullDice, queryCoverage);
+        },
+
+        getFuzzySuggestions(query, bData, pData, limit = 3) {
+            if (!query) return [];
+            const buildings = bData || (typeof window !== 'undefined' && window.CampusOS ? window.CampusOS.getBuildingsData() : []) || [];
+            const people = pData || (typeof window !== 'undefined' && window.peopleData ? window.peopleData : []) || [];
+            const scored = [];
+            const seen = new Set();
+
+            // Buildings & rooms
+            buildings.forEach(b => {
+                let maxBScore = this.calculateSimilarity(query, b.name || '');
+                if (b.shortName) maxBScore = Math.max(maxBScore, this.calculateSimilarity(query, b.shortName));
+                if (b.keywords && Array.isArray(b.keywords)) {
+                    b.keywords.forEach(k => {
+                        maxBScore = Math.max(maxBScore, this.calculateSimilarity(query, k));
+                    });
+                }
+                if (maxBScore > 0.28 && !seen.has(b.name)) {
+                    seen.add(b.name);
+                    scored.push({
+                        name: b.name,
+                        type: 'building',
+                        building: b,
+                        score: maxBScore
+                    });
+                }
+            });
+
+            // Staff & departments
+            people.forEach(p => {
+                const pName = p.name || p.full_name || '';
+                const pScore = this.calculateSimilarity(query, pName);
+                if (pScore > 0.35 && !seen.has(pName)) {
+                    seen.add(pName);
+                    const bCode = (p.building || p.buildingName || p.buildingId || '').toLowerCase();
+                    const bOffice = buildings.find(b => 
+                        (b.id && String(b.id).toLowerCase() === bCode) ||
+                        (b.shortName && b.shortName.toLowerCase() === bCode) ||
+                        (b.name && b.name.toLowerCase().includes(bCode))
+                    ) || null;
+                    scored.push({
+                        name: `${pName} (${p.department || 'Staff'})`,
+                        type: 'staff',
+                        building: bOffice,
+                        score: pScore
+                    });
+                }
+            });
+
+            scored.sort((a, b) => b.score - a.score);
+            return scored.slice(0, limit);
+        },
+
+        getDefaultLandmarks(bData) {
+            const buildings = bData || (typeof window !== 'undefined' && window.CampusOS ? window.CampusOS.getBuildingsData() : []) || [];
+            const defaults = ['Library', 'Auditorium', 'Mosque', 'Catering', 'Clinic', 'Management'];
+            const matched = [];
+            defaults.forEach(key => {
+                const found = buildings.find(b => (b.name && b.name.toLowerCase().includes(key.toLowerCase())));
+                if (found && !matched.some(m => m.name === found.name)) {
+                    matched.push({
+                        name: found.name,
+                        type: 'building',
+                        building: found,
+                        score: 0.5
+                    });
+                }
+            });
+            return matched.slice(0, 3);
+        },
+
+        currentAssistantState: 'idle',
+
+        setOrbVisualState(state) {
+            if (typeof document === 'undefined') return;
+            const heroOrb = document.getElementById('naviHeroOrb');
+            const screenOrb = document.getElementById('naviOrbTrigger');
+            if (heroOrb) {
+                heroOrb.className = `navi-hero-orb state-${state}`;
+            }
+            if (screenOrb) {
+                screenOrb.className = `navi-screen-orb state-${state}`;
+            }
+        },
+
+        setAssistantState(state, data = {}) {
+            this.currentAssistantState = state;
+            if (typeof document === 'undefined') return;
+
+            const overlay = document.getElementById('naviAssistantOverlay');
+            const statusBadge = document.getElementById('naviAssistantStatus');
+            const transcriptEl = document.getElementById('naviAssistantTranscript');
+            const responseTextEl = document.getElementById('naviAssistantResponse');
+            const suggestionsEl = document.getElementById('naviAssistantSuggestions');
+            const wavesEl = document.getElementById('naviAudioWaves');
+
+            this.setOrbVisualState(state);
+
+            // Legacy HUD & Button compatibility
+            this.updateVoiceUI(state !== 'idle', data.query || data.text || '', data.statusText || state);
+
+            if (!overlay) return;
+
+            if (state === 'idle') {
+                overlay?.classList?.remove('active');
+                if (wavesEl) wavesEl?.classList?.remove('active');
+                return;
+            }
+
+            overlay?.classList?.add('active');
+
+            if (wavesEl) {
+                if (state === 'listening') wavesEl?.classList?.add('active');
+                else wavesEl?.classList?.remove('active');
+            }
+
+            if (statusBadge) {
+                const statusLabels = {
+                    listening: 'Listening...',
+                    thinking: 'Thinking...',
+                    speaking: 'Navi AI',
+                    success: 'Destination Found',
+                    confused: 'Location Not Pinpointed'
+                };
+                statusBadge.textContent = data.statusText || statusLabels[state] || 'Navi AI';
+            }
+
+            if (transcriptEl) {
+                if (data.query !== undefined) {
+                    transcriptEl.textContent = data.query ? `“${data.query}”` : 'What can I help you find?';
+                }
+            }
+
+            if (responseTextEl) {
+                if (data.speechText || data.message) {
+                    responseTextEl.textContent = data.speechText || data.message;
+                    responseTextEl.style.display = 'block';
+                } else if (state === 'listening' || state === 'thinking') {
+                    responseTextEl.textContent = '';
+                    responseTextEl.style.display = 'none';
+                }
+            }
+
+            if (suggestionsEl) {
+                suggestionsEl.innerHTML = '';
+                if (data.suggestions && data.suggestions.length > 0) {
+                    suggestionsEl.style.display = 'flex';
+                    data.suggestions.forEach(item => {
+                        const chip = document.createElement('button');
+                        chip.className = 'navi-suggestion-chip';
+                        chip.innerHTML = `<i class="fas fa-location-dot"></i><span>${item.name}</span>`;
+                        chip.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.speak(`Routing to ${item.name}`);
+                            this.setAssistantState('success', { 
+                                query: item.name, 
+                                speechText: `Routing to ${item.name}`,
+                                statusText: 'Navigating'
+                            });
+                            this.autoHideVoiceUI(3000);
+                            if (item.building) {
+                                this.triggerCampusRoute(item.building.lat, item.building.lng, item.name);
+                            } else {
+                                this.fallbackSearch(item.name);
+                            }
+                        });
+                        suggestionsEl.appendChild(chip);
+                    });
+                } else {
+                    suggestionsEl.style.display = 'none';
+                }
+            }
         },
 
         updateVoiceUI(active, text = '', statusText = '') {
@@ -233,8 +606,8 @@
             const status = document.getElementById('naviStatus') || document.getElementById('charlieStatus');
 
             if (btn) {
-                if (active) btn.classList.add('listening');
-                else btn.classList.remove('listening');
+                if (active) btn?.classList?.add('listening');
+                else btn?.classList?.remove('listening');
             }
             if (hud) {
                 hud.style.display = active ? 'flex' : 'none';
@@ -612,17 +985,38 @@
                             ? `${b.name} (${entity.data.name || entity.data.number || target})`
                             : (entity.type === 'staff' ? `${entity.data.name} (${b.name})` : b.name);
 
-                        this.notify(`Routing to ${destName}...`);
-                        this.speak(`Routing to ${destName}`);
-                        this.updateVoiceUI(true, `Routing to ${destName}`, 'Navigating');
+                        const speech = `Routing to ${destName}`;
+                        this.notify(speech + '...');
+                        this.speak(speech);
+                        this.setAssistantState('success', {
+                            query: target,
+                            speechText: speech,
+                            statusText: 'Navigating to ' + destName,
+                            suggestions: [{ name: destName, building: b }]
+                        });
                         this.autoHideVoiceUI(3500);
                         if (this.triggerCampusRoute(b.lat, b.lng, destName)) {
                             return true;
                         }
                     }
-                    this.notify(`Could not pinpoint "${target}" for direct routing. Searching...`);
-                    this.updateVoiceUI(true, `Searching directory for "${target}"`, 'Pinpointing');
-                    this.autoHideVoiceUI(3000);
+
+                    // Friendly fuzzy recovery when direct entity resolution fails
+                    const suggestions = this.getFuzzySuggestions(target, bData, pData, 3);
+                    let politeMsg = '';
+                    if (suggestions.length > 0 && suggestions[0].score >= 0.42) {
+                        const best = suggestions[0];
+                        politeMsg = `I couldn't find an exact match for "${target}", but did you mean ${best.name}?`;
+                    } else {
+                        politeMsg = `I'm sorry, I couldn't find "${target}" on the USTED Kumasi campus map. Would you like to check our campus facilities or search the directory?`;
+                    }
+                    this.notify(politeMsg);
+                    this.speak(politeMsg);
+                    this.setAssistantState('confused', {
+                        query: target,
+                        speechText: politeMsg,
+                        suggestions: suggestions.length > 0 ? suggestions : this.getDefaultLandmarks(bData),
+                        statusText: 'Location Not Pinpointed'
+                    });
                     this.fallbackSearch(target);
                     return false;
                 }
@@ -636,9 +1030,15 @@
                             ? `${b.name} (${entity.data.name || entity.data.number || placeName})`
                             : b.name;
 
-                        this.notify(`Found ${destName}`);
-                        this.speak(`Here is ${destName}`);
-                        this.updateVoiceUI(true, `Found ${destName}`, 'Located');
+                        const speech = `Found ${destName}`;
+                        this.notify(speech);
+                        this.speak(speech);
+                        this.setAssistantState('success', {
+                            query: placeName,
+                            speechText: speech,
+                            statusText: 'Located ' + destName,
+                            suggestions: [{ name: destName, building: b }]
+                        });
                         this.autoHideVoiceUI(3500);
 
                         if (!this.triggerCampusRoute(b.lat, b.lng, destName)) {
@@ -649,8 +1049,24 @@
                         }
                         return true;
                     }
-                    this.updateVoiceUI(true, `Searching directory for "${placeName}"`, 'Searching');
-                    this.autoHideVoiceUI(3000);
+
+                    // Friendly fuzzy recovery
+                    const suggestions = this.getFuzzySuggestions(placeName, bData, pData, 3);
+                    let politeMsg = '';
+                    if (suggestions.length > 0 && suggestions[0].score >= 0.42) {
+                        const best = suggestions[0];
+                        politeMsg = `I couldn't pinpoint "${placeName}", but did you mean ${best.name}?`;
+                    } else {
+                        politeMsg = `I'm sorry, I couldn't find "${placeName}" on the USTED Kumasi campus map.`;
+                    }
+                    this.notify(politeMsg);
+                    this.speak(politeMsg);
+                    this.setAssistantState('confused', {
+                        query: placeName,
+                        speechText: politeMsg,
+                        suggestions: suggestions.length > 0 ? suggestions : this.getDefaultLandmarks(bData),
+                        statusText: 'Place Not Found'
+                    });
                     this.fallbackSearch(placeName);
                     return false;
                 }
@@ -662,9 +1078,15 @@
                         const p = entity.data;
                         const b = entity.building;
                         const destName = b ? `${p.name} (${b.name})` : p.name;
+                        const speech = `${p.name}'s office is at ${b ? b.name : 'the campus'}`;
                         this.notify(`Found ${p.name}`);
-                        this.speak(`${p.name}'s office is at ${b ? b.name : 'the campus'}`);
-                        this.updateVoiceUI(true, `${p.name} • ${b ? b.name : 'Campus'}`, 'Staff Found');
+                        this.speak(speech);
+                        this.setAssistantState('success', {
+                            query: staffQuery,
+                            speechText: speech,
+                            statusText: 'Staff Member Found',
+                            suggestions: b ? [{ name: destName, building: b }] : []
+                        });
                         this.autoHideVoiceUI(3500);
 
                         if (!b || !this.triggerCampusRoute(b.lat, b.lng, destName)) {
@@ -675,8 +1097,17 @@
                         }
                         return true;
                     }
-                    this.updateVoiceUI(true, `Searching staff directory for "${staffQuery}"`, 'Searching');
-                    this.autoHideVoiceUI(3000);
+
+                    const suggestions = this.getFuzzySuggestions(staffQuery, bData, pData, 3);
+                    const politeMsg = `I'm sorry, I couldn't find "${staffQuery}" in the campus directory. You can check the department directory below.`;
+                    this.notify(politeMsg);
+                    this.speak(politeMsg);
+                    this.setAssistantState('confused', {
+                        query: staffQuery,
+                        speechText: politeMsg,
+                        suggestions: suggestions.length > 0 ? suggestions : this.getDefaultLandmarks(bData),
+                        statusText: 'Staff Not Found'
+                    });
                     this.fallbackSearch(staffQuery);
                     return false;
                 }
@@ -705,9 +1136,15 @@
 
                     if (matches.length > 0) {
                         const top = matches[0].building;
-                        this.notify(`Routing to ${amenity} at ${top.name}...`);
-                        this.speak(`Routing to ${amenity} at ${top.name}`);
-                        this.updateVoiceUI(true, `${amenity.toUpperCase()} at ${top.name}`, 'Amenity Located');
+                        const speech = `Routing to ${amenity} at ${top.name}`;
+                        this.notify(speech + '...');
+                        this.speak(speech);
+                        this.setAssistantState('success', {
+                            query: amenity,
+                            speechText: speech,
+                            statusText: 'Amenity Located',
+                            suggestions: [{ name: `${amenity.toUpperCase()} • ${top.name}`, building: top }]
+                        });
                         this.autoHideVoiceUI(3500);
 
                         if (!this.triggerCampusRoute(top.lat, top.lng, top.name)) {
@@ -719,27 +1156,61 @@
                         return true;
                     }
 
-                    this.updateVoiceUI(true, `Searching amenities for "${amenity}"`, 'Searching');
-                    this.autoHideVoiceUI(3000);
+                    const politeMsg = `I couldn't locate "${amenity}" on campus. Let me show campus amenities in the directory.`;
+                    this.notify(politeMsg);
+                    this.speak(politeMsg);
+                    this.setAssistantState('confused', {
+                        query: amenity,
+                        speechText: politeMsg,
+                        suggestions: this.getDefaultLandmarks(bData),
+                        statusText: 'Facility Not Found'
+                    });
                     this.fallbackSearch(amenity);
                     return false;
                 }
 
                 case 'conversational': {
-                    const msg = parameters.message || parameters.reply || parseResult.speech_text || 'Hello! I am Navi, your campus guide.';
+                    const msg = parameters.message || parameters.reply || parseResult.speech_text || 'Hello! I am Navi, your campus guide. Ask me for directions or places around USTED Kumasi.';
                     this.notify(msg);
                     this.speak(msg);
-                    this.updateVoiceUI(true, msg, 'Navi');
-                    this.autoHideVoiceUI(4500);
+                    this.setAssistantState('speaking', {
+                        query: parseResult.raw_query || '',
+                        speechText: msg,
+                        statusText: 'Navi AI Guide',
+                        suggestions: this.getDefaultLandmarks(bData)
+                    });
                     return true;
                 }
 
-                default:
-                    if (parseResult.speech_text) {
-                        this.speak(parseResult.speech_text);
-                    }
-                    this.fallbackSearch(parameters.place_name || parameters.target || '');
+                case 'unknown_place': {
+                    const target = parameters.place_name || parameters.target || 'that location';
+                    const suggestions = this.getFuzzySuggestions(target, bData, pData, 3);
+                    const politeMsg = parseResult.speech_text || `I'm sorry, I couldn't find "${target}" on the USTED Kumasi campus map. Would you like to check nearby facilities or search our directory?`;
+                    this.notify(politeMsg);
+                    this.speak(politeMsg);
+                    this.setAssistantState('confused', {
+                        query: target,
+                        speechText: politeMsg,
+                        suggestions: suggestions.length > 0 ? suggestions : this.getDefaultLandmarks(bData),
+                        statusText: 'Location Not Found'
+                    });
+                    this.fallbackSearch(target);
                     return false;
+                }
+
+                default: {
+                    const fallbackTarget = parameters.place_name || parameters.target || '';
+                    const speech = parseResult.speech_text || (fallbackTarget ? `Searching for ${fallbackTarget}` : 'How can I assist you on campus?');
+                    this.speak(speech);
+                    this.setAssistantState('confused', {
+                        query: fallbackTarget,
+                        speechText: speech,
+                        suggestions: this.getDefaultLandmarks(bData),
+                        statusText: 'Directory Search'
+                    });
+                    this.fallbackSearch(fallbackTarget);
+                    return false;
+                }
             }
         },
 
@@ -799,15 +1270,19 @@
          */
         async askNavi(query) {
             this.notify('Asking Navi...');
-            this.updateVoiceUI(true, `"${query}"`, 'Thinking...');
+            this.setAssistantState('thinking', { 
+                query: query, 
+                statusText: 'Thinking...' 
+            });
             const parseResult = await this.parse(query);
             if (parseResult && parseResult.success) {
                 return this.execute(parseResult);
             } else {
-                this.fallbackSearch(query);
-                this.updateVoiceUI(true, `Searching directory for "${query}"`, 'Directory');
-                this.autoHideVoiceUI(3000);
-                return false;
+                return this.execute({
+                    action: 'unknown_place',
+                    parameters: { place_name: query },
+                    raw_query: query
+                });
             }
         },
 

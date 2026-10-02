@@ -367,6 +367,573 @@
             color: #fff;
         }
 
+        /* ══════════════════════════════════════════════════
+           NAVI AI SCREEN ORB & GOOGLE ASSISTANT MODAL
+        ══════════════════════════════════════════════════ */
+        .navi-orb-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+        }
+        .navi-screen-orb {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background: radial-gradient(circle at 35% 30%, #60a5fa 0%, #3b82f6 30%, #6366f1 65%, #33449b 100%);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45), 0 0 18px rgba(248, 181, 17, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+            animation: orb-levitate 3.6s ease-in-out infinite;
+            z-index: 1002;
+            overflow: hidden;
+        }
+        .navi-screen-orb:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6), 0 0 28px rgba(248, 181, 17, 0.5);
+        }
+        .navi-screen-orb:active {
+            transform: scale(0.95);
+        }
+        @keyframes orb-levitate {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .navi-screen-orb .orb-core {
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 20%, transparent 60%),
+                        conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f8b511, #06b6d4, #3b82f6);
+            animation: orb-conic-spin 6s linear infinite;
+            mix-blend-mode: screen;
+        }
+        @keyframes orb-conic-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .navi-screen-orb .orb-highlight {
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            width: 18px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 80%);
+            transform: rotate(-25deg);
+            pointer-events: none;
+            z-index: 3;
+        }
+        .navi-screen-orb .orb-icon {
+            position: relative;
+            z-index: 4;
+            color: #ffffff;
+            font-size: 18px;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+            transition: all 0.3s ease;
+        }
+        .navi-screen-orb .orb-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            animation: orb-ring-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes orb-ring-pulse {
+            0% { transform: scale(0.9); opacity: 0.8; border-color: rgba(96, 165, 250, 0.8); }
+            100% { transform: scale(1.4); opacity: 0; border-color: rgba(248, 181, 17, 0); }
+        }
+
+        .navi-screen-orb.state-listening {
+            animation: orb-levitate 1.5s ease-in-out infinite;
+            box-shadow: 0 0 28px rgba(239, 68, 68, 0.6), 0 0 45px rgba(248, 181, 17, 0.5);
+        }
+        .navi-screen-orb.state-listening .orb-ring {
+            border-color: rgba(239, 68, 68, 0.7);
+            animation-duration: 1.2s;
+        }
+        .navi-screen-orb.state-thinking {
+            box-shadow: 0 0 32px rgba(139, 92, 246, 0.7), 0 0 48px rgba(14, 165, 233, 0.5);
+        }
+        .navi-screen-orb.state-thinking .orb-core {
+            animation-duration: 1.5s;
+        }
+        .navi-screen-orb.state-confused {
+            box-shadow: 0 0 28px rgba(248, 181, 17, 0.6), 0 0 24px rgba(239, 68, 68, 0.4);
+        }
+
+        .navi-orb-tooltip {
+            position: absolute;
+            right: calc(100% + 10px);
+            background: rgba(15, 23, 42, 0.9);
+            color: #f8fafc;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(6px);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .navi-orb-container:hover .navi-orb-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Search Bar Mini Orb */
+        .search-voice-btn.search-orb-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .search-orb-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #60a5fa, #6366f1, #f8b511);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+            animation: orb-conic-spin 5s linear infinite;
+        }
+        .search-voice-btn.listening .search-orb-dot {
+            animation: orb-pulse-red 0.8s infinite alternate;
+        }
+        @keyframes orb-pulse-red {
+            from { transform: scale(0.9); filter: drop-shadow(0 0 4px #ef4444); }
+            to { transform: scale(1.2); filter: drop-shadow(0 0 12px #ef4444); }
+        }
+
+        /* ── NAVI ASSISTANT OVERLAY & MODAL (GOOGLE STYLE) ── */
+        .navi-assistant-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+        }
+        .navi-assistant-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .navi-assistant-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 12, 24, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .navi-assistant-sheet {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(248, 181, 17, 0.4);
+            box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.2);
+            border-radius: 28px 28px 0 0;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            padding: 16px 22px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2;
+            color: #f8fafc;
+        }
+        .navi-assistant-overlay.active .navi-assistant-sheet {
+            transform: translateY(0);
+        }
+        @media (min-width: 768px) {
+            .navi-assistant-overlay {
+                justify-content: center;
+            }
+            .navi-assistant-sheet {
+                border-radius: 28px;
+                transform: translateY(30px) scale(0.95);
+            }
+            .navi-assistant-overlay.active .navi-assistant-sheet {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .navi-assistant-sheet-handle {
+            width: 44px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .navi-assistant-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .navi-assistant-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(248, 181, 17, 0.12);
+            border: 1px solid rgba(248, 181, 17, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #f8b511;
+        }
+        .navi-badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: dot-pulse 1.8s infinite;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        .navi-badge-engine {
+            font-size: 9px;
+            font-weight: 600;
+            color: #94a3b8;
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            padding-left: 8px;
+            text-transform: uppercase;
+        }
+        .navi-assistant-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .navi-assistant-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .navi-assistant-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* ── HERO CENTER ORB ── */
+        .navi-hero-orb-wrapper {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 6px 0 16px;
+        }
+        .navi-hero-pulse-rings {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .hero-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(99, 102, 241, 0.4);
+            opacity: 0;
+        }
+        .navi-hero-orb.state-listening ~ .navi-hero-pulse-rings .hero-ring,
+        .navi-hero-orb-wrapper:hover .hero-ring {
+            animation: hero-ring-out 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+        .hero-ring.ring-2 { animation-delay: 0.8s; }
+        .hero-ring.ring-3 { animation-delay: 1.6s; }
+        @keyframes hero-ring-out {
+            0% { transform: scale(0.85); opacity: 0.8; border-color: rgba(96, 165, 250, 0.7); }
+            100% { transform: scale(1.7); opacity: 0; border-color: rgba(248, 181, 17, 0); }
+        }
+
+        .navi-hero-orb {
+            position: relative;
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: radial-gradient(circle at 35% 28%, #93c5fd 0%, #3b82f6 30%, #6366f1 65%, #33449b 100%);
+            box-shadow: 0 12px 36px rgba(59, 130, 246, 0.5), 0 0 24px rgba(248, 181, 17, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+        .navi-hero-orb .hero-orb-core {
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f8b511, #06b6d4, #3b82f6);
+            animation: orb-conic-spin 7s linear infinite;
+            mix-blend-mode: screen;
+        }
+        .navi-hero-orb .hero-orb-specular {
+            position: absolute;
+            top: 6px;
+            left: 12px;
+            width: 32px;
+            height: 18px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 80%);
+            transform: rotate(-25deg);
+            pointer-events: none;
+            z-index: 3;
+        }
+        .navi-hero-orb:hover {
+            transform: scale(1.06);
+            box-shadow: 0 16px 44px rgba(99, 102, 241, 0.7), 0 0 36px rgba(248, 181, 17, 0.5);
+        }
+
+        .navi-hero-orb.state-listening {
+            transform: scale(1.08);
+            box-shadow: 0 0 45px rgba(239, 68, 68, 0.6), 0 0 35px rgba(248, 181, 17, 0.5);
+        }
+        .navi-hero-orb.state-thinking .hero-orb-core {
+            animation-duration: 1.4s;
+        }
+        .navi-hero-orb.state-speaking {
+            animation: orb-speak-pulse 1.4s ease-in-out infinite alternate;
+        }
+        @keyframes orb-speak-pulse {
+            from { transform: scale(1); filter: brightness(1); }
+            to { transform: scale(1.07); filter: brightness(1.25); }
+        }
+        .navi-hero-orb.state-confused {
+            box-shadow: 0 0 36px rgba(248, 181, 17, 0.6), 0 0 24px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ── SOUNDWAVE AUDIO BARS (GOOGLE STYLE) ── */
+        .navi-audio-waves {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 24px;
+            margin-bottom: 12px;
+        }
+        .wave-bar {
+            width: 5px;
+            height: 8px;
+            border-radius: 10px;
+            transition: height 0.2s ease;
+        }
+        .wave-bar.bar-blue   { background: #4285F4; }
+        .wave-bar.bar-red    { background: #EA4335; }
+        .wave-bar.bar-yellow { background: #FBBC05; }
+        .wave-bar.bar-green  { background: #34A853; }
+
+        .navi-audio-waves.active .wave-bar {
+            animation: wave-bar-bounce 1s ease-in-out infinite alternate;
+        }
+        .navi-audio-waves.active .wave-bar.bar-blue   { animation-delay: 0.0s; }
+        .navi-audio-waves.active .wave-bar.bar-red    { animation-delay: 0.15s; }
+        .navi-audio-waves.active .wave-bar.bar-yellow { animation-delay: 0.3s; }
+        .navi-audio-waves.active .wave-bar.bar-green  { animation-delay: 0.45s; }
+
+        @keyframes wave-bar-bounce {
+            0%   { height: 6px; }
+            50%  { height: 26px; }
+            100% { height: 12px; }
+        }
+
+        /* ── STATUS & TRANSCRIPT ── */
+        .navi-assistant-status {
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+        .navi-assistant-transcript {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            max-width: 440px;
+            line-height: 1.4;
+            margin-bottom: 14px;
+            min-height: 28px;
+            word-break: break-word;
+        }
+
+        /* ── RESPONSE BUBBLE ── */
+        .navi-assistant-response {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #f1f5f9;
+            max-width: 460px;
+            margin-bottom: 14px;
+            animation: cv-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ── SUGGESTIONS CHIPS ── */
+        .navi-assistant-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            max-width: 460px;
+        }
+        .navi-suggestion-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(248, 181, 17, 0.3);
+            color: #f8fafc;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .navi-suggestion-chip i {
+            color: #f8b511;
+            font-size: 11px;
+        }
+        .navi-suggestion-chip:hover {
+            background: rgba(248, 181, 17, 0.2);
+            border-color: #f8b511;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(248, 181, 17, 0.25);
+        }
+
+        /* ── INLINE QUICK TYPE BAR ── */
+        .navi-assistant-input-bar {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 4px 6px 4px 16px;
+            margin: 6px 0 12px;
+            transition: all 0.25s ease;
+        }
+        .navi-assistant-input-bar:focus-within {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: #f8b511;
+            box-shadow: 0 0 18px rgba(248, 181, 17, 0.3);
+        }
+        .navi-assistant-input-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .navi-assistant-input-bar input::placeholder {
+            color: #94a3b8;
+        }
+        .navi-assistant-input-bar button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f8b511;
+            color: #1e293b;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .navi-assistant-input-bar button:hover {
+            transform: scale(1.08);
+            background: #e5a409;
+        }
+
+        /* ── BOTTOM ACTIONS ── */
+        .navi-assistant-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .navi-assistant-mic-toggle, .navi-assistant-dir-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            color: #cbd5e1;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s ease;
+        }
+        .navi-assistant-mic-toggle:hover, .navi-assistant-dir-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .navi-assistant-mic-toggle.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+        .navi-assistant-mic-toggle i {
+            color: #38bdf8;
+        }
+        .navi-assistant-mic-toggle.active i {
+            color: #ef4444;
+        }
+        .navi-assistant-dir-btn i {
+            color: #f8b511;
+        }
+
         .search-dir-btn {
             background: none; border: none;
             color: var(--primary);
@@ -1904,8 +2471,9 @@
             </button>
             <input type="text" id="searchInput" placeholder="Search USTED NAV" autocomplete="off" spellcheck="false">
             <div class="search-action-btns">
-                <button class="search-voice-btn" id="searchVoiceBtn" title="Speak to Navi (Voice Navigation)" aria-label="Voice Search">
-                    <i class="fas fa-microphone"></i>
+                <button class="search-voice-btn search-orb-btn" id="searchVoiceBtn" title="Speak to Navi (Voice Navigation)" aria-label="Voice Search">
+                    <div class="search-orb-dot" id="searchOrbDot"></div>
+                    <i class="fas fa-microphone" style="display:none"></i>
                 </button>
                 <button class="search-icon-btn" id="searchSearchBtn" aria-label="Search">
                     <i class="fas fa-magnifying-glass"></i>
@@ -1960,6 +2528,17 @@
 
     <!-- FLOATING BUTTONS (RIGHT) -->
     <div class="fabs">
+        <!-- FLOATING NAVI AI ORB (ON SCREEN TRIGGER) -->
+        <div class="navi-orb-container" id="naviOrbContainer">
+            <button class="navi-screen-orb state-idle" id="naviOrbTrigger" title="Tap to talk to Navi AI" aria-label="Activate Navi Voice Assistant">
+                <div class="orb-ring"></div>
+                <div class="orb-core"></div>
+                <div class="orb-highlight"></div>
+                <i class="fas fa-sparkles orb-icon"></i>
+            </button>
+            <div class="navi-orb-tooltip">Tap to speak to Navi</div>
+        </div>
+
         <button class="fab fab-dim-toggle" id="btnDimToggle" title="Switch to 3D Campus View" aria-label="Toggle 2D or 3D View">
             <span id="dimToggleLabel"><i class="fas fa-cube" style="font-size:12px;margin-right:2px"></i> 3D</span>
         </button>
@@ -2003,6 +2582,75 @@
             </div>
             <div class="services-grid" id="servicesGrid">
                 <!-- Services will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVI ASSISTANT OVERLAY & MODAL (GOOGLE STYLE) -->
+    <div class="navi-assistant-overlay" id="naviAssistantOverlay" aria-modal="true" role="dialog">
+        <div class="navi-assistant-backdrop" id="naviAssistantBackdrop"></div>
+        <div class="navi-assistant-sheet">
+            <div class="navi-assistant-sheet-handle"></div>
+            
+            <div class="navi-assistant-header">
+                <div class="navi-assistant-badge">
+                    <div class="navi-badge-dot"></div>
+                    <span>NAVI AI</span>
+                </div>
+                <button class="navi-assistant-close" id="naviAssistantCloseBtn" aria-label="Close Assistant">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- HERO CENTER ORB -->
+            <div class="navi-hero-orb-wrapper">
+                <div class="navi-hero-orb state-idle" id="naviHeroOrb" title="Tap to listen or pause">
+                    <div class="hero-orb-core"></div>
+                    <div class="hero-orb-specular"></div>
+                </div>
+                <div class="navi-hero-pulse-rings">
+                    <div class="hero-ring ring-1"></div>
+                    <div class="hero-ring ring-2"></div>
+                    <div class="hero-ring ring-3"></div>
+                </div>
+            </div>
+
+            <!-- SOUNDWAVE AUDIO BARS (GOOGLE STYLE) -->
+            <div class="navi-audio-waves" id="naviAudioWaves">
+                <div class="wave-bar bar-blue"></div>
+                <div class="wave-bar bar-red"></div>
+                <div class="wave-bar bar-yellow"></div>
+                <div class="wave-bar bar-green"></div>
+            </div>
+
+            <!-- STATUS & TRANSCRIPT -->
+            <div class="navi-assistant-status" id="naviAssistantStatus">Ready</div>
+            <div class="navi-assistant-transcript" id="naviAssistantTranscript">What can I help you find?</div>
+
+            <!-- RESPONSE BUBBLE -->
+            <div class="navi-assistant-response" id="naviAssistantResponse" style="display:none"></div>
+
+            <!-- SUGGESTIONS CHIPS -->
+            <div class="navi-assistant-suggestions" id="naviAssistantSuggestions" style="display:none"></div>
+
+            <!-- INLINE QUICK TYPE BAR (Ask or type anytime) -->
+            <form class="navi-assistant-input-bar" id="naviAssistantInputForm" onsubmit="event.preventDefault();">
+                <input type="text" id="naviAssistantInput" placeholder="Ask or type a destination..." autocomplete="off" />
+                <button type="submit" id="naviAssistantSendBtn" aria-label="Send query">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+            </form>
+
+            <!-- BOTTOM ACTIONS -->
+            <div class="navi-assistant-actions">
+                <button class="navi-assistant-mic-toggle" id="naviAssistantMicToggle">
+                    <i class="fas fa-microphone"></i>
+                    <span>Tap to Speak</span>
+                </button>
+                <button class="navi-assistant-dir-btn" id="naviAssistantDirBtn">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <span>Explore Map</span>
+                </button>
             </div>
         </div>
     </div>
@@ -2688,6 +3336,71 @@
         e.stopPropagation();
         if (window.NaviBridge) {
             window.NaviBridge.stopVoice();
+        }
+    });
+
+    // ── NAVI AI FLOATING ORB & ASSISTANT MODAL EVENTS ──
+    const naviOrbTrigger = document.getElementById('naviOrbTrigger');
+    const naviAssistantCloseBtn = document.getElementById('naviAssistantCloseBtn');
+    const naviAssistantBackdrop = document.getElementById('naviAssistantBackdrop');
+    const naviAssistantMicToggle = document.getElementById('naviAssistantMicToggle');
+    const naviAssistantDirBtn = document.getElementById('naviAssistantDirBtn');
+    const naviHeroOrb = document.getElementById('naviHeroOrb');
+
+    naviOrbTrigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.startVoice();
+        } else {
+            showToast('Navi Voice AI initializing...');
+        }
+    });
+
+    naviHeroOrb?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.toggleVoice();
+        }
+    });
+
+    naviAssistantMicToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.toggleVoice();
+        }
+    });
+
+    naviAssistantCloseBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.closeAssistant();
+        }
+    });
+
+    naviAssistantBackdrop?.addEventListener('click', () => {
+        if (window.NaviBridge) {
+            window.NaviBridge.closeAssistant();
+        }
+    });
+
+    naviAssistantDirBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.NaviBridge) {
+            window.NaviBridge.closeAssistant();
+        }
+        searchInput?.focus();
+    });
+
+    const naviAssistantInputForm = document.getElementById('naviAssistantInputForm');
+    const naviAssistantInput = document.getElementById('naviAssistantInput');
+
+    naviAssistantInputForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = naviAssistantInput?.value?.trim();
+        if (text && window.NaviBridge) {
+            window.NaviBridge.stopVoice();
+            naviAssistantInput.value = '';
+            window.NaviBridge.askNavi(text);
         }
     });
 
@@ -4320,9 +5033,10 @@
     }
 
     function showNavHUD() {
-        document.getElementById('navHud').classList.add('active');
+        document.getElementById('navHud')?.classList?.add('active');
         if (navState.destName) {
-            document.getElementById('navSub').textContent = `📍 ${navState.destName}`;
+            const sub = document.getElementById('navSub');
+            if (sub) sub.textContent = `📍 ${navState.destName}`;
         }
     }
 
@@ -4332,8 +5046,9 @@
             navigator.geolocation?.clearWatch(watchId);
             watchId = null;
         }
-        document.getElementById('navHud').classList.remove('active');
-        document.getElementById('navProgressFill').style.width = '0%';
+        document.getElementById('navHud')?.classList?.remove('active');
+        const fill = document.getElementById('navProgressFill');
+        if (fill) fill.style.width = '0%';
         setUIState(UI_STATE.IDLE);
     }
 

@@ -73,10 +73,12 @@ Actions:
    Parameters: {"amenity_type": "<food|washroom|atm|printing|clinic>", "near_landmark": "<optional location>"}
 5. "conversational": Greetings, chit-chat, or general questions about USTED campus.
    Parameters: {"message": "<helpful answer>"}
+6. "unknown_place": The user asks for a place, city, country, or location that does NOT exist on the USTED Kumasi campus or is off-campus/unrecognized.
+   Parameters: {"place_name": "<requested place>"}
 
 Respond ONLY in valid, clean JSON with this exact schema:
 {
-  "action": "route_to" | "locate_place" | "find_staff" | "find_amenity" | "conversational",
+  "action": "route_to" | "locate_place" | "find_staff" | "find_amenity" | "conversational" | "unknown_place",
   "parameters": { ... },
   "speech_text": "Short 1-sentence friendly voice line to read to the user"
 }
