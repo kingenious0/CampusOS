@@ -135,6 +135,44 @@ async function runTests() {
     assert.strictEqual(NaviBridge.currentAssistantState, 'confused', 'State should be set to confused for polite recovery');
     console.log('[PASS] Unknown location politely intercepted with state:', NaviBridge.currentAssistantState);
 
+    // 10. Test Natural Language Queries (Dr Asare & Department of Languages)
+    console.log('--- TESTING REAL USER NATURAL LANGUAGE QUERIES ---');
+    const cleanAsare = NaviBridge.cleanQuery("WHERE IS DR ASARE'S OFFICE LOCATED");
+    assert.strictEqual(cleanAsare.toLowerCase(), 'dr asare');
+    console.log('[PASS] cleanQuery parsed "WHERE IS DR ASARE\'S OFFICE LOCATED" ->', cleanAsare);
+
+    const asareEntity = NaviBridge.resolveEntity("WHERE IS DR ASARE'S OFFICE LOCATED", buildingsData, peopleData);
+    assert.ok(asareEntity, 'Should resolve Dr Asare entity');
+    assert.strictEqual(asareEntity.type, 'staff');
+    assert.ok(asareEntity.data.name.includes('Asare'), 'Staff name should be Dr. Kotor Asare');
+    assert.strictEqual(asareEntity.building.name, 'ROB Block');
+    console.log('[PASS] Resolved "WHERE IS DR ASARE\'S OFFICE LOCATED" ->', asareEntity.data.name, 'at', asareEntity.building.name);
+
+    const cleanLang = NaviBridge.cleanQuery("I AM LOOKING FOR THE DEPARTMENT OF LANGUAGES");
+    assert.strictEqual(cleanLang.toLowerCase(), 'department of languages');
+    console.log('[PASS] cleanQuery parsed "I AM LOOKING FOR THE DEPARTMENT OF LANGUAGES" ->', cleanLang);
+
+    const langEntity = NaviBridge.resolveEntity("I AM LOOKING FOR THE DEPARTMENT OF LANGUAGES", buildingsData, peopleData);
+    assert.ok(langEntity, 'Should resolve Department of Languages entity');
+    assert.strictEqual(langEntity.type, 'room');
+    assert.strictEqual(langEntity.building.name, 'ROB Block');
+    console.log('[PASS] Resolved "I AM LOOKING FOR THE DEPARTMENT OF LANGUAGES" ->', langEntity.data.number || langEntity.data.name, 'at', langEntity.building.name);
+
+    // Test askNavi routing for these queries
+    let testRoutedName = null;
+    global.window.CampusOS.startRoute = (lat, lng, name) => { testRoutedName = name; return true; };
+    global.window.startRoute = (lat, lng, name) => { testRoutedName = name; return true; };
+
+    const askAsare = await NaviBridge.askNavi("where is dr asare's office located");
+    assert.strictEqual(askAsare, true);
+    assert.ok(testRoutedName.includes('Asare') && testRoutedName.includes('ROB'), `Should route to Dr Asare at ROB, got: ${testRoutedName}`);
+    console.log('[PASS] askNavi routed Dr Asare query to:', testRoutedName);
+
+    const askLang = await NaviBridge.askNavi("I am looking for the department of languages");
+    assert.strictEqual(askLang, true);
+    assert.ok(testRoutedName.includes('ROB') && testRoutedName.includes('Languages'), `Should route to Department of Languages at ROB, got: ${testRoutedName}`);
+    console.log('[PASS] askNavi routed Department of Languages query to:', testRoutedName);
+
     console.log('=============================================');
     console.log('ALL NAVIBRIDGE & NAVI AI TESTS PASSED (100%)!');
     console.log('=============================================');

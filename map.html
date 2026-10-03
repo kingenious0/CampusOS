@@ -18,6 +18,7 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
     <!-- CampusOS Config, Supabase SDK & Stale-While-Revalidate Data Loader -->
+    <script src="env.js" onerror="/* optional local env */"></script>
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="modules/data-loader.js"></script>
@@ -2490,8 +2491,8 @@
                 <!-- Dynamic results -->
             </div>
 
-            <!-- NAVI AI VOICE HUD -->
-            <div class="navi-voice-hud charlie-voice-hud" id="naviVoiceHud" style="display:none">
+            <!-- NAVI AI VOICE HUD (Legacy replaced by bottom assistant sheet) -->
+            <div class="navi-voice-hud charlie-voice-hud" id="naviVoiceHud" style="display:none !important">
                 <div class="cv-pulse-container">
                     <div class="cv-pulse-circle"></div>
                     <div class="cv-pulse-circle delay"></div>
@@ -2996,9 +2997,12 @@
                     map.once('load', addCampusLabels);
                 }
 
-                // 3. Keep Cesium 3D viewer building dataset in sync
+                // 3. Keep Cesium 3D viewer & Navi AI datasets in sync
+                window.buildingsData = buildingsData;
+                window.peopleData = peopleData;
                 if (window.CampusOS) {
                     window.CampusOS.buildingsData = buildingsData;
+                    window.CampusOS.peopleData = peopleData;
                 }
 
                 // 4. Re-evaluate active search query dynamically without full refresh
@@ -5246,10 +5250,11 @@
     initMap();
     loadBuildings();
 
-    // Expose minimal CampusOS bridge for 3D viewer & view controller
+    // Expose minimal CampusOS bridge for 3D viewer, view controller & Navi AI
     window.CampusOS = {
         getMap: () => map,
         getBuildingsData: () => buildingsData,
+        getPeopleData: () => peopleData,
         getTypeCfg: () => TYPE_CFG,
         getCampusCenter: () => CAMPUS,
         showBuilding: (b) => showBuilding(b),
@@ -5261,11 +5266,14 @@
         getActiveRoute: () => _route,
         startRoute: (lat, lng, name) => startRoute(lat, lng, name)
     };
+    window.buildingsData = buildingsData;
+    window.peopleData = peopleData;
     window.showBuilding = showBuilding;
     window.showStaff = showStaff;
     window.showRoom = showRoom;
     window.showService = showService;
     window.startRoute = startRoute;
+    window.GROQ_API_KEY = window.GROQ_API_KEY || (typeof localStorage !== 'undefined' ? localStorage.getItem('GROQ_API_KEY') : '') || '';
 
     if (window.ViewControllerModule) {
         window.ViewControllerModule.init();

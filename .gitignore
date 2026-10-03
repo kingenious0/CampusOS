@@ -5,6 +5,7 @@
 *.pem
 *.token
 b64.txt
+env.js
 
 # ── Academic Documents, Slides & Reports ──
 *.docx

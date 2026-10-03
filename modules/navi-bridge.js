@@ -127,8 +127,6 @@
                 if (!spoken) return;
 
                 this.lastSpokenText = spoken;
-                const input = document.getElementById('searchInput');
-                if (input) input.value = spoken;
                 const assistantInput = document.getElementById('naviAssistantInput');
                 if (assistantInput) assistantInput.value = spoken;
 
@@ -146,10 +144,10 @@
 
                 this.updateVoiceUI(true, spoken, 'Listening...');
 
-                // Final sentence or silence pause: dispatch after user pauses speaking
+                // Final sentence or silence pause: dispatch snappily after user pauses speaking
                 if (this.silenceTimer) clearTimeout(this.silenceTimer);
                 const isFinalChunk = event.results[event.results.length - 1]?.isFinal;
-                const delay = isFinalChunk ? 500 : 900;
+                const delay = isFinalChunk ? 350 : 700;
                 this.silenceTimer = setTimeout(() => {
                     if (this.isListening && this.lastSpokenText) {
                         if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
@@ -283,10 +281,12 @@
             this.isListening = false;
             if (this.silenceTimer) clearTimeout(this.silenceTimer);
             if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
-            const micToggle = document.getElementById('naviAssistantMicToggle');
-            if (micToggle) {
-                micToggle.innerHTML = '<i class="fas fa-microphone"></i><span>Tap to Speak</span>';
-                micToggle.classList.remove('active');
+            if (typeof document !== 'undefined') {
+                const micToggle = document.getElementById('naviAssistantMicToggle');
+                if (micToggle) {
+                    micToggle.innerHTML = '<i class="fas fa-microphone"></i><span>Tap to Speak</span>';
+                    micToggle.classList.remove('active');
+                }
             }
             if (this.activeMicStream) {
                 try {
@@ -610,7 +610,7 @@
                 else btn?.classList?.remove('listening');
             }
             if (hud) {
-                hud.style.display = active ? 'flex' : 'none';
+                hud.style.display = 'none'; // Replaced by bottom Assistant sheet; do not display legacy HUD
             }
             if (transcript && text) {
                 transcript.textContent = text;
@@ -691,6 +691,39 @@
         },
 
         /**
+         * Clean conversational prefixes and suffixes from query
+         */
+        cleanQuery(query) {
+            if (!query) return '';
+            let q = query.trim().replace(/[?!.,]+$/g, '').trim();
+            const leadingPatterns = [
+                /^(hey\s+navi|ok\s+navi|navi|hello|hi|please)\s+/i,
+                /^(can\s+you\s+please|can\s+you|could\s+you|would\s+you)\s+/i,
+                /^(i\s+want\s+to\s+go\s+to|i\s+want\s+to\s+find|i\s+want\s+to\s+see)\s+/i,
+                /^(i\s+am\s+looking\s+for|i\s+am\s+looking|i'm\s+looking\s+for|i'm\s+looking|looking\s+for|looking|look\s+for)\s+/i,
+                /^(where\s+is|where\s+are|where\s+can\s+i\s+find|where\s+do\s+i\s+find)\s+/i,
+                /^(how\s+do\s+i\s+get\s+to|how\s+to\s+get\s+to|way\s+to|directions\s+to)\s+/i,
+                /^(take\s+me\s+to|guide\s+me\s+to|navigate\s+to|show\s+me|find\s+me|find|locate|point\s+me\s+to)\s+/i,
+                /^(the|a|an)\s+/i
+            ];
+            let changed = true;
+            while (changed) {
+                changed = false;
+                for (const pat of leadingPatterns) {
+                    if (pat.test(q)) {
+                        q = q.replace(pat, '').trim();
+                        changed = true;
+                    }
+                }
+            }
+            q = q.replace(/['’]s\s+office\s+located$/i, '');
+            q = q.replace(/['’]s\s+office$/i, '');
+            q = q.replace(/\s+(office\s+located|is\s+located|located|office|please)$/i, '');
+            q = q.replace(/^(the|a|an)\s+/i, '').trim();
+            return q;
+        },
+
+        /**
          * High-precision offline campus NLP parser
          * Resolves intents and parameters locally without server dependencies
          */
@@ -739,10 +772,7 @@
             const dirRegex = /^(?:directions\s+to|how\s+do\s+i\s+get\s+to|way\s+to|go\s+to)\s+(.+)$/i;
             const rMatch = q.match(routeRegex) || q.match(dirRegex);
             if (rMatch) {
-                const target = rMatch[1].trim()
-                    .replace(/^(?:the|a|an)\s+/i, '')
-                    .replace(/\s+(?:please|now)$/i, '')
-                    .trim();
+                const target = this.cleanQuery(rMatch[1]) || rMatch[1].trim();
                 return {
                     success: true,
                     action: 'route_to',
@@ -757,10 +787,7 @@
             const staffRegex = /^(?:find\s+(?:lecturer|prof(?:essor)?\.?|dr\.?|doctor|mr\.?|mrs\.?|miss|dean|hod)\s+|office\s+of\s+|who\s+is\s+|contact\s+)(.+)$/i;
             const sMatch = q.match(staffRegex);
             if (sMatch) {
-                const name = sMatch[1].trim()
-                    .replace(/^(?:the|a|an)\s+/i, '')
-                    .replace(/\s+(?:office|room)?$/i, '')
-                    .trim();
+                const name = this.cleanQuery(sMatch[1]) || sMatch[1].trim();
                 return {
                     success: true,
                     action: 'find_staff',
@@ -771,55 +798,185 @@
                 };
             }
 
-            // 4. Locate place intent
-            const locateRegex = /^(?:where\s+is|show\s+me|locate|find\s+(?:building|hall|lab|room)?|point\s+me\s+to|which\s+block\s+is)\s+(.+)$/i;
-            const lMatch = q.match(locateRegex);
-            if (lMatch) {
-                const place = lMatch[1].trim()
-                    .replace(/^(?:the|a|an)\s+/i, '')
-                    .replace(/\s+(?:please)$/i, '')
-                    .trim();
-                return {
-                    success: true,
-                    action: 'locate_place',
-                    parameters: { place_name: place },
-                    confidence: 0.92,
-                    offline: true,
-                    raw_query: query
-                };
-            }
-
-            // 5. Default entity locate
-            const cleaned = q.replace(/^(?:where\s+is|find|show\s+me|take\s+me\s+to|the)\s+/i, '').trim();
+            // 4. Locate place or entity
+            const cleaned = this.cleanQuery(q);
             return {
                 success: true,
                 action: 'locate_place',
                 parameters: { place_name: cleaned || q },
-                confidence: 0.80,
+                confidence: 0.88,
                 offline: true,
                 raw_query: query
             };
         },
 
         /**
+         * Direct Cerebras Cloud AI query (ultra-low latency Llama)
+         */
+        async queryCerebras(query) {
+            const apiKey = (typeof window !== 'undefined' && window.CEREBRAS_API_KEY) || 
+                           (typeof process !== 'undefined' && process.env && process.env.CEREBRAS_API_KEY) || '';
+            if (!apiKey) return null;
+
+            try {
+                const ctrl = new AbortController();
+                const timeoutId = setTimeout(() => ctrl.abort(), 4000);
+
+                const systemPrompt = `You are Navi, the official intelligent voice AI guide for USTED Kumasi campus (Ghana).
+You have full spatial and academic knowledge of the campus:
+- Main Buildings & Halls: USTED Library, ROB Block (Lecture Block), CBT Building, NFB, NLB, Executive Students Association (ESA) Block, Opoku Ware II Hall, Atwima Hall, Faculty of Technical Education (FBR), Main Administration Block, Great Hall, Cafeteria, Campus Clinic / Health Centre, Sports Complex.
+- Departments & Offices: Department of Languages (ROB Block, Room 007), Department of Management (ROB Block, Room 022), Department of Accounting (ROB Block), Department of Interdisciplinary Studies / DIS (ROB Block, Room 023).
+- Key Staff & Faculty: Dr. Kotor Asare (ROB Block, 1st Floor, Room 018), Prof. Stella Appiah (ESA Block, Room 17), etc.
+- Amenities: Cafeteria (food near Halls and ROB Block), Campus Clinic (medical care), ATMs, Library (quiet study).
+
+Given a student's natural language request, understand their real intent and output ONLY a valid JSON object without markdown fences:
+{
+  "action": "route_to" | "locate_place" | "find_staff" | "find_amenity" | "conversational" | "unknown_place",
+  "parameters": {
+    "target": "building, department, room or landmark name",
+    "name": "staff member name if asking about a person",
+    "amenity_type": "food | washroom | atm | clinic | library | print",
+    "message": "helpful answer for conversational or general questions"
+  },
+  "speech_text": "A friendly, natural voice sentence to speak to the student (e.g. 'Dr. Kotor Asare\\'s office is in ROB Block, Room 018. Routing you there now.')"
+}`;
+
+                const resp = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama3.1-70b',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: query }
+                        ],
+                        temperature: 0.1,
+                        max_tokens: 350
+                    }),
+                    signal: ctrl.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const rawContent = data?.choices?.[0]?.message?.content?.trim() || '';
+                    const cleaned = rawContent.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+                    const parsed = JSON.parse(cleaned);
+                    if (parsed && parsed.action) {
+                        parsed.success = true;
+                        parsed.source = 'cerebras_ai';
+                        parsed.raw_query = query;
+                        return parsed;
+                    }
+                }
+            } catch (err) {}
+            return null;
+        },
+
+        /**
+         * Direct Groq Cloud AI query (ultra-fast cloud reasoning)
+         */
+        async queryGroq(query) {
+            const apiKey = (typeof window !== 'undefined' && window.GROQ_API_KEY) || 
+                           (typeof process !== 'undefined' && process.env && process.env.GROQ_API_KEY) || '';
+            if (!apiKey) return null;
+
+            try {
+                const ctrl = new AbortController();
+                const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+
+                const systemPrompt = `You are Navi, the official intelligent voice AI guide for USTED Kumasi campus (Ghana).
+You have full spatial and academic knowledge of the campus:
+- Main Buildings & Halls: USTED Library, ROB Block (Lecture Block), CBT Building, NFB, NLB, Executive Students Association (ESA) Block, Opoku Ware II Hall, Atwima Hall, Faculty of Technical Education (FBR), Main Administration Block, Great Hall, Cafeteria, Campus Clinic / Health Centre, Sports Complex.
+- Departments & Offices: Department of Languages (ROB Block, Room 007), Department of Management (ROB Block, Room 022), Department of Accounting (ROB Block), Department of Interdisciplinary Studies / DIS (ROB Block, Room 023).
+- Key Staff & Faculty: Dr. Kotor Asare (ROB Block, 1st Floor, Room 018), Prof. Stella Appiah (ESA Block, Room 17), etc.
+- Amenities: Cafeteria (food near Halls and ROB Block), Campus Clinic (medical care), ATMs, Library (quiet study).
+
+Given a user's natural query, understand their real intent and output ONLY a valid JSON object without markdown fences:
+{
+  "action": "route_to" | "locate_place" | "find_staff" | "find_amenity" | "conversational" | "unknown_place",
+  "parameters": {
+    "target": "building, department, room or landmark name",
+    "name": "staff member name if asking about a person",
+    "amenity_type": "food | washroom | atm | clinic | library | print",
+    "message": "helpful answer for conversational or general questions"
+  },
+  "speech_text": "A friendly, natural voice sentence to speak to the student (e.g. 'Dr. Kotor Asare\\'s office is in ROB Block, Room 018. Routing you there now.')"
+}`;
+
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'qwen/qwen3.8-27b',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: query }
+                        ],
+                        temperature: 0.1,
+                        max_tokens: 350
+                    }),
+                    signal: ctrl.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const rawContent = data?.choices?.[0]?.message?.content?.trim() || '';
+                    const cleaned = rawContent.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+                    const parsed = JSON.parse(cleaned);
+                    if (parsed && parsed.action) {
+                        parsed.success = true;
+                        parsed.source = 'groq_ai';
+                        parsed.raw_query = query;
+                        return parsed;
+                    }
+                }
+            } catch (err) {
+                // Silently fallback to offline local NLP parser
+            }
+            return null;
+        },
+
+        /**
          * Parse natural language query into structured action
          * Cascade:
-         * 1. Cloud Navi (Needle 2 + Groq / Cerebras cloud intelligence when online)
-         * 2. Local Sidecar (Desktop / Device local Needle engine)
-         * 3. Instant 0ms Local Offline Campus Engine (PWA offline fallback)
+         * 1. Cerebras Ultra-Fast Cloud AI (when key present & online)
+         * 2. Direct Groq Cloud AI Intelligence (when key present & online)
+         * 3. Cloud Navi (Needle 2 + Groq / Cerebras cloud intelligence when online)
+         * 4. Local Sidecar (Desktop / Device local Needle engine)
+         * 5. Instant 0ms Local Offline Campus Engine (PWA offline fallback)
          */
         async parse(query) {
             if (!query || !query.trim()) return null;
             const q = query.trim();
 
-            // TIER 1: Cloud Navi (when online & configured)
+            // TIER 0: Cerebras Ultra-Fast Cloud AI
+            const cerebrasResult = await this.queryCerebras(q);
+            if (cerebrasResult && cerebrasResult.success) {
+                return cerebrasResult;
+            }
+
+            // TIER 1: Direct Groq Cloud AI
+            const groqResult = await this.queryGroq(q);
+            if (groqResult && groqResult.success) {
+                return groqResult;
+            }
+
+            // TIER 2: Cloud Navi (when online & configured)
             const parseUrl = this.getCloudEndpoint('/parse');
             const isOnline = typeof navigator === 'undefined' || navigator.onLine;
 
             if (parseUrl && isOnline) {
                 try {
                     const ctrl = new AbortController();
-                    const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+                    const timeoutId = setTimeout(() => ctrl.abort(), 4000);
                     const resp = await fetch(parseUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -841,7 +998,7 @@
                 }
             }
 
-            // TIER 2: Local Sidecar (when active)
+            // TIER 3: Local Sidecar (when active)
             if (this.isAvailable) {
                 try {
                     const ctrl = new AbortController();
@@ -865,7 +1022,7 @@
                 }
             }
 
-            // TIER 3: Zero-delay local offline parser
+            // TIER 4: Zero-delay local offline parser
             const offlineResult = this.parseOffline(q);
             if (offlineResult) {
                 offlineResult.source = 'offline_local';
@@ -878,53 +1035,81 @@
          */
         resolveEntity(nameQuery, bData, pData, preferredType = null) {
             if (!nameQuery) return null;
-            const q = nameQuery.toLowerCase().trim();
+            const clean = this.cleanQuery(nameQuery);
+            const qRaw = (clean || nameQuery).toLowerCase().trim();
+            const q = qRaw.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+            const qTokens = q.split(' ').filter(t => t.length > 0);
+            const titles = new Set(['dr', 'prof', 'mr', 'mrs', 'ms', 'miss', 'doctor', 'professor', 'rev', 'arc', 'assoc', 'engr']);
+            const qMeaningful = qTokens.filter(t => !titles.has(t));
 
-            const buildings = bData || (typeof window !== 'undefined' && window.CampusOS ? window.CampusOS.getBuildingsData() : []) || [];
-            const people = pData || (typeof window !== 'undefined' && window.peopleData ? window.peopleData : []) || [];
+            const buildings = bData || (typeof window !== 'undefined' && window.CampusOS && typeof window.CampusOS.getBuildingsData === 'function' ? window.CampusOS.getBuildingsData() : []) || (typeof window !== 'undefined' && window.buildingsData ? window.buildingsData : []) || [];
+            const people = pData || (typeof window !== 'undefined' && window.CampusOS && typeof window.CampusOS.getPeopleData === 'function' ? window.CampusOS.getPeopleData() : []) || (typeof window !== 'undefined' && window.peopleData ? window.peopleData : []) || [];
 
-            // Helper: Find matching staff
-            const findStaffMatch = () => {
-                const pMatch = people.find(p => {
-                    const pName = (p.name || p.full_name || '').toLowerCase();
-                    const pRole = (p.role || p.position || '').toLowerCase();
-                    const pDept = (p.department || p.faculty || '').toLowerCase();
-                    return (pName && pName.includes(q)) || (pRole && pRole.includes(q)) || (pDept && pDept.includes(q));
-                });
-                if (pMatch) {
-                    const bCode = (pMatch.building || pMatch.buildingName || pMatch.buildingId || '').toLowerCase();
-                    const bOffice = buildings.find(b => 
+            const matchToBuilding = (p) => {
+                let bOffice = null;
+                const bCode = (p.location?.building || p.building || p.buildingName || p.buildingId || '').toLowerCase().trim();
+                const bId = p.location?.targetBuildingId !== undefined ? String(p.location.targetBuildingId).toLowerCase() : '';
+                if (bId) {
+                    bOffice = buildings.find(b => String(b.id).toLowerCase() === bId);
+                }
+                if (!bOffice && bCode) {
+                    bOffice = buildings.find(b => 
                         (b.id && String(b.id).toLowerCase() === bCode) ||
                         (b.shortName && b.shortName.toLowerCase() === bCode) ||
-                        (b.name && b.name.toLowerCase().includes(bCode))
-                    ) || null;
-                    return { 
-                        type: 'staff', 
-                        data: { ...pMatch, name: pMatch.name || pMatch.full_name }, 
-                        building: bOffice 
-                    };
+                        (b.name && b.name.toLowerCase() === bCode) ||
+                        (b.name && b.name.toLowerCase().includes(bCode)) ||
+                        (bCode.includes(b.name.toLowerCase())) ||
+                        (b.shortName && bCode.includes(b.shortName.toLowerCase()))
+                    );
+                }
+                return {
+                    type: 'staff',
+                    data: { ...p, name: p.name || p.full_name },
+                    building: bOffice
+                };
+            };
+
+            // 1. Staff Name lookup
+            const findStaffByName = () => {
+                for (const p of people) {
+                    const pName = (p.name || p.full_name || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+                    if (!pName) continue;
+                    const pTokens = pName.split(' ');
+                    
+                    if (pName === q || pName.includes(q) || (qMeaningful.length > 0 && pName.includes(qMeaningful.join(' ')))) {
+                        return matchToBuilding(p);
+                    }
+                    if (qMeaningful.length > 0 && qMeaningful.every(t => pTokens.includes(t))) {
+                        return matchToBuilding(p);
+                    }
                 }
                 return null;
             };
 
-            // Helper: Find matching building
-            const findBuildingMatch = () => {
+            // 2. Exact Building Match
+            const findExactBuildingMatch = () => {
                 const bDirect = buildings.find(b => 
-                    (b.name && b.name.toLowerCase().includes(q)) ||
-                    (b.shortName && b.shortName.toLowerCase() === q) ||
-                    (b.keywords && b.keywords.some(k => k && k.toLowerCase().includes(q)))
+                    (b.name && b.name.toLowerCase() === q) ||
+                    (b.shortName && b.shortName.toLowerCase() === q)
                 );
                 if (bDirect) return { type: 'building', data: bDirect, building: bDirect };
                 return null;
             };
 
-            // Helper: Find matching room
+            // 3. Room lookup (checks b.rooms)
             const findRoomMatch = () => {
                 for (const b of buildings) {
                     if (b.rooms && Array.isArray(b.rooms)) {
                         const rMatch = b.rooms.find(r => {
-                            const rName = (typeof r === 'string' ? r : r.name || r.number || '').toLowerCase();
-                            return rName && (rName.includes(q) || q.includes(rName));
+                            const rNum = (r.number || '').toLowerCase().trim();
+                            const rName = (r.name || '').toLowerCase().trim();
+                            const rDesc = (r.description || '').toLowerCase().trim();
+                            const rKeys = (r.keywords || []).map(k => (k || '').toLowerCase().trim()).filter(Boolean);
+
+                            return (rNum && (rNum === q || rNum.includes(q) || (rNum.length > 3 && q.includes(rNum)))) ||
+                                   (rName && (rName === q || rName.includes(q) || (rName.length > 3 && q.includes(rName)))) ||
+                                   (rDesc && rDesc.length > 3 && rDesc.includes(q)) ||
+                                   rKeys.some(k => k === q || k.includes(q) || (k.length > 3 && q.includes(k)));
                         });
                         if (rMatch) {
                             return { type: 'room', data: rMatch, building: b };
@@ -934,13 +1119,24 @@
                 return null;
             };
 
-            // Helper: Find matching service
+            // 4. Fuzzy / Substring Building Match
+            const findBuildingMatch = () => {
+                const bDirect = buildings.find(b => 
+                    (b.name && (b.name.toLowerCase().includes(q) || (q.length > 3 && q.includes(b.name.toLowerCase())))) ||
+                    (b.shortName && (q.length > 2 && q.includes(b.shortName.toLowerCase()))) ||
+                    (b.keywords && b.keywords.some(k => k && (k.toLowerCase() === q || (k.length > 2 && q.includes(k.toLowerCase())))))
+                );
+                if (bDirect) return { type: 'building', data: bDirect, building: bDirect };
+                return null;
+            };
+
+            // 5. Service lookup
             const findServiceMatch = () => {
                 for (const b of buildings) {
                     if (b.services && Array.isArray(b.services)) {
                         const sMatch = b.services.find(s => {
-                            const sName = (typeof s === 'string' ? s : s.name || '').toLowerCase();
-                            return sName && (sName.includes(q) || q.includes(sName));
+                            const sName = (typeof s === 'string' ? s : s.name || '').toLowerCase().trim();
+                            return sName && (sName === q || sName.includes(q) || (sName.length > 3 && q.includes(sName)));
                         });
                         if (sMatch) {
                             return { type: 'service', data: sMatch, building: b };
@@ -950,18 +1146,26 @@
                 return null;
             };
 
-            // If staff preferred
+            // 6. Staff By Department / Role
+            const findStaffByDeptOrRole = () => {
+                for (const p of people) {
+                    const pDept = (p.department || p.faculty || '').toLowerCase();
+                    const pRole = (p.position || p.role || '').toLowerCase();
+                    if ((pDept && pDept.includes(q)) || (pRole && pRole.includes(q))) {
+                        return matchToBuilding(p);
+                    }
+                }
+                return null;
+            };
+
+            // Preferred routing
             if (preferredType === 'staff') {
-                return findStaffMatch() || findBuildingMatch() || findRoomMatch() || findServiceMatch();
+                return findStaffByName() || findStaffByDeptOrRole() || findRoomMatch() || findExactBuildingMatch() || findBuildingMatch() || findServiceMatch();
             }
-
-            // If room/building preferred
             if (preferredType === 'room') {
-                return findRoomMatch() || findBuildingMatch() || findStaffMatch() || findServiceMatch();
+                return findRoomMatch() || findExactBuildingMatch() || findBuildingMatch() || findStaffByName() || findServiceMatch();
             }
-
-            // Default resolution priority
-            return findBuildingMatch() || findStaffMatch() || findRoomMatch() || findServiceMatch();
+            return findStaffByName() || findExactBuildingMatch() || findRoomMatch() || findBuildingMatch() || findStaffByDeptOrRole() || findServiceMatch();
         },
 
         /**
@@ -969,7 +1173,7 @@
          */
         execute(parseResult) {
             if (!parseResult) return false;
-            const { action, parameters } = parseResult;
+            const { action, parameters, speech_text } = parseResult;
             const bData = (typeof window !== 'undefined' && window.CampusOS ? window.CampusOS.getBuildingsData() : []) || [];
             const pData = (typeof window !== 'undefined' && window.peopleData ? window.peopleData : []) || [];
 
@@ -985,7 +1189,7 @@
                             ? `${b.name} (${entity.data.name || entity.data.number || target})`
                             : (entity.type === 'staff' ? `${entity.data.name} (${b.name})` : b.name);
 
-                        const speech = `Routing to ${destName}`;
+                        const speech = speech_text || `Routing to ${destName}`;
                         this.notify(speech + '...');
                         this.speak(speech);
                         this.setAssistantState('success', {
@@ -1002,12 +1206,14 @@
 
                     // Friendly fuzzy recovery when direct entity resolution fails
                     const suggestions = this.getFuzzySuggestions(target, bData, pData, 3);
-                    let politeMsg = '';
-                    if (suggestions.length > 0 && suggestions[0].score >= 0.42) {
-                        const best = suggestions[0];
-                        politeMsg = `I couldn't find an exact match for "${target}", but did you mean ${best.name}?`;
-                    } else {
-                        politeMsg = `I'm sorry, I couldn't find "${target}" on the USTED Kumasi campus map. Would you like to check our campus facilities or search the directory?`;
+                    let politeMsg = speech_text || '';
+                    if (!politeMsg) {
+                        if (suggestions.length > 0 && suggestions[0].score >= 0.42) {
+                            const best = suggestions[0];
+                            politeMsg = `I couldn't find an exact match for "${target}", but did you mean ${best.name}?`;
+                        } else {
+                            politeMsg = `I'm sorry, I couldn't find "${target}" on the USTED Kumasi campus map. Would you like to check our campus facilities or search the directory?`;
+                        }
                     }
                     this.notify(politeMsg);
                     this.speak(politeMsg);
@@ -1028,9 +1234,11 @@
                         const b = entity.building;
                         const destName = entity.type === 'room' 
                             ? `${b.name} (${entity.data.name || entity.data.number || placeName})`
-                            : b.name;
+                            : (entity.type === 'staff' ? `${entity.data.name} (${b.name})` : b.name);
 
-                        const speech = `Found ${destName}`;
+                        const speech = speech_text || (entity.type === 'staff'
+                            ? `${entity.data.name}'s office is at ${b.name}`
+                            : `Found ${destName}`);
                         this.notify(speech);
                         this.speak(speech);
                         this.setAssistantState('success', {
@@ -1078,7 +1286,7 @@
                         const p = entity.data;
                         const b = entity.building;
                         const destName = b ? `${p.name} (${b.name})` : p.name;
-                        const speech = `${p.name}'s office is at ${b ? b.name : 'the campus'}`;
+                        const speech = speech_text || `${p.name}'s office is at ${b ? b.name : 'the campus'}`;
                         this.notify(`Found ${p.name}`);
                         this.speak(speech);
                         this.setAssistantState('success', {
@@ -1242,17 +1450,9 @@
         },
 
         fallbackSearch(text) {
-            if (!text || typeof document === 'undefined') return;
-            const input = document.getElementById('searchInput');
-            if (input) {
-                input.value = text;
-                input.focus();
-                if (typeof window.doSearch === 'function') {
-                    window.doSearch(text);
-                } else {
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }
+            // When using Navi Voice Assistant, do NOT hijack #searchInput or trigger the map search dropdown
+            // Suggestions are presented directly in the assistant overlay sheet.
+            return;
         },
 
         notify(msg) {
