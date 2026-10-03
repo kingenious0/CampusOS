@@ -228,59 +228,263 @@
             return true;
         },
 
+        /**
+         * High-accuracy Speech-To-Text using Groq Whisper Large V3 Turbo
+         * Transcribes raw audio from browser microphone in ~180ms
+         */
+        async transcribeAudio(audioBlob) {
+            if (!audioBlob || audioBlob.size < 400) return null;
+
+            // 1. Direct Groq Whisper (if client has GROQ key)
+            const apiKey = (typeof window !== 'undefined' && window.GROQ_API_KEY) || 
+                           (typeof process !== 'undefined' && process.env && process.env.GROQ_API_KEY) || '';
+            if (apiKey) {
+                try {
+                    const fd = new FormData();
+                    fd.append('file', audioBlob, 'speech.webm');
+                    fd.append('model', 'whisper-large-v3-turbo');
+                    fd.append('language', 'en');
+                    fd.append('prompt', 'USTED Kumasi campus, ROB Block, Dr. Kotor Asare, Atwima Hall, Opoku Ware II Hall, Library, CBT, NFB, NLB');
+
+                    const ctrl = new AbortController();
+                    const timeoutId = setTimeout(() => ctrl.abort(), 6500);
+                    const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${apiKey}` },
+                        body: fd,
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.text && data.text.trim()) {
+                            return data.text.trim();
+                        }
+                    }
+                } catch(err) {
+                    console.warn('[NaviBridge] Direct Whisper note:', err);
+                }
+            }
+
+            // 2. Cloud Navi Whisper API (/api/transcribe) on live deployment
+            const cloudUrl = this.getCloudEndpoint('/transcribe');
+            if (cloudUrl) {
+                try {
+                    const fd = new FormData();
+                    fd.append('file', audioBlob, 'speech.webm');
+                    const ctrl = new AbortController();
+                    const timeoutId = setTimeout(() => ctrl.abort(), 8500);
+                    const res = await fetch(cloudUrl, {
+                        method: 'POST',
+                        body: fd,
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.text && data.text.trim()) {
+                            return data.text.trim();
+                        }
+                    }
+                } catch(err) {
+                    console.warn('[NaviBridge] Cloud Whisper note:', err);
+                }
+            }
+
+            return null;
+        },
+
         async startVoice() {
             this.noSpeechRetries = 0;
             this.lastSpokenText = '';
+            this.audioChunks = [];
+            this.isListening = true;
+            this.isProcessingSpeech = false;
             this.setAssistantState('listening', { 
                 statusText: 'Listening...', 
                 query: '',
                 speechText: ''
             });
 
-            // Trigger permission if needed without locking the audio recording endpoint
+            // 1. Acquire and keep active microphone hardware stream
+            let stream = null;
             if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    // Release the track immediately so Chrome's speech recognition has exclusive hardware access
-                    stream.getTracks().forEach(t => t.stop());
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
+                    this.activeMicStream = stream;
                 } catch (micErr) {
                     console.warn('[NaviBridge] getUserMedia permission note:', micErr);
-                    if (micErr.name === 'NotAllowedError' || micErr.name === 'PermissionDeniedError') {
-                        this.setAssistantState('confused', {
-                            statusText: "Microphone Blocked",
-                            speechText: "Please allow microphone access in your browser to speak with Navi."
-                        });
-                        return;
-                    }
+                    this.isListening = false;
+                    this.setAssistantState('confused', {
+                        statusText: "Microphone Blocked",
+                        speechText: "Please allow microphone access in your browser to speak with Navi."
+                    });
+                    return;
                 }
             }
 
-            // Fresh instance every time to prevent Chromium audio capture hang
-            if (!this.initSpeech()) {
-                this.setAssistantState('idle');
-                this.notify('Voice input is not supported in this browser.');
-                return;
+            // Update UI elements
+            this.updateVoiceUI(true, '', 'Listening...');
+            const statusBadge = document.getElementById('naviAssistantStatus');
+            if (statusBadge) statusBadge.textContent = 'Listening...';
+            const wavesEl = document.getElementById('naviAudioWaves');
+            if (wavesEl) wavesEl.classList.add('active');
+            const micToggle = document.getElementById('naviAssistantMicToggle');
+            if (micToggle) {
+                micToggle.innerHTML = '<i class="fas fa-stop"></i><span>Stop Listening</span>';
+                micToggle.classList.add('active');
             }
-            try {
-                this.recognition.start();
-            } catch (e) {
-                console.warn('[NaviBridge] Speech start retry:', e);
+
+            // 2. Start hardware MediaRecorder for Groq Whisper STT
+            if (typeof MediaRecorder !== 'undefined' && stream) {
                 try {
-                    if (this.recognition) {
-                        this.recognition.onerror = null;
-                        this.recognition.abort();
-                        this.recognition.start();
-                    }
-                } catch(err) {
-                    this.setAssistantState('idle');
+                    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 
+                                    (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 
+                                    (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : ''));
+                    this.recordedMimeType = mimeType;
+                    const options = mimeType ? { mimeType } : {};
+                    this.mediaRecorder = new MediaRecorder(stream, options);
+                    this.audioChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            this.audioChunks.push(e.data);
+                        }
+                    };
+
+                    this.mediaRecorder.onstop = async () => {
+                        if (this.isProcessingSpeech) return;
+                        this.isProcessingSpeech = true;
+
+                        const blob = new Blob(this.audioChunks, { type: this.recordedMimeType || 'audio/webm' });
+                        this.audioChunks = [];
+
+                        let spokenText = (this.lastSpokenText || '').trim();
+
+                        // Transcribe with Whisper if speech was short or WebSpeech didn't catch it
+                        if (!spokenText || spokenText.length < 3) {
+                            this.setAssistantState('thinking', { statusText: 'Transcribing speech...' });
+                            const whisperText = await this.transcribeAudio(blob);
+                            if (whisperText && whisperText.trim()) {
+                                spokenText = whisperText.trim();
+                            }
+                        }
+
+                        this.isProcessingSpeech = false;
+                        if (spokenText && spokenText.length > 1) {
+                            const transcriptEl = document.getElementById('naviAssistantTranscript');
+                            if (transcriptEl) transcriptEl.textContent = `“${spokenText}”`;
+                            const assistantInput = document.getElementById('naviAssistantInput');
+                            if (assistantInput) assistantInput.value = spokenText;
+                            this.askNavi(spokenText);
+                        } else {
+                            this.setAssistantState('confused', {
+                                statusText: "Didn't catch that",
+                                speechText: "I couldn't hear your voice clearly. Tap the orb or type your query below."
+                            });
+                        }
+                    };
+
+                    this.mediaRecorder.start(250);
+                } catch(recErr) {
+                    console.warn('[NaviBridge] MediaRecorder init note:', recErr);
                 }
             }
+
+            // 3. AudioContext VAD (Voice Activity Detection) & Dynamic Wave Animator
+            try {
+                const AudioCtx = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
+                if (AudioCtx && stream) {
+                    this.audioContext = new AudioCtx();
+                    const source = this.audioContext.createMediaStreamSource(stream);
+                    const analyser = this.audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    analyser.smoothingTimeConstant = 0.3;
+                    source.connect(analyser);
+                    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    let speechDetected = false;
+                    let silenceStart = null;
+                    const startTime = Date.now();
+
+                    const monitorAudio = () => {
+                        if (!this.isListening) return;
+                        analyser.getByteFrequencyData(dataArray);
+                        let sum = 0;
+                        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+                        const volume = sum / dataArray.length;
+
+                        // Modulate wave visualizer directly from real microphone audio!
+                        const waves = document.getElementById('naviAudioWaves');
+                        if (waves) {
+                            if (volume > 10) {
+                                waves.classList.add('active');
+                                waves.style.opacity = Math.min(1, 0.4 + (volume / 50));
+                            } else {
+                                waves.style.opacity = '0.35';
+                            }
+                        }
+
+                        // Real-time Voice Activity Detection
+                        if (volume > 15) {
+                            speechDetected = true;
+                            silenceStart = null;
+                        } else if (speechDetected) {
+                            if (!silenceStart) {
+                                silenceStart = Date.now();
+                            } else if (Date.now() - silenceStart > 1100) {
+                                // 1.1s silence after user finished speaking -> auto-stop and transcribe!
+                                this.stopVoice();
+                                return;
+                            }
+                        } else if (Date.now() - startTime > 10000) {
+                            // 10s initial silence timeout
+                            this.stopVoice();
+                            return;
+                        }
+
+                        this.vadFrame = requestAnimationFrame(monitorAudio);
+                    };
+                    this.vadFrame = requestAnimationFrame(monitorAudio);
+                }
+            } catch(e) {}
+
+            // 4. Parallel Web Speech for real-time live preview words (when supported)
+            this.initSpeech();
+            if (this.recognition) {
+                try {
+                    this.recognition.start();
+                } catch(e) {}
+            }
+
+            // Safety watchdog: 14s window
+            if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
+            this.maxVoiceTimer = setTimeout(() => {
+                if (this.isListening) this.stopVoice();
+            }, 14000);
         },
 
         stopVoice() {
             this.isListening = false;
             if (this.silenceTimer) clearTimeout(this.silenceTimer);
             if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);
+            if (this.vadFrame && typeof cancelAnimationFrame !== 'undefined') {
+                cancelAnimationFrame(this.vadFrame);
+                this.vadFrame = null;
+            }
+            if (this.audioContext) {
+                try { this.audioContext.close(); } catch(e) {}
+                this.audioContext = null;
+            }
+            if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                try { this.mediaRecorder.stop(); } catch(e) {}
+            }
             if (typeof document !== 'undefined') {
                 const micToggle = document.getElementById('naviAssistantMicToggle');
                 if (micToggle) {
@@ -297,7 +501,6 @@
             if (this.recognition) {
                 const rec = this.recognition;
                 this.recognition = null;
-                // Detach listeners so manual abort does not trigger spurious error logs
                 rec.onerror = null;
                 rec.onend = null;
                 try { rec.abort(); } catch(e) {}
@@ -314,16 +517,7 @@
 
         toggleVoice() {
             if (this.isListening) {
-                // If user clicks while already speaking, immediately submit what was spoken!
-                if (this.lastSpokenText && this.lastSpokenText.trim().length > 2) {
-                    const toSend = this.lastSpokenText.trim();
-                    this.lastSpokenText = '';
-                    this.stopVoice();
-                    this.askNavi(toSend);
-                    return;
-                }
                 this.stopVoice();
-                this.setAssistantState('idle');
             } else {
                 this.startVoice();
             }

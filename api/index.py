@@ -284,10 +284,11 @@ async def transcribe_audio(file: UploadFile = File(...)):
     try:
         audio_bytes = await file.read()
         transcription = groq_client.audio.transcriptions.create(
-            file=(file.filename or "audio.wav", audio_bytes),
+            file=(file.filename or "audio.webm", audio_bytes),
             model="whisper-large-v3-turbo",
             response_format="json",
-            language="en"
+            language="en",
+            prompt="USTED Kumasi campus, ROB Block, Dr. Kotor Asare, Atwima Hall, Opoku Ware II Hall, Library, CBT, NFB, NLB"
         )
         return {"success": True, "text": transcription.text}
     except Exception as e:
