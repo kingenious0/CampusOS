@@ -3,141 +3,315 @@
   "features": [
     {
       "type": "Feature",
-      "properties": { "name": "Main Entrance Road", "type": "tarred" },
+      "properties": { "name": "Main Entrance Road", "type": "tarred", "highway": "primary" },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.6815, 6.6945],
-          [-1.6815, 6.6965],
-          [-1.6816, 6.6976],
-          [-1.68181, 6.6981],
-          [-1.68188, 6.6990],
-          [-1.68195, 6.7000],
-          [-1.68205, 6.7010],
-          [-1.68215, 6.7020]
+          [-1.68150, 6.69450],
+          [-1.68150, 6.69550],
+          [-1.68150, 6.69650],
+          [-1.68160, 6.69700],
+          [-1.68165, 6.69750],
+          [-1.68172, 6.69785],
+          [-1.68181, 6.69810],
+          [-1.68184, 6.69860],
+          [-1.68188, 6.69910],
+          [-1.68192, 6.69960],
+          [-1.68195, 6.70010],
+          [-1.68200, 6.70060],
+          [-1.68205, 6.70110],
+          [-1.68215, 6.70200]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "Academic Loop North", "type": "tarred" },
+      "properties": { "name": "West Campus Commercial Street", "type": "tarred", "highway": "secondary" },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.68205, 6.7010],
-          [-1.68100, 6.7011],
-          [-1.68000, 6.7011],
-          [-1.67900, 6.7005],
-          [-1.67800, 6.7004]
+          [-1.68215, 6.70200],
+          [-1.68223, 6.70100],
+          [-1.68223, 6.70083],
+          [-1.68223, 6.70045],
+          [-1.68242, 6.70039],
+          [-1.68250, 6.69960],
+          [-1.68258, 6.69870],
+          [-1.68248, 6.69830],
+          [-1.68240, 6.69810],
+          [-1.68235, 6.69770],
+          [-1.68232, 6.69742],
+          [-1.68220, 6.69677],
+          [-1.68190, 6.69680],
+          [-1.68160, 6.69700]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "Academic Loop South", "type": "tarred" },
+      "properties": { "name": "Library West Promenade", "type": "path", "highway": "footway", "pedestrian": true },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.68181, 6.6981],
+          [-1.68240, 6.69810],
+          [-1.68210, 6.69805],
+          [-1.68183, 6.69800]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Library Forecourt Path", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68181, 6.69810],
+          [-1.68183, 6.69800],
+          [-1.68183, 6.69785]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Library to Admin Walkway", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68183, 6.69785],
+          [-1.68165, 6.69785],
+          [-1.68165, 6.69750],
+          [-1.68145, 6.69720],
+          [-1.68136, 6.69690],
+          [-1.68160, 6.69700]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Library East Walkway", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68183, 6.69800],
+          [-1.68156, 6.69792],
+          [-1.68103, 6.69784],
+          [-1.68063, 6.69806],
+          [-1.68000, 6.69812]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Central Lawn Promenade", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68188, 6.69910],
+          [-1.68140, 6.69880],
+          [-1.68100, 6.69840],
+          [-1.68063, 6.69806]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic Quad North Walkway", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68207, 6.70045],
+          [-1.68195, 6.70010],
+          [-1.68160, 6.70020],
+          [-1.68129, 6.70042],
+          [-1.68080, 6.70030],
+          [-1.68046, 6.70022]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "CBT to FASME Walkway", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68046, 6.70022],
+          [-1.68050, 6.69950],
+          [-1.68055, 6.69880],
+          [-1.68063, 6.69806]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "ROB Connector", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68223, 6.70045],
+          [-1.68207, 6.70045],
+          [-1.68195, 6.70010],
+          [-1.68195, 6.70000]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Management Dept Connector", "type": "path", "highway": "footway", "pedestrian": true },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68223, 6.70083],
+          [-1.68223, 6.70100],
+          [-1.68205, 6.70110]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic Loop North", "type": "tarred", "highway": "primary" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68205, 6.70110],
+          [-1.68100, 6.70110],
+          [-1.68000, 6.70110],
+          [-1.67900, 6.70050],
+          [-1.67800, 6.70040],
+          [-1.67700, 6.69780]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Academic Loop South", "type": "tarred", "highway": "primary" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.68181, 6.69810],
           [-1.68100, 6.69811],
           [-1.68000, 6.69812],
-          [-1.67900, 6.6978],
-          [-1.67800, 6.6978],
-          [-1.67700, 6.6978]
+          [-1.67900, 6.69780],
+          [-1.67800, 6.69780],
+          [-1.67700, 6.69780]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "East Campus Connection (UBS)", "type": "tarred" },
+      "properties": { "name": "Auditorium & Technology Path", "type": "path", "highway": "footway", "pedestrian": true },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.67700, 6.6978],
-          [-1.67683, 6.6970],
+          [-1.68002, 6.69838],
+          [-1.68000, 6.69812],
+          [-1.67997, 6.69799],
+          [-1.68024, 6.69802]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "East Campus Clinic & Hostels Road", "type": "tarred", "highway": "secondary" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.67900, 6.69780],
+          [-1.67970, 6.69738],
+          [-1.67951, 6.69688],
+          [-1.67988, 6.69669],
+          [-1.68040, 6.69680],
+          [-1.68085, 6.69702],
+          [-1.68120, 6.69695],
+          [-1.68160, 6.69700]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "East Campus Connection (UBS)", "type": "tarred", "highway": "secondary" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.67700, 6.69780],
+          [-1.67683, 6.69700],
           [-1.67683, 6.69687]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "East Campus Road North", "type": "tarred" },
+      "properties": { "name": "East Campus Road North", "type": "tarred", "highway": "secondary" },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.67700, 6.6978],
-          [-1.6769, 6.6990],
-          [-1.6769, 6.7010],
-          [-1.67697, 6.7019]
+          [-1.67700, 6.69780],
+          [-1.67690, 6.69900],
+          [-1.67690, 6.70100],
+          [-1.67697, 6.70192]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "West Campus Loop", "type": "tarred" },
+      "properties": { "name": "North Academic Street (NLB / NFB / ESA)", "type": "tarred", "highway": "secondary" },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.68215, 6.7020],
-          [-1.6836, 6.7020],
-          [-1.68395, 6.7020],
-          [-1.68395, 6.7000],
-          [-1.68395, 6.69784]
+          [-1.68215, 6.70200],
+          [-1.68277, 6.70166],
+          [-1.68310, 6.70126],
+          [-1.68367, 6.70150],
+          [-1.68333, 6.70203],
+          [-1.68360, 6.70200]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "ROB Connector", "type": "path" },
+      "properties": { "name": "Credit Union & Sports Access Path", "type": "path", "highway": "footway", "pedestrian": true },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.68207, 6.70045],
-          [-1.68195, 6.7000]
+          [-1.68205, 6.70110],
+          [-1.68198, 6.70157],
+          [-1.68100, 6.70165],
+          [-1.68000, 6.70170],
+          [-1.67903, 6.70175],
+          [-1.67884, 6.70175],
+          [-1.67838, 6.70122],
+          [-1.67800, 6.70040]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "Library Path", "type": "path" },
+      "properties": { "name": "West Campus Loop (Halls of Residence)", "type": "tarred", "highway": "primary" },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.68183, 6.6980],
-          [-1.68181, 6.6981]
+          [-1.68215, 6.70200],
+          [-1.68360, 6.70200],
+          [-1.68395, 6.70200],
+          [-1.68395, 6.70000],
+          [-1.68395, 6.69862],
+          [-1.68395, 6.69778],
+          [-1.68356, 6.69762],
+          [-1.68335, 6.69756],
+          [-1.68320, 6.69784],
+          [-1.68288, 6.69784],
+          [-1.68240, 6.69810]
         ]
       }
     },
     {
       "type": "Feature",
-      "properties": { "name": "Clinic Connector", "type": "path" },
+      "properties": { "name": "Opoku Ware East Gate Connector", "type": "path", "highway": "footway", "pedestrian": true },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.6797, 6.6974],
-          [-1.6790, 6.6978]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Auditorium Path", "type": "path" },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [-1.6800, 6.69812],
-          [-1.67997, 6.69799]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Management Dept Connector", "type": "path" },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [-1.68223, 6.70083],
-          [-1.68205, 6.7010]
+          [-1.68288, 6.69784],
+          [-1.68220, 6.69784],
+          [-1.68235, 6.69770]
         ]
       }
     }

@@ -175,6 +175,21 @@
                     return;
                 }
 
+                const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+                if (err === 'network' || (isOffline && (err === 'no-speech' || err === 'network' || err === 'service-not-allowed'))) {
+                    this.stopVoice();
+                    this.setAssistantState('confused', {
+                        statusText: "Voice Offline",
+                        speechText: "Browser voice recognition needs an internet connection on this device. Type your query below — full campus search and directions work offline!"
+                    });
+                    const assistantInput = document.getElementById('naviAssistantInput');
+                    if (assistantInput) {
+                        assistantInput.focus();
+                        assistantInput.placeholder = "Type destination (works offline)...";
+                    }
+                    return;
+                }
+
                 // Smooth retry on momentary initial silence
                 if (err === 'no-speech') {
                     if (this.isListening && this.noSpeechRetries < 2) {
@@ -218,10 +233,23 @@
                 if (toSend && toSend.length > 1) {
                     this.askNavi(toSend);
                 } else if (this.isListening) {
-                    this.setAssistantState('confused', {
-                        statusText: "Didn't catch that",
-                        speechText: "I couldn't hear your voice. Tap the orb or type your query below."
-                    });
+                    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+                    if (isOffline) {
+                        this.setAssistantState('confused', {
+                            statusText: "Voice Offline",
+                            speechText: "Browser voice recognition requires internet on this device. Type your query below — full campus search and directions work offline!"
+                        });
+                        const assistantInput = document.getElementById('naviAssistantInput');
+                        if (assistantInput) {
+                            assistantInput.focus();
+                            assistantInput.placeholder = "Type destination (works offline)...";
+                        }
+                    } else {
+                        this.setAssistantState('confused', {
+                            statusText: "Didn't catch that",
+                            speechText: "I couldn't hear your voice. Tap the orb or type your query below."
+                        });
+                    }
                 }
             };
 
@@ -300,13 +328,23 @@
             this.audioChunks = [];
             this.isListening = true;
             this.isProcessingSpeech = false;
+            const isOnline = typeof navigator === 'undefined' || navigator.onLine;
+
             this.setAssistantState('listening', { 
-                statusText: 'Listening...', 
+                statusText: isOnline ? 'Listening...' : 'Listening (Offline)...', 
                 query: '',
                 speechText: ''
             });
 
-            // 1. Acquire and keep active microphone hardware stream
+            // 1. Initialize Speech Recognition early (essential for offline voice on mobile)
+            this.initSpeech();
+            if (this.recognition) {
+                try {
+                    this.recognition.start();
+                } catch(e) {}
+            }
+
+            // 2. Acquire and keep active microphone hardware stream
             let stream = null;
             if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
@@ -330,9 +368,9 @@
             }
 
             // Update UI elements
-            this.updateVoiceUI(true, '', 'Listening...');
+            this.updateVoiceUI(true, '', isOnline ? 'Listening...' : 'Listening (Offline)...');
             const statusBadge = document.getElementById('naviAssistantStatus');
-            if (statusBadge) statusBadge.textContent = 'Listening...';
+            if (statusBadge) statusBadge.textContent = isOnline ? 'Listening...' : 'Listening (Offline)...';
             const wavesEl = document.getElementById('naviAudioWaves');
             if (wavesEl) wavesEl.classList.add('active');
             const micToggle = document.getElementById('naviAssistantMicToggle');
@@ -341,7 +379,7 @@
                 micToggle.classList.add('active');
             }
 
-            // 2. Start hardware MediaRecorder for Groq Whisper STT
+            // 3. Start hardware MediaRecorder for cloud Whisper (when online)
             if (typeof MediaRecorder !== 'undefined' && stream) {
                 try {
                     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 
@@ -367,8 +405,9 @@
 
                         let spokenText = (this.lastSpokenText || '').trim();
 
-                        // Transcribe with Whisper if speech was short or WebSpeech didn't catch it
-                        if (!spokenText || spokenText.length < 3) {
+                        // Transcribe with Whisper if speech was short or WebSpeech didn't catch it (and online)
+                        const onlineNow = typeof navigator === 'undefined' || navigator.onLine;
+                        if ((!spokenText || spokenText.length < 3) && onlineNow) {
                             this.setAssistantState('thinking', { statusText: 'Transcribing speech...' });
                             const whisperText = await this.transcribeAudio(blob);
                             if (whisperText && whisperText.trim()) {
@@ -384,10 +423,22 @@
                             if (assistantInput) assistantInput.value = spokenText;
                             this.askNavi(spokenText);
                         } else {
-                            this.setAssistantState('confused', {
-                                statusText: "Didn't catch that",
-                                speechText: "I couldn't hear your voice clearly. Tap the orb or type your query below."
-                            });
+                            if (!onlineNow) {
+                                this.setAssistantState('confused', {
+                                    statusText: "Voice Offline",
+                                    speechText: "Browser voice recognition needs an internet connection on this device. Type your query below — full offline campus search & navigation work 100%!"
+                                });
+                                const assistantInput = document.getElementById('naviAssistantInput');
+                                if (assistantInput) {
+                                    assistantInput.focus();
+                                    assistantInput.placeholder = "Type destination (works offline)...";
+                                }
+                            } else {
+                                this.setAssistantState('confused', {
+                                    statusText: "Didn't catch that",
+                                    speechText: "I couldn't hear your voice clearly. Tap the orb or type your query below."
+                                });
+                            }
                         }
                     };
 
@@ -397,7 +448,7 @@
                 }
             }
 
-            // 3. AudioContext VAD (Voice Activity Detection) & Dynamic Wave Animator
+            // 4. AudioContext VAD (Voice Activity Detection) & Dynamic Wave Animator
             try {
                 const AudioCtx = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
                 if (AudioCtx && stream) {
@@ -454,14 +505,6 @@
                     this.vadFrame = requestAnimationFrame(monitorAudio);
                 }
             } catch(e) {}
-
-            // 4. Parallel Web Speech for real-time live preview words (when supported)
-            this.initSpeech();
-            if (this.recognition) {
-                try {
-                    this.recognition.start();
-                } catch(e) {}
-            }
 
             // Safety watchdog: 14s window
             if (this.maxVoiceTimer) clearTimeout(this.maxVoiceTimer);

@@ -184,10 +184,18 @@
             } else if (currentBearing !== null && nextBearing !== null) {
                 // Check if turn is needed
                 const turn = classifyTurn(nextBearing - currentBearing);
+                const roadName = (edge.metadata && edge.metadata.name) || '';
                 if (turn.type === 'turn') {
-                    const turnText = landmark
-                        ? `Turn ${turn.modifier} past ${landmark}`
-                        : `Turn ${turn.modifier}`;
+                    let turnText;
+                    if (roadName) {
+                        turnText = landmark 
+                            ? `Turn ${turn.modifier} onto ${roadName} (near ${landmark})`
+                            : `Turn ${turn.modifier} onto ${roadName}`;
+                    } else if (landmark) {
+                        turnText = `Turn ${turn.modifier} past ${landmark}`;
+                    } else {
+                        turnText = `Turn ${turn.modifier}`;
+                    }
                     steps.push({
                         maneuver: { type: 'turn', modifier: turn.modifier },
                         name: turnText,
@@ -197,9 +205,18 @@
                     });
                 } else {
                     // Continue along path
-                    const contText = (i === pathEdges.length - 1 && destName)
-                        ? `Continue straight towards ${destName}`
-                        : (landmark ? `Continue straight past ${landmark}` : 'Continue straight along the campus path');
+                    let contText;
+                    if (i === pathEdges.length - 1 && destName) {
+                        contText = `Continue straight towards ${destName}`;
+                    } else if (roadName) {
+                        contText = landmark
+                            ? `Follow ${roadName} past ${landmark}`
+                            : `Follow ${roadName}`;
+                    } else if (landmark) {
+                        contText = `Continue straight past ${landmark}`;
+                    } else {
+                        contText = 'Continue straight along the campus path';
+                    }
                     steps.push({
                         maneuver: { type: 'continue', modifier: 'straight' },
                         name: contText,
@@ -209,7 +226,13 @@
                     });
                 }
             } else {
-                const followText = landmark ? `Follow path past ${landmark}` : 'Follow campus path';
+                const roadName = (edge.metadata && edge.metadata.name) || '';
+                let followText;
+                if (roadName) {
+                    followText = landmark ? `Follow ${roadName} past ${landmark}` : `Follow ${roadName}`;
+                } else {
+                    followText = landmark ? `Follow path past ${landmark}` : 'Follow campus path';
+                }
                 steps.push({
                     maneuver: { type: 'continue', modifier: 'straight' },
                     name: followText,
