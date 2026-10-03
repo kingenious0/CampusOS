@@ -149,13 +149,13 @@ const ViewControllerModule = (() => {
             toggleBtn.classList.add('active-3d');
             toggleBtn.title = 'Switch to 2D Street Map';
             if (toggleLabel) {
-                toggleLabel.innerHTML = '<i class="fas fa-map" style="font-size:12px;margin-right:2px"></i> 2D';
+                toggleLabel.textContent = '2D';
             }
         } else {
             toggleBtn.classList.remove('active-3d');
             toggleBtn.title = 'Switch to 3D Campus View';
             if (toggleLabel) {
-                toggleLabel.innerHTML = '<i class="fas fa-cube" style="font-size:12px;margin-right:2px"></i> 3D';
+                toggleLabel.textContent = '3D';
             }
         }
     }

@@ -6,12 +6,12 @@
     <title>USTED NAV | Campus Navigation</title>
     <meta name="description" content="Find buildings, get directions and navigate USTED Kumasi campus.">
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/png" href="/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="USTED Nav" />
 
     <!-- Mapbox GL JS (The Premium Choice) -->
@@ -117,29 +117,17 @@
         }
 
         .fab-dim-toggle {
-            font-family: 'Inter', system-ui, sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            background: var(--surface);
-            color: var(--primary);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-        }
-        .fab-dim-toggle:hover {
-            transform: scale(1.05);
-            border-color: var(--primary-l);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: -0.3px;
+            color: #1e293b;
         }
         .fab-dim-toggle.active-3d {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: transparent;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+            color: #ffffff !important;
+            border-color: rgba(37, 99, 235, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45), 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
         }
 
         /* ── SIDEBAR STRIP (GOOGLE DESKTOP) ────── */
@@ -382,18 +370,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2px;
+            margin-bottom: 6px;
         }
         .navi-screen-orb {
             position: relative;
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            border: none;
+            border: 2.5px solid rgba(255, 255, 255, 0.9);
             outline: none;
             cursor: pointer;
             background: radial-gradient(circle at 35% 30%, #60a5fa 0%, #3b82f6 30%, #6366f1 65%, #33449b 100%);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45), 0 0 18px rgba(248, 181, 17, 0.35);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45), 0 0 20px rgba(248, 181, 17, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -403,15 +391,15 @@
             overflow: hidden;
         }
         .navi-screen-orb:hover {
-            transform: scale(1.08);
+            transform: scale(1.08) translateY(-2px);
             box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6), 0 0 28px rgba(248, 181, 17, 0.5);
         }
         .navi-screen-orb:active {
-            transform: scale(0.95);
+            transform: scale(0.94);
         }
         @keyframes orb-levitate {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-3px); }
         }
 
         .navi-screen-orb .orb-core {
@@ -1465,96 +1453,196 @@
         /* ── FLOATING ACTION BUTTONS ──────────── */
         .fabs {
             position: fixed;
-            bottom: 140px; /* Moved up significantly to clear attribution and scale */
-            right: 12px;
+            bottom: 36px;
+            right: 20px;
             z-index: 1001;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+            transition: bottom 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s ease, transform 0.25s ease;
+        }
+        .fabs > * {
+            pointer-events: auto;
         }
         .fab {
-            width: 40px; height: 40px;
-            border-radius: 50%; 
-            background: var(--surface); 
-            border: 1px solid var(--border);
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: var(--text);
-            box-shadow: var(--shadow);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            transition: all 0.2s ease;
-            pointer-events: auto;
+            font-size: 17px;
+            color: #1e293b;
+            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -1px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .fab:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
-        .fab:active { transform: scale(.95); }
+        .fab:hover {
+            background: #ffffff;
+            color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.16);
+        }
+        .fab:active {
+            transform: scale(0.93);
+            background: #f8fafc;
+        }
+
+        .fab-dim-toggle {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: -0.3px;
+            color: #1e293b;
+        }
+        .fab-dim-toggle.active-3d {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+            color: #ffffff !important;
+            border-color: rgba(37, 99, 235, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45), 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+        }
+
+        .fab-locate {
+            color: #1e293b;
+        }
+        .fab-locate.tracking {
+            color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 4px 16px rgba(37, 99, 235, 0.35);
+        }
 
         .zoom-ctrl {
             display: flex;
             flex-direction: column;
-            background: var(--surface);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border);
-            border-radius: 20px;
+            width: 44px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 22px;
             overflow: hidden;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -1px rgba(15, 23, 42, 0.06);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .zoom-ctrl:hover {
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.16);
         }
         .zoom-btn {
-            width: 40px; height: 40px;
+            width: 44px;
+            height: 42px;
             border: none;
             background: transparent;
-            color: var(--text);
+            color: #1e293b;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            transition: background 0.2s;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.15s ease, color 0.15s ease;
         }
-        .zoom-btn:hover { background: rgba(255, 255, 255, 0.15); }
-        .zoom-btn:first-child { border-bottom: 1px solid var(--border); }
+        .zoom-btn:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: #2563eb;
+        }
+        .zoom-btn:active {
+            background: rgba(0, 0, 0, 0.08);
+            transform: scale(0.95);
+        }
+        .zoom-btn:first-child {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
 
         /* ── LAYERS TOGGLE (BOTTOM LEFT) ────────── */
         .fab-layers-container {
             position: fixed;
-            bottom: 84px; /* Above the scale/attribution */
-            left: 12px;
+            bottom: 36px;
+            left: 20px;
             z-index: 1001;
             pointer-events: auto;
-            transition: transform 0.4s cubic-bezier(.4,1,0.2,1);
+            transition: all 0.35s cubic-bezier(.4,1,0.2,1);
         }
         /* Elevate when sheet is open on mobile */
         body.sheet-active .fab-layers-container {
             transform: translateY(-40dvh);
         }
         .fab-layers {
-            background: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            padding: 4px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            padding: 5px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            transition: background 0.2s;
+            gap: 3px;
+            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -1px rgba(15, 23, 42, 0.06);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .fab-layers:hover { background: #f8f9fa; }
+        .fab-layers:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.16);
+        }
+        .fab-layers:active {
+            transform: scale(0.95);
+        }
         .fab-layers img {
-            width: 32px; height: 32px;
-            border-radius: 4px;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
             object-fit: cover;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
         .fab-layers-label {
-            font-size: 9px;
-            font-weight: 600;
-            color: #3c4043;
+            font-size: 10px;
+            font-weight: 700;
+            color: #1e293b;
             text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        @media (max-width: 767px) {
+            .fabs {
+                right: 12px;
+                bottom: calc(96px + env(safe-area-inset-bottom));
+                gap: 10px;
+            }
+            .fab-layers-container {
+                left: 12px;
+                bottom: calc(96px + env(safe-area-inset-bottom));
+            }
+            .fab {
+                width: 42px;
+                height: 42px;
+                min-width: 42px;
+                min-height: 42px;
+                font-size: 16px;
+            }
+            .fab-dim-toggle {
+                font-size: 13px;
+            }
+            .zoom-ctrl {
+                width: 42px;
+                border-radius: 21px;
+            }
+            .zoom-btn {
+                width: 42px;
+                height: 39px;
+            }
+            .navi-screen-orb {
+                width: 48px;
+                height: 48px;
+            }
         }
 
         /* ── BOTTOM SHEET ─────────────────────── */
@@ -1978,8 +2066,9 @@
             }
             body.state-route-preview.sheet-expanded .fabs,
             body.sheet-expanded .fabs {
-                opacity: 0.15;
-                pointer-events: none;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transform: translateY(12px) scale(0.95);
             }
         }
         body.state-navigating .top-bar {
@@ -2547,17 +2636,14 @@
         </div>
 
         <button class="fab fab-dim-toggle" id="btnDimToggle" title="Switch to 3D Campus View" aria-label="Toggle 2D or 3D View">
-            <span id="dimToggleLabel"><i class="fas fa-cube" style="font-size:12px;margin-right:2px"></i> 3D</span>
+            <span id="dimToggleLabel">3D</span>
         </button>
-        <button class="fab" id="btnTheme" title="Toggle Light/Dark Theme" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme">
-            <i class="fas fa-moon"></i>
-        </button>
-        <button class="fab fab-locate" id="btnLocate" title="Use My Location">
+        <button class="fab fab-locate" id="btnLocate" title="Use My Location" aria-label="Find My Current Location">
             <i class="fas fa-location-crosshairs"></i>
         </button>
         <div class="zoom-ctrl">
-            <button class="zoom-btn" onclick="handleZoomIn()" title="Zoom In"><i class="fas fa-plus"></i></button>
-            <button class="zoom-btn" onclick="handleZoomOut()" title="Zoom Out"><i class="fas fa-minus"></i></button>
+            <button class="zoom-btn" onclick="handleZoomIn()" title="Zoom In" aria-label="Zoom In"><i class="fas fa-plus"></i></button>
+            <button class="zoom-btn" onclick="handleZoomOut()" title="Zoom Out" aria-label="Zoom Out"><i class="fas fa-minus"></i></button>
         </div>
     </div>
 
@@ -2743,74 +2829,17 @@
     let isDarkTheme = false;
 
     function initTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        isDarkTheme = savedTheme === 'dark';
-        if (savedTheme === null) {
-            isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        }
-        
-        if (isDarkTheme) {
-            document.body.classList.add('dark-theme');
-            const themeBtn = document.getElementById('btnTheme');
-            if (themeBtn) {
-                const icon = themeBtn.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-sun';
-                }
-            }
-        }
+        try {
+            localStorage.removeItem('theme');
+        } catch (e) {}
+        isDarkTheme = false;
+        document.body.classList.remove('dark-theme');
     }
 
     window.toggleTheme = function() {
-        isDarkTheme = !isDarkTheme;
-        localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
-        
-        if (isDarkTheme) {
-            document.body.classList.add('dark-theme');
-        } else {
-            document.body.classList.remove('dark-theme');
-        }
-        
-        const themeBtn = document.getElementById('btnTheme');
-        if (themeBtn) {
-            const icon = themeBtn.querySelector('i');
-            if (icon) {
-                icon.className = isDarkTheme ? 'fas fa-sun' : 'fas fa-moon';
-            }
-        }
-        
-        if (map && !isSatellite) {
-            const style = isDarkTheme ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/streets-v12';
-            
-            map.once('styledata', () => {
-                add3DBuildings();
-                // Restore active route if it exists
-                if (_route.geometry) {
-                    if (map.getSource('route')) {
-                        map.getSource('route').setData(_route.geometry);
-                    } else {
-                        map.addSource('route', { type: 'geojson', data: _route.geometry });
-                    }
-                    
-                    const routeColor = travelMode === 'driving' ? '#f59e0b' : '#4338ca';
-                    if (!map.getLayer('route-line')) {
-                        map.addLayer({
-                            id: 'route-line', type: 'line', source: 'route',
-                            layout: { 'line-join': 'round', 'line-cap': 'round' },
-                            paint: { 'line-color': routeColor, 'line-width': 6, 'line-opacity': 0.8 }
-                        });
-                        map.addLayer({
-                            id: 'route-dash', type: 'line', source: 'route',
-                            paint: { 'line-color': '#fff', 'line-width': 2, 'line-dasharray': [2, 4], 'line-opacity': 0.5 }
-                        });
-                    }
-                }
-            });
-            
-            map.setStyle(style);
-        }
-        
-        showToast(isDarkTheme ? 'Dark theme enabled' : 'Light theme enabled');
+        // Maps are permanently light mode per design
+        isDarkTheme = false;
+        document.body.classList.remove('dark-theme');
     };
 
     // ══════════════════════════════════════════
@@ -2825,8 +2854,8 @@
         
         initTheme();
         
-        // DATA SAVING POLICY: Street/Dark view by default for all users depending on theme preference
-        const defaultStyle = isDarkTheme ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/streets-v12';
+        // Permanent default: crisp daylight streets view
+        const defaultStyle = 'mapbox://styles/mapbox/streets-v12';
         isSatellite = false;
 
         map = new mapboxgl.Map({
@@ -5196,7 +5225,7 @@
             }
 
             isSatellite = !isSatellite;
-            const style = isSatellite ? 'mapbox://styles/mapbox/satellite-streets-v12' : (isDarkTheme ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/streets-v12');
+            const style = isSatellite ? 'mapbox://styles/mapbox/satellite-streets-v12' : 'mapbox://styles/mapbox/streets-v12';
             
             // ELITE RE-RENDER: setStyle wipes all data, we must restore route and buildings
             map.once('styledata', () => {
